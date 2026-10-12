@@ -12,5 +12,3 @@ sites/dni/fixtures/real-*.html
 sites/hacienda/fixtures/*.html
 sites/registro-asociaciones/fixtures/*.html
 .astro
-# Escaño Abierto con Sol: copia tal cual de github.com/jorgegarcelan/escano-abierto (rama estetica-reforma)
-apps/web/public/new-escanoabierto/web

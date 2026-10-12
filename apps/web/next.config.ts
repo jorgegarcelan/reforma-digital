@@ -26,24 +26,5 @@ const config: NextConfig = {
       { source: '/propuesta', destination: '/#iniciativa', permanent: true },
     ];
   },
-  // Rediseño de Escaño Abierto (public/new-escanoabierto/web): los datos vienen de la web publicada y cada ruta de
-  // la SPA sirve su index.html.
-  rewrites() {
-    return {
-      beforeFiles: [], // withBotId añade aquí los suyos
-      afterFiles: [
-        {
-          source: '/new-escanoabierto/web/datos/:path*',
-          destination: 'https://www.escanoabierto.com/datos/:path*',
-        },
-      ],
-      fallback: [
-        {
-          source: '/new-escanoabierto/web/:path*',
-          destination: '/new-escanoabierto/web/index.html',
-        },
-      ],
-    };
-  },
 };
 export default withBotId(config);
