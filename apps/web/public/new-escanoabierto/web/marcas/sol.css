@@ -1,0 +1,998 @@
+/* Marca Sol: el sistema de diseño de Reforma Digital (reforma-digital.es) aplicado a Escaño.
+   Los valores son los suyos: marcas/sol/tokens.css y marcas/sol/botones.css, copiados sin cambios, y las medidas de su
+   web (cabecera, hero, secciones y pie de apps/web/components/sol; ver marcas/sol/LEEME.md). Esta hoja traduce las
+   variables de Escaño a las de Sol y compone la web como la suya: la portada en el atardecer con la cabecera dentro,
+   secciones con etiqueta roja y titular en serif, piezas del atardecer junto al texto y el pie del amarillo al naranja.
+   Titulares y cifras grandes en serif, lo demás en Geist y los datos y etiquetas en Geist Mono. Sin modo oscuro, como
+   Sol. index.html la carga en lugar de marcador.css, con class="sol-raiz" y data-marca="sol" en <html>; marcas/sol.js
+   cambia las flechas de texto por sus iconos. */
+
+/* Sol pone la serif a 400 y su titular de pago no se sirve (se ve Georgia). Las cifras de la web piden 800–900
+   (pensadas para Doto): esta cara dice cubrir todos los pesos con la Georgia normal, así el navegador no la engorda. */
+@font-face{font-family:"Sol Serif";src:local("Georgia");font-weight:100 900;font-style:normal}
+
+html:root[data-marca="sol"]{
+  color-scheme:light;
+  /* Sol las espera de next/font; aquí Geist y Geist Mono llegan de Google Fonts (index.html). */
+  --font-geist:"Geist"; --font-geist-mono:"Geist Mono";
+  /* Escaño → Sol */
+  --bg:var(--blanco); --surface:var(--blanco); --sunk:var(--superficie); --ink:var(--tinta); --muted:var(--tinta-2);
+  --line:var(--linea); --line-strong:var(--tinta-3); --sub:var(--ambar-claro); --on-vote:var(--blanco);
+  --sans:var(--font-texto); --mono:var(--font-mono);
+  --serif:var(--font-texto);              /* citas y texto corrido: Sol nunca usa la serif ahí */
+  --display:"Sol Serif",var(--font-titular);
+  /* Las cifras, en Geist Mono como en su web (.t-dato): la Georgia del sistema solo tiene números de estilo antiguo,
+     de alturas desiguales. Su titular de pago sí los tendría; mientras no se sirva, las cifras no van en serif. */
+  --led:var(--font-mono);
+  --r-card:var(--r-20); --r-card-lg:var(--r-28); --r-pill:var(--r-pildora); --r-ctl:var(--r-12); --r-chip:6px;
+  --ancho:1200px;                         /* la retícula de Sol (su --ancho, que esta hoja pisa con el mismo valor) */
+  --sombra:0 0 0 1px var(--linea);         /* las cajas, como su .caja-plana: un anillo de 1 px en vez de borde */
+  --borde:0px;
+  /* El sentido del voto conserva sus colores de siempre: el rojo de Sol es de marca, no de «no». */
+  --si:#2F8A5B; --no:#C23B2E; --abst:#C9962A; --nv:#A39DA3;
+  /* Lo que sale del ancho de la retícula hasta 8 px del borde de la ventana (el hero y el pie de Sol) */
+  --a-sangre:calc(50% - 50vw + var(--e-8));
+  /* El chevrón pixelado de Sol, para los enlaces que lo llevan por CSS */
+  --chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 0h3v3H4zM7 3h3v3H7zM10 6h3v3h-3zM7 9h3v3H7zM4 12h3v3H4z'/%3E%3C/svg%3E");
+}
+html[data-marca="sol"] body{font-size:16px;line-height:1.55;padding-bottom:var(--e-8);overflow-x:clip}
+/* Geist Mono llega en 400 y 500 (los pesos de Sol): las cifras que piden 800–900 (pensadas para Doto) se quedan en 500
+   en vez de engordarse a la fuerza. */
+html[data-marca="sol"]{font-synthesis-weight:none}
+html[data-marca="sol"] .wrap{position:relative}
+
+/* ---------- tipografía (sus .t-titular, .t-texto-l, .t-etiqueta y .t-dato) ---------- */
+html[data-marca="sol"] :is(h1,h2){font-weight:400;letter-spacing:-.02em}
+html[data-marca="sol"] h3{font-family:var(--font-texto);font-weight:500;letter-spacing:-.01em}
+html[data-marca="sol"] :is(.view-intro h2,.sec-h h2,.ficha-top h2){font-size:clamp(32px,4vw,52px);line-height:1.05}
+html[data-marca="sol"] .eyebrow{font-family:var(--font-mono);font-size:12px;font-weight:500;line-height:1.3;letter-spacing:.08em;color:var(--rojo)}
+html[data-marca="sol"] :is(th,.organ,.vc-s,.date .m,.date .w){font-family:var(--font-mono);letter-spacing:.06em}
+/* La línea de cada votación (fecha · tipo · quién · expediente): Geist 14 en tinta-3, no toda en mono */
+html[data-marca="sol"] :is(.vote-h .sub,.hv-sub){font:400 14px/1.45 var(--font-texto);letter-spacing:0;color:var(--tinta-3)}
+html[data-marca="sol"] th{font-size:11px;font-weight:500;text-transform:uppercase}
+/* Las cifras grandes y las de listas y tablas, en mono (.t-dato de Sol). */
+html[data-marca="sol"] :is(.kpi b,.hemi-center b,.vcard .vc-n,.date .d,.repro-res b,.comp-pct,.qld-num,.geo-cifras b,.geo-caja .num){font-family:var(--led);font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+html[data-marca="sol"] :is(.th-row .n,.decide-row .n,.rank-row .n){font-family:var(--font-mono);font-weight:400;font-variant-numeric:tabular-nums;letter-spacing:0}
+html[data-marca="sol"] blockquote mark{background:none;color:inherit;box-shadow:inset 0 -.42em 0 color-mix(in srgb,var(--amarillo) 45%,transparent);padding:0 .1em}
+
+/* ---------- iconos: los chevrones pixelados de Sol (marcas/sol.js cambia las flechas de texto) ---------- */
+html[data-marca="sol"] .icono{flex:none;display:inline-block;vertical-align:-.12em}
+/* Las flechas cambiadas por sol.js miden siempre lo mismo: algunos módulos dan tamaño a todo svg de su caja */
+html[data-marca="sol"] svg.icono:is(.icono-fin,.icono-ini){width:14px!important;height:14px!important;max-height:none!important}
+html[data-marca="sol"] .icono-fin{margin-left:.4em}
+html[data-marca="sol"] .icono-ini{margin-right:.4em}
+html[data-marca="sol"] :is(.btn,.boton,.boton-claro,.chipbtn) .icono:is(.icono-fin,.icono-ini){margin:0}
+/* Los enlaces de texto, como su .in-enlace: subrayado y, detrás, el chevrón. */
+html[data-marca="sol"] .linklike{font-weight:500;text-decoration-color:color-mix(in srgb,currentColor 40%,transparent);text-underline-offset:.25em}
+html[data-marca="sol"] .linklike:hover{text-decoration-color:currentColor}
+html[data-marca="sol"] :is(.sec-h,.face-foot,.hero-cta,.hero-vote,.sol-manifiesto,.elh-links,.view-intro) .linklike:not(:has(.icono))::after{
+  content:"";display:inline-block;width:12px;height:12px;margin-left:.45em;vertical-align:-.05em;background:currentColor;
+  -webkit-mask:var(--chevron) center/contain no-repeat;mask:var(--chevron) center/contain no-repeat}
+
+/* ---------- cabecera: la suya (80 px, sin bordes; enlaces .boton-fantasma y la acción en .boton-claro) ---------- */
+/* Fija arriba y de lado a lado de la ventana (el contenido, en la retícula): una caja del ancho de la retícula flotaría
+   sobre el pie amarillo al bajar. */
+html[data-marca="sol"] .topbar{margin-inline:calc(50% - 50vw);padding-inline:calc(50vw - 50%);background:color-mix(in srgb,var(--blanco) 92%,transparent);backdrop-filter:saturate(160%) blur(12px);-webkit-backdrop-filter:saturate(160%) blur(12px);border-bottom:0}
+html[data-marca="sol"] .topbar-in{min-height:80px;gap:var(--e-8)}
+html[data-marca="sol"] .brand{margin-right:auto;color:var(--tinta)}
+html[data-marca="sol"] .brand .logo{height:28px;aspect-ratio:96/53.2;background:var(--rojo);-webkit-mask:url(../marca/simbolo-tinta.svg) no-repeat center/contain;mask:url(../marca/simbolo-tinta.svg) no-repeat center/contain}
+/* El nombre en dos líneas, como «Reforma / Digital». */
+html[data-marca="sol"] .brand .nombre{display:block;font:600 15px/1.02 var(--font-texto);letter-spacing:-.01em;white-space:normal;max-width:7ch}
+html[data-marca="sol"] nav.tabs{margin-left:0;align-self:center;gap:var(--e-4);overflow:visible}
+html[data-marca="sol"] nav.tabs>button{min-height:44px;padding:0 var(--e-12);border:0;color:inherit;font:500 15px var(--font-texto);gap:6px}
+html[data-marca="sol"] nav.tabs>button.activa{background:color-mix(in srgb,currentColor 8%,transparent)}
+html[data-marca="sol"] nav.tabs .chev{opacity:1;transition:transform var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] .tab-29n{background:var(--rojo);color:var(--blanco);border-radius:var(--r-pildora);padding:1px 6px;font-family:var(--font-mono)}
+html[data-marca="sol"] .tab-panel{border-color:var(--linea);border-radius:var(--r-20);box-shadow:var(--sombra-flota);padding:var(--e-8)}
+html[data-marca="sol"] .tab-item{border-radius:var(--r-12);padding:10px 14px}
+html[data-marca="sol"] .tab-item.activa b::after{background:var(--rojo)}
+html[data-marca="sol"] .btn-buscar{min-height:44px;margin-left:var(--e-8);padding:0 var(--e-16);font-size:15px;color:var(--tinta)}
+html[data-marca="sol"] .btn-buscar kbd{border-radius:6px;background:var(--superficie);border:0;font-family:var(--font-mono)}
+/* El menú del móvil: el círculo blanco con «+» de su cabecera, que gira a «×» al abrirse. */
+html[data-marca="sol"] .btn-menu{width:44px;height:44px;padding:0;border:0;border-radius:50%;color:var(--tinta)}
+/* .boton-claro lo pone en inline-flex: como en la hoja base, solo cuando la barra no cabe */
+html[data-marca="sol"] .btn-menu{display:none}
+@media (max-width:1200px){ html[data-marca="sol"] .btn-menu{display:inline-flex} }
+html[data-marca="sol"] .btn-menu .icono{transition:transform 420ms var(--curva-salida)}
+html[data-marca="sol"] .btn-menu[aria-expanded="true"] .icono{transform:rotate(45deg)}
+/* El periodo: siempre una franja compacta en píldora, con su anillo (los atajos en un control segmentado, los meses
+   como barras bajitas del alto de sus votaciones y el resumen con las cifras en mono). Al bajar se queda pegada bajo
+   la cabecera y flota, con la sombra y el desenfoque de la cabecera. */
+html:root[data-marca="sol"]{--alto-barra:80px}
+html:root[data-marca="sol"].en-portada{--alto-barra:0px}
+html[data-marca="sol"] .periodo-bar{top:calc(var(--alto-barra) + var(--e-8));gap:var(--e-8) var(--e-20);margin-top:var(--e-16);padding:var(--e-4) var(--e-4) var(--e-4) var(--e-16);
+  border:0;border-radius:var(--r-pildora);background:var(--blanco);box-shadow:0 0 0 1px var(--linea);font-size:13px;color:var(--tinta-2)}
+/* Pegada: translúcida, como un cristal (se ve pasar el contenido debajo, desenfocado) */
+html[data-marca="sol"] .periodo-bar.pegada{background:rgb(255 255 255 / .6);
+  -webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px);
+  box-shadow:0 0 0 1px rgb(255 255 255 / .5),0 2px 4px rgba(120,40,0,.06),0 18px 40px -12px rgba(120,40,0,.14)}
+html[data-marca="sol"] .periodo-bar.pegada .pb-seg{background:rgb(34 34 34 / .06)}
+html[data-marca="sol"] .periodo-bar.pegada .pb-seg button[aria-pressed="true"]{background:rgb(255 255 255 / .9)}
+html[data-marca="sol"] .periodo-bar.pegada .pb-barras i{background:rgb(34 34 34 / .16)}
+html[data-marca="sol"] .periodo-bar.pegada .pb-barras button.sel i{background:var(--tinta)}
+html[data-marca="sol"] .periodo-bar.pegada .pb-barras button[aria-pressed="true"] i{background:var(--rojo)}
+@media (prefers-reduced-motion:no-preference){ html[data-marca="sol"] .periodo-bar.pegada{animation:sol-entra 240ms var(--curva-salida)} }
+html[data-marca="sol"] .pb-k{font:500 11px var(--font-mono);letter-spacing:.08em;color:var(--tinta-3)}
+html[data-marca="sol"] .pb-seg{padding:3px;background:var(--superficie)}
+html[data-marca="sol"] .pb-seg button{min-height:32px;padding:0 var(--e-16);font:500 14px var(--font-texto);color:var(--tinta-2);
+  transition:background var(--t-medio) var(--curva-salida),color var(--t-rapido) var(--curva-salida),box-shadow var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] .pb-seg button:hover{color:var(--tinta)}
+html[data-marca="sol"] .pb-seg button[aria-pressed="true"]{background:var(--blanco);color:var(--tinta);box-shadow:var(--sombra-suave)}
+html[data-marca="sol"] .pb-barras{gap:3px;height:18px}
+html[data-marca="sol"] .pb-barras i{border-radius:0;background:#dcdcdc;transition:background var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] .pb-barras button:hover i{background:var(--tinta-3)}
+html[data-marca="sol"] .pb-barras button.sel i{background:var(--tinta)}
+html[data-marca="sol"] .pb-barras button[aria-pressed="true"] i{background:var(--rojo)}
+html[data-marca="sol"] .periodo-bar{flex-wrap:nowrap}
+html[data-marca="sol"] .pb-meses{flex:1 1 120px;min-width:0;max-width:440px}
+html[data-marca="sol"] #periodo-info{margin-left:auto;padding-right:var(--e-12);white-space:nowrap}
+@media (max-width:860px){ html[data-marca="sol"] .periodo-bar{flex-wrap:wrap} }
+html[data-marca="sol"] #periodo-info b{font:500 13.5px var(--font-mono);color:var(--tinta)}
+/* En el móvil: los atajos arriba y los meses debajo, en una caja de radio 20; el resumen fuera (lo dice el control) */
+@media (max-width:860px){
+  html[data-marca="sol"] .periodo-bar{padding:var(--e-8);border-radius:var(--r-20)}
+  html[data-marca="sol"] :is(.pb-k,#periodo-info){display:none}
+  html[data-marca="sol"] .pb-seg{max-width:100%;overflow-x:auto;scrollbar-width:none}
+  html[data-marca="sol"] .pb-meses{flex-basis:100%;max-width:none;padding:0 var(--e-4) var(--e-4)}
+}
+@media (max-width:720px){ html:root[data-marca="sol"]:not(.en-portada){--alto-barra:64px} }
+
+/* En Inicio la cabecera vive dentro del hero, en blanco, y se va con él al bajar (como en su portada). */
+html[data-marca="sol"].en-portada .topbar{position:absolute;top:var(--e-8);left:0;right:0;margin:0;padding:0;background:none;backdrop-filter:none;-webkit-backdrop-filter:none;color:var(--blanco);--foco:var(--blanco)}
+html[data-marca="sol"].en-portada .brand{color:var(--blanco)}
+html[data-marca="sol"].en-portada .brand .logo{background:var(--blanco)}
+html[data-marca="sol"].en-portada nav.tabs>button:hover::before{opacity:.16}
+html[data-marca="sol"].en-portada nav.tabs>button.activa{background:color-mix(in srgb,var(--blanco) 16%,transparent)}
+html[data-marca="sol"].en-portada .tab-29n{background:var(--blanco);color:var(--rojo)}
+html[data-marca="sol"].en-portada .btn-buscar{box-shadow:none}
+
+/* El logo de Reforma Digital en la barra, en todas las páginas: junto al de Escaño y separado por una raya fina, como
+   su logotipo (la R y «Reforma / Digital» en dos líneas, del alto de la R). Sobre blanco, la R en rojo y el texto en
+   tinta; en la portada, dentro del atardecer, todo en blanco (la esquina doblada sigue en --doblez). */
+html[data-marca="sol"] .brand{margin-right:0}
+html[data-marca="sol"] .brand-rd{display:inline-flex;align-items:center;gap:8px;min-height:44px;margin:0 auto 0 var(--e-4);padding-left:var(--e-16);
+  border-left:1px solid var(--linea);color:var(--tinta);text-decoration:none;
+  font:700 14px/.92 var(--font-logo,var(--font-texto));letter-spacing:-.01em}
+html[data-marca="sol"] .brand-rd svg{color:var(--rojo)}
+html[data-marca="sol"] .brand-rd span{display:block}
+html[data-marca="sol"].en-portada .brand-rd{border-left-color:color-mix(in srgb,var(--blanco) 40%,transparent);color:var(--blanco)}
+html[data-marca="sol"].en-portada .brand-rd svg{color:var(--blanco)}
+/* Donde la barra va justa (hasta 1360 px, y en el móvil), solo la R */
+@media (max-width:1360px){ html[data-marca="sol"] .brand-rd span{display:none} html[data-marca="sol"] .brand-rd{padding-left:var(--e-12)} }
+
+/* ---------- portada: su hero (.in-hero): atardecer, 8 px de margen, radio 28, titular centrado ---------- */
+html[data-marca="sol"] .sol-portada{
+  position:relative;display:flex;flex-direction:column;min-height:688px;margin:var(--e-8) var(--a-sangre) 0;
+  border-radius:var(--r-28);background:var(--atardecer);color:var(--blanco);--foco:var(--blanco);
+}
+html[data-marca="sol"] .sol-portada-in{
+  flex:1;display:flex;flex-direction:column;justify-content:center;width:100%;max-width:var(--ancho);margin-inline:auto;
+  padding:calc(80px + var(--e-40)) var(--margen) calc(var(--e-80) + 44px);text-align:center;
+}
+html[data-marca="sol"] .sol-portada h1{max-width:25ch;margin:0 auto var(--e-32);font:400 clamp(36px,5vw,72px)/1.08 var(--display);letter-spacing:-.02em;color:var(--blanco)}
+html[data-marca="sol"] .sol-portada p{max-width:64ch;margin:0 auto var(--e-16);font-size:clamp(16px,1.2vw,17px);line-height:1.6}
+/* Centrado sin transform (el botón lo usa para la pulsación); píldora translúcida sobre el naranja, foco en tinta. */
+html[data-marca="sol"] .sol-portada-enlace{position:absolute;bottom:var(--e-24);inset-inline:0;width:fit-content;margin-inline:auto;--foco:var(--tinta);
+  background:color-mix(in oklch,var(--blanco) 35%,transparent);box-shadow:none;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+html[data-marca="sol"] .sol-portada-enlace::before{background:color-mix(in oklch,var(--blanco) 30%,transparent)}
+
+/* ---------- secciones: las suyas (96 px de aire, etiqueta roja, titular serif, lectura en tinta-2) ---------- */
+html[data-marca="sol"] .sec{padding-top:var(--e-96);gap:var(--e-20)}
+html[data-marca="sol"] .sec-h{align-items:end;gap:var(--e-12) var(--e-32);margin-bottom:var(--e-8)}
+html[data-marca="sol"] .sec-h p{font-size:16px;line-height:1.6;color:var(--tinta-2);max-width:52ch}
+html[data-marca="sol"] .sec-h :is(.linklike,a){font-size:15px}
+html[data-marca="sol"] .view-intro{gap:var(--e-16) var(--e-32);padding-top:var(--e-40)}
+html[data-marca="sol"] .view-intro p{font-size:18px;line-height:1.6;color:var(--tinta-2);max-width:65ch}
+
+/* El último pleno: como un proyecto de su portada, el texto a la izquierda y la votación sobre una pieza del atardecer. */
+html[data-marca="sol"] .hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,5vw,64px);align-items:center;padding:var(--e-80) 0 0;scroll-margin-top:var(--e-24)}
+html[data-marca="sol"] .hero-texto{display:grid;gap:var(--e-20);align-content:center}
+html[data-marca="sol"] .hero-h{margin:0;font-size:clamp(32px,3.6vw,48px);line-height:1.06;letter-spacing:-.02em;color:var(--tinta)}
+html[data-marca="sol"] .hero-lede{margin:0;font-size:clamp(17px,1.4vw,19px);line-height:1.6;color:var(--tinta-2);text-wrap:pretty}
+html[data-marca="sol"] .hero-cta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--e-8) var(--e-24);margin-top:var(--e-8)}
+/* Lo que se votó: filas de línea fina, como sus fuentes oficiales (.in-fuente). */
+html[data-marca="sol"] .hero-votos{display:grid;gap:var(--e-8);justify-items:start}
+html[data-marca="sol"] .hero-votos .eyebrow{color:var(--tinta-3)}
+html[data-marca="sol"] .hero-votos ul{list-style:none;margin:0;padding:0;width:100%;border-top:1px solid var(--linea)}
+html[data-marca="sol"] .hero-votos li button{display:grid;grid-template-columns:auto 7.5ch minmax(0,1fr);align-items:center;gap:var(--e-12);width:100%;min-height:52px;padding:var(--e-8) 0;border:0;border-bottom:1px solid var(--linea);background:none;color:var(--tinta);font:inherit;text-align:left;cursor:pointer}
+html[data-marca="sol"] .hero-votos .res{justify-self:start;border-radius:var(--r-pildora);padding:3px 9px;font-size:11px}
+html[data-marca="sol"] .hero-votos .hv-n{font:500 15px var(--font-mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+/* Dos líneas: los títulos de un mismo día suelen empezar igual («RDL 26/2026 por el que se adoptan…»). */
+html[data-marca="sol"] .hero-votos .hv-tt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:14.5px;line-height:1.4;color:var(--tinta-2)}
+html[data-marca="sol"] .hero-votos li button:hover .hv-tt{color:var(--tinta);text-decoration:underline;text-underline-offset:.25em}
+/* La pieza, como el marco de sus proyectos (.rc-marco): gris, con un sol que asoma por abajo detrás y la tarjeta que
+   sale por el borde de abajo, como su navegador (.rc-pieza-web). */
+html[data-marca="sol"] .hero-pieza{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:flex-end;align-self:stretch;min-height:560px;
+  padding:clamp(32px,6%,56px) clamp(32px,11%,72px) 0;border-radius:var(--r-28);background:var(--superficie)}
+html[data-marca="sol"] .hero-pieza::before{content:"";position:absolute;z-index:-1;left:50%;top:30%;width:96%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 50% 22%,#ffd34d 0%,var(--amarillo) 36%,var(--naranja) 100%);transform:translateX(-50%)}
+html[data-marca="sol"] .hero-vote{width:100%;gap:var(--e-12);color:var(--tinta);border:0;border-radius:var(--r-20) var(--r-20) 0 0;box-shadow:var(--sombra-flota);padding:0 var(--e-24) var(--e-24)}
+/* La barra de la tarjeta (su .rc-navegador-barra): qué votación es y cómo acabó. */
+html[data-marca="sol"] .hv-barra{display:flex;align-items:center;justify-content:space-between;gap:var(--e-12);min-height:52px;margin:0 calc(-1 * var(--e-24)) var(--e-8);padding:0 var(--e-24);border-bottom:1px solid var(--linea)}
+html[data-marca="sol"] .hv-barra .res{border-radius:var(--r-pildora);padding:3px 10px;font-size:11px}
+html[data-marca="sol"] .hero-vote .hemi-center b{font-size:clamp(36px,3.4vw,48px);letter-spacing:-.04em}
+html[data-marca="sol"] .hemi-center span{font-family:var(--font-mono);letter-spacing:.06em;color:var(--tinta-3)}
+html[data-marca="sol"] .hero-vote .hv-t{font-size:16px;line-height:1.45;max-width:40ch}
+html[data-marca="sol"] .hero-vote .hv-sub{margin-top:-4px;font:400 13px var(--font-texto);letter-spacing:0;color:var(--tinta-3)}
+html[data-marca="sol"] .hero-vote .hv-sub .oficial{border:0;padding:0;font:inherit;text-decoration:underline dotted;text-underline-offset:.2em}
+html[data-marca="sol"] .hero-vote .hv-ir{justify-self:center;font-size:14px}
+
+/* El proyecto: su «La iniciativa» (dos columnas; a la izquierda etiqueta, titular y enlace; a la derecha la lectura). */
+html[data-marca="sol"] .sol-manifiesto{grid-template-columns:1fr 1fr;gap:var(--e-64);align-items:start}
+html[data-marca="sol"] .sol-manifiesto>div:first-child{display:grid;gap:var(--e-20);justify-items:start}
+html[data-marca="sol"] .sol-manifiesto h2{max-width:17ch;font-size:clamp(32px,4vw,52px);line-height:1.05}
+html[data-marca="sol"] .sol-lectura{display:grid;gap:var(--e-24);color:var(--tinta-2);font-size:clamp(17px,1.4vw,19px);line-height:1.6}
+html[data-marca="sol"] .sol-lectura p{margin:0}
+
+/* ---------- botones: .boton y .boton-claro de Sol; aquí solo se quitan los restos de .btn ---------- */
+html[data-marca="sol"] .btn:hover{box-shadow:none}
+html[data-marca="sol"] .btn.boton-claro:hover{box-shadow:0 0 0 1px var(--linea)}
+html[data-marca="sol"] .chipbtn{min-height:36px;border:0;background:var(--superficie);padding:0 14px;font-size:14px}
+html[data-marca="sol"] .chipbtn[aria-pressed="true"]{background:var(--tinta);color:var(--blanco)}
+/* Compartir, Imagen y Seguir: las tres, como la .pildora de Sol (gris claro, sin borde). */
+html[data-marca="sol"] :is(.compartir,.btn-img,.btn-rss){display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px;border:0;border-radius:var(--r-pildora);background:var(--superficie);color:var(--tinta);font:500 13px var(--font-texto);transition:background var(--t-rapido) var(--curva-salida),transform var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] :is(.compartir,.btn-img,.btn-rss):hover{background:color-mix(in oklch,var(--superficie),var(--tinta) 8%);color:var(--tinta)}
+html[data-marca="sol"] :is(.compartir,.btn-img,.btn-rss):active{transform:scale(.96)}
+/* Campos: los de .campo de Sol (borde --tinta-3, radio 12, 44 px, 16 px). */
+html[data-marca="sol"] :is(.controls input,.controls select){min-height:44px;padding:var(--e-8) var(--e-12);border:1px solid var(--tinta-3);border-radius:var(--r-12);font-size:16px}
+
+/* Las otras portadas, con el mismo atardecer: Elecciones y ¿Quién lo dijo? */
+html[data-marca="sol"] :is(.elh-hero,.qld-hero){
+  background:var(--atardecer); color:var(--blanco); border:0; border-radius:var(--r-28);
+  padding:clamp(28px,5vw,56px) clamp(22px,4.5vw,56px) clamp(36px,5.5vw,64px);
+}
+html[data-marca="sol"] :is(.elh-hero,.qld-hero) .eyebrow{color:color-mix(in srgb,var(--blanco) 88%,transparent)}
+html[data-marca="sol"] :is(.elh-hero h2,.qld-h){color:var(--blanco);letter-spacing:-.03em}
+html[data-marca="sol"] :is(.elh-hero p,.qld-hero>p){color:var(--blanco);font-size:clamp(16px,1.3vw,18px);line-height:1.6}
+html[data-marca="sol"] :is(.elh-hero,.qld-hero) .boton-claro{box-shadow:none}
+html[data-marca="sol"] .elh-hero{gap:clamp(24px,4vw,48px)}
+html[data-marca="sol"] .elh-fase{background:var(--blanco);color:var(--tinta)}
+html[data-marca="sol"] .elh-cuenta{color:var(--tinta);border:0;border-radius:var(--r-20);box-shadow:var(--sombra-flota);padding:24px}
+html[data-marca="sol"] .elh-cuenta .f{border-top-color:var(--linea)}
+html[data-marca="sol"] .elh-cuenta .f small{color:var(--rojo)}
+html[data-marca="sol"] .qld-hero{justify-items:start;gap:16px}
+html[data-marca="sol"] .qld-hero :is(.qld-especial,.nota){color:var(--blanco)!important}
+html[data-marca="sol"] .qld-hero .qld-hecho{color:var(--tinta);border:0;box-shadow:var(--sombra-flota)}
+html[data-marca="sol"] .qld-hero .qld-hecho .eyebrow{color:var(--rojo)}
+html[data-marca="sol"] .qld-hero + .chart{background:var(--superficie);border:0}
+
+/* Método: una página informativa de Sol (.info-pagina), sin caja, con la lectura limitada a 760 px. */
+html[data-marca="sol"] .method{background:none;border:0;padding:var(--e-40) 0 0;gap:14px;max-width:760px;font-size:17px;line-height:1.6}
+html[data-marca="sol"] .method h2{font-size:clamp(36px,4.5vw,60px);line-height:1.1;letter-spacing:-.02em;margin-bottom:4px}
+html[data-marca="sol"] .method h3{font:400 clamp(24px,3vw,32px)/1.2 var(--display);letter-spacing:-.01em;margin-top:28px;padding-top:28px;border-top:1px solid var(--linea)}
+html[data-marca="sol"] .method p,html[data-marca="sol"] .method li{max-width:65ch;color:var(--tinta-2)}
+html[data-marca="sol"] .method ul{gap:10px;padding-left:22px}
+html[data-marca="sol"] .method li::marker{color:var(--rojo)}
+
+/* Las cifras: rejilla de bordes compartidos, sin huecos ni sombras por celda (como sus rejillas). */
+html[data-marca="sol"] .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;padding:0;margin-top:var(--e-64);border:0;border-radius:var(--r-20);box-shadow:0 0 0 1px var(--linea);overflow:hidden}
+html[data-marca="sol"] .kpi{flex-direction:column;align-items:flex-start;gap:10px;padding:20px 20px 18px;border-right:1px solid var(--linea)}
+html[data-marca="sol"] .kpi:last-child{border-right:0}
+html[data-marca="sol"] .kpi b{font-size:clamp(34px,3.4vw,46px);line-height:.95}
+html[data-marca="sol"] .kpi span{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;max-width:none;color:var(--tinta-2)}
+html[data-marca="sol"] .kpi.alert b{color:var(--rojo)}
+
+/* ---------- superficies: .caja-plana de Sol ---------- */
+html[data-marca="sol"] :is(.chart,.session,.vote,.card){padding:var(--e-24);gap:var(--e-16)}
+@media (max-width:480px){ html[data-marca="sol"] :is(.chart,.session,.vote,.card){padding:var(--e-20)} }
+html[data-marca="sol"] .punto .vote{background:var(--superficie);border-color:transparent}
+
+html[data-marca="sol"] :is(.pill,.res){font-family:var(--font-mono);letter-spacing:.04em}
+html[data-marca="sol"] .tag{border-radius:var(--r-pildora);padding:2px 9px}
+html[data-marca="sol"] #tip{background:var(--tinta);color:var(--blanco);font-family:var(--font-mono);font-size:12px;border-radius:var(--r-12)}
+html[data-marca="sol"] table.dt tbody tr:hover{background:var(--superficie)}
+/* El juego del día, en la pieza amarilla de sus proyectos (.in-proyecto-sol). */
+html[data-marca="sol"] #home-juego>*{border:0;border-radius:var(--r-28);color:var(--tinta);
+  background:radial-gradient(100% 100% at 100% 0%,color-mix(in oklch,var(--amarillo),var(--blanco) 60%) 0%,transparent 70%),linear-gradient(150deg,var(--amarillo) 35%,color-mix(in oklch,var(--amarillo),var(--naranja) 55%) 100%)}
+html[data-marca="sol"] #home-juego .eyebrow{color:var(--tinta)}
+
+/* ---------- pie: el suyo (.pie-sol): el atardecer al revés, todo en tinta ---------- */
+html[data-marca="sol"] footer.pie{--marca-color:currentColor;margin:var(--e-96) var(--a-sangre) 0;padding:0;border:0;font-size:15px;color:var(--tinta)}
+html[data-marca="sol"] .pie-sol{
+  display:flex;flex-direction:column;gap:var(--e-40);
+  padding:clamp(48px,8vw,112px) max(var(--margen),(100% - var(--ancho)) / 2) var(--e-40);border-radius:var(--r-28);
+  background:radial-gradient(80% 70% at 50% -12%,#ffe58f 0%,rgba(255,229,143,0) 70%),linear-gradient(180deg,#ffd34d 0%,var(--amarillo) 46%,var(--naranja) 100%);
+}
+html[data-marca="sol"] .pie-titulo{margin:0;max-width:20ch;font:400 clamp(32px,4vw,56px)/1 var(--display);letter-spacing:-.03em;color:var(--tinta)}
+html[data-marca="sol"] .pie-acciones{display:flex;flex-wrap:wrap;gap:var(--e-12)}
+html[data-marca="sol"] .pie-acciones :is(.boton,.boton-claro){min-height:44px;padding-inline:var(--e-16);font-size:14px}
+html[data-marca="sol"] footer.pie .pie-acciones .boton{color:var(--blanco)}
+/* Sobre amarillo, el claro se separa con una sombra cálida y no con línea gris. */
+html[data-marca="sol"] .pie-acciones .boton-claro{box-shadow:var(--sombra-suave)}
+html[data-marca="sol"] .pie-mapa{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--e-24) var(--e-32);padding-top:var(--e-32);border-top:1px solid rgba(34,34,34,.18)}
+html[data-marca="sol"] .pie-mapa h3{margin:0 0 var(--e-12);font:500 12px/1.3 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+html[data-marca="sol"] .pie-mapa ul{list-style:none;margin:0;padding:0;display:grid;gap:var(--e-4)}
+html[data-marca="sol"] footer.pie :is(.pie-mapa,.pie-legal) a{color:var(--tinta);text-decoration-line:underline;text-decoration-color:rgba(34,34,34,.35);text-decoration-thickness:from-font;text-underline-offset:.25em}
+html[data-marca="sol"] footer.pie :is(.pie-mapa,.pie-legal) a:hover{text-decoration-color:currentColor}
+html[data-marca="sol"] .pie-mapa a{display:inline-flex;align-items:center;min-height:32px}
+html[data-marca="sol"] .pie-legal{display:grid;grid-template-columns:1fr auto;align-items:center;gap:var(--e-8) var(--e-32);padding-top:var(--e-24);border-top:1px solid rgba(34,34,34,.18);font-size:15px}
+html[data-marca="sol"] .pie-marca{display:inline-flex;align-items:center;flex-wrap:wrap;gap:var(--e-8) var(--e-24)}
+html[data-marca="sol"] footer.pie .pie-logo{display:inline-flex;align-items:center;gap:var(--e-12);color:var(--tinta);text-decoration:none}
+html[data-marca="sol"] footer.pie .pie-logo .logo{width:44px;height:25px;background:currentColor;-webkit-mask:url(../marca/simbolo-tinta.svg) no-repeat left center/contain;mask:url(../marca/simbolo-tinta.svg) no-repeat left center/contain}
+html[data-marca="sol"] .pie-logo b{font:600 17px var(--font-texto);letter-spacing:-.01em;text-transform:none}
+html[data-marca="sol"] .pie-de{display:inline-flex;align-items:center;gap:6px;font-size:14px}
+html[data-marca="sol"] footer.pie .pie-de a{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+html[data-marca="sol"] .pie-legal ul{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:0 var(--e-4);margin:0 calc(-1 * var(--e-8));padding:0;list-style:none}
+html[data-marca="sol"] .pie-legal li a{display:inline-flex;align-items:center;min-height:44px;padding-inline:var(--e-8);border-radius:var(--r-12)}
+html[data-marca="sol"] .pie-nota{margin:0;font-size:14px}
+
+/* ---------- el menú del móvil: su hoja amarilla, con las secciones en serif y líneas finas ---------- */
+html[data-marca="sol"] .menu-movil{left:var(--e-8);right:var(--e-8);bottom:var(--e-8);border-radius:var(--r-28);padding:var(--e-16) var(--margen) var(--e-40);color:var(--tinta);
+  background:radial-gradient(120% 70% at 100% 0%,#ffd34d 0%,rgba(255,211,77,0) 60%),var(--amarillo)}
+html[data-marca="sol"] .mm-item{min-height:64px;border-bottom-color:rgb(34 34 34 / .16);font:400 28px/1.05 var(--display);letter-spacing:-.02em;color:var(--tinta)}
+html[data-marca="sol"] .mm-sub b{font:400 24px/1.1 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .mm-sub small{color:var(--tinta-2)}
+html[data-marca="sol"] .mm-item:hover,html[data-marca="sol"] .mm-item:focus-visible{background:rgb(34 34 34 / .06)}
+html[data-marca="sol"] .menu-movil .mm-grupo h2{border-bottom-color:rgb(34 34 34 / .16);color:var(--tinta);font-family:var(--font-mono)}
+html[data-marca="sol"] :is(.mm-item:not(.mm-sub).activa,.mm-sub.activa b)::after{background:var(--rojo);box-shadow:none}
+
+@media (max-width:959px){
+  html[data-marca="sol"] .hero,html[data-marca="sol"] .sol-manifiesto{grid-template-columns:1fr;gap:var(--e-32)}
+}
+@media (max-width:720px){
+  /* En el móvil, el título de cada votación en su propia fila, debajo del resultado y el marcador. */
+  html[data-marca="sol"] .hero-votos li button{grid-template-columns:auto 1fr;row-gap:6px;padding:var(--e-12) 0}
+  html[data-marca="sol"] .hero-votos .hv-tt{grid-column:1 / -1;-webkit-line-clamp:3}
+  html[data-marca="sol"] .hero-pieza{min-height:0;padding-inline:var(--e-20)}
+  html[data-marca="sol"] .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html[data-marca="sol"] .kpi{border-bottom:1px solid var(--linea)}
+  html[data-marca="sol"] .topbar-in{min-height:64px}
+  html[data-marca="sol"] .sol-portada{min-height:600px}
+  html[data-marca="sol"] .pie-sol{gap:var(--e-32)}
+  html[data-marca="sol"] .pie-acciones :is(.boton,.boton-claro){width:100%}
+  html[data-marca="sol"] .pie-mapa{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html[data-marca="sol"] .pie-legal{grid-template-columns:minmax(0,1fr)}
+  html[data-marca="sol"] .pie-legal ul{justify-content:flex-start}
+  html[data-marca="sol"] .sec{padding-top:var(--e-64)}
+}
+@media (max-width:480px){
+  html[data-marca="sol"] .pie-mapa{grid-template-columns:1fr}
+}
+
+/* =====================================================================================================================
+   Capa común: lo que comparten todas las páginas, con las reglas de su GUIA.md
+   ===================================================================================================================== */
+
+/* Selección en amarillo, como su .sol-raiz ::selection */
+html[data-marca="sol"] ::selection{background:var(--amarillo);color:var(--tinta)}
+
+/* El titular de cada caja: su .t-titular-s (serif 24–30 px); debajo, la explicación a 14 en tinta-2 */
+html[data-marca="sol"] :is(.chart,.card)>h3{margin:0;font:400 clamp(22px,2.2vw,26px)/1.15 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .chart>.sub{margin:-8px 0 0;max-width:65ch}
+
+/* Texto: nada por debajo de 14 px salvo las etiquetas en mayúsculas (.t-etiqueta). Notas y pies, a 14 en tinta-2. */
+html[data-marca="sol"] :is(.nota,.sub,.view-intro .sub,.face-foot,.hv-sub,.vc-t,.tab-item small,.mm-sub small){font-size:14px;line-height:1.5}
+html[data-marca="sol"] :is(.nota,.sub){color:var(--tinta-2)}
+/* Etiquetas: tipo, fechas y metadatos cortos, en .t-etiqueta (Geist Mono 12, mayúsculas, 0,08 em) */
+html[data-marca="sol"] :is(.tag,.pill,.res,.oficial-k){font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase}
+html[data-marca="sol"] .tag{display:inline-flex;align-items:center;min-height:22px;padding:0 9px;border-radius:var(--r-pildora);background:var(--superficie);color:var(--tinta-2)}
+html[data-marca="sol"] .pill{display:inline-flex;align-items:center;min-height:22px;padding:0 9px;border-radius:var(--r-pildora);border:0;box-shadow:inset 0 0 0 1px currentColor}
+html[data-marca="sol"] .res{display:inline-flex;align-items:center;min-height:22px;padding:0 9px;border-radius:var(--r-pildora)}
+/* «título oficial»: una marca discreta (subrayado de puntos), no otra píldora */
+html[data-marca="sol"] .oficial{border:0;padding:0;margin-left:2px;font:inherit;font-size:inherit;color:inherit;text-decoration:underline dotted;text-underline-offset:.2em}
+
+/* Desplegables (<details>): el chevrón pixelado de Sol, que gira al abrirse */
+html[data-marca="sol"] details>summary{list-style:none}
+html[data-marca="sol"] details>summary::-webkit-details-marker{display:none}
+html[data-marca="sol"] details.ivs>summary{display:inline-flex;align-items:center;gap:8px;min-height:32px;font-size:14px;text-decoration-color:color-mix(in srgb,currentColor 40%,transparent);text-underline-offset:.25em}
+html[data-marca="sol"] details.ivs>summary::before{content:"";width:12px;height:12px;flex:none;background:currentColor;-webkit-mask:var(--chevron) center/contain no-repeat;mask:var(--chevron) center/contain no-repeat;transition:transform var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] details.ivs[open]>summary::before{transform:rotate(90deg)}
+
+/* Tablas: cabecera en etiqueta, filas separadas por línea fina, sin rayas */
+html[data-marca="sol"] table.dt{border-collapse:collapse}
+html[data-marca="sol"] table.dt th{font:500 11px/1.3 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--tinta-3);border-bottom:1px solid var(--linea)}
+html[data-marca="sol"] table.dt td{border-bottom:1px solid var(--linea);font-size:14px}
+html[data-marca="sol"] table.dt :is(td,th){padding:10px 12px}
+
+/* Filtros: las píldoras de Sol; la elegida, en tinta */
+html[data-marca="sol"] .controls{gap:var(--e-8)}
+html[data-marca="sol"] .chipbtn{min-height:36px;font:500 14px var(--font-texto);transition:background var(--t-rapido) var(--curva-salida),transform var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] .chipbtn:hover{background:color-mix(in oklch,var(--superficie),var(--tinta) 8%)}
+html[data-marca="sol"] .chipbtn[aria-pressed="true"]:hover{background:var(--tinta)}
+html[data-marca="sol"] .chipbtn:active{transform:scale(.96)}
+html[data-marca="sol"] :is(select,input[type="search"],input[type="text"]){font-family:var(--font-texto)}
+html[data-marca="sol"] select{border-radius:var(--r-12)}
+
+/* ---------- movimiento: sus tiempos (160/200 ms) y curvas; nada ligado al scroll ---------- */
+/* Cada vista entra subiendo 6 px desde un desenfoque de 3 px (su entrada de bloques, 360 ms) */
+@keyframes sol-entra{from{opacity:0;transform:translateY(6px);filter:blur(3px)}}
+html[data-marca="sol"] main>.view:not([hidden]){animation:sol-entra 360ms var(--curva-salida) both}
+/* Los menús de la barra: entran en 240 ms y salen rápido, como su diálogo */
+html[data-marca="sol"] .tab-panel:not([hidden]){animation:sol-entra 240ms var(--curva-salida) both}
+/* La hoja del menú del móvil baja como un cajón (su .in-menu) */
+@keyframes sol-cajon{from{clip-path:inset(0 0 100% 0 round var(--r-28))}to{clip-path:inset(0 round var(--r-28))}}
+html[data-marca="sol"] .menu-movil:not([hidden]){animation:sol-cajon 420ms var(--curva-cajon) both}
+/* Los escaños del hemiciclo aparecen con la curva de salida de Sol */
+html[data-marca="sol"] .hemi.anim :is(circle,rect){animation-duration:360ms;animation-timing-function:var(--curva-salida)}
+@media (prefers-reduced-motion:reduce){
+  html[data-marca="sol"] :is(main>.view,.tab-panel,.menu-movil):not([hidden]){animation:none}
+  html[data-marca="sol"] details.ivs>summary::before{transition:none}
+}
+
+/* =====================================================================================================================
+   Página a página
+   ===================================================================================================================== */
+
+/* ---------- Temas ---------- */
+/* «Sigue un tema»: una rejilla de bordes compartidos, sin huecos ni sombras por celda (como sus fuentes y su equipo) */
+html[data-marca="sol"] .temas-seguir{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0;border-top:1px solid var(--linea);border-left:1px solid var(--linea)}
+html[data-marca="sol"] .temas-seguir .ts{display:grid;align-content:space-between;gap:var(--e-12);min-height:112px;margin:0;padding:var(--e-20);border:0;border-right:1px solid var(--linea);border-bottom:1px solid var(--linea);border-radius:0;background:none;text-align:left;cursor:pointer;transition:background var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] .temas-seguir .ts b{font:400 22px/1.15 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .temas-seguir .ts small{font:500 11px/1.3 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-3)}
+html[data-marca="sol"] .temas-seguir .ts:hover{background:var(--superficie)}
+
+/* ---------- Explora ---------- */
+/* Sus apartados: píldoras, como los de Elecciones */
+html[data-marca="sol"] .exp-nav{gap:var(--e-8);padding-block:var(--e-16);border-bottom:0}
+html[data-marca="sol"] .exp-nav a{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:var(--r-pildora);background:var(--superficie);color:var(--tinta);font-size:14px;text-decoration:none;transition:background var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] .exp-nav a:hover{background:color-mix(in oklch,var(--superficie),var(--tinta) 8%)}
+/* Los temas para elegir: píldoras; el elegido, en tinta */
+html[data-marca="sol"] .exp-chip{min-height:36px;align-content:center;padding:6px 14px;border:0;border-radius:var(--r-pildora);background:var(--superficie);box-shadow:none;transition:background var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] .exp-chip:hover{background:color-mix(in oklch,var(--superficie),var(--tinta) 8%)}
+html[data-marca="sol"] .exp-chip[aria-pressed="true"]{background:var(--tinta);color:var(--blanco);box-shadow:none}
+html[data-marca="sol"] .exp-chip[aria-pressed="true"] small{color:color-mix(in srgb,var(--blanco) 70%,transparent)}
+
+html[data-marca="sol"] .exp-chip:has(small){border-radius:var(--r-16)}
+
+/* ---------- Ficha de diputado y Tus diputados (provincia) ---------- */
+/* Su escaño, en la pieza de los proyectos de Sol (gris, el sol detrás) con el hemiciclo en una tarjeta que sale por abajo */
+html[data-marca="sol"] :is(.ficha-top,.prov-top){grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,5vw,64px)}
+html[data-marca="sol"] :is(.ficha-top,.prov-top)>div:last-child{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:flex-end;min-height:340px;padding:clamp(28px,5%,48px) clamp(28px,9%,64px) 0;border-radius:var(--r-28);background:var(--superficie)}
+html[data-marca="sol"] :is(.ficha-top,.prov-top)>div:last-child::before{content:"";position:absolute;z-index:-1;left:50%;top:34%;width:96%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 22%,#ffd34d 0%,var(--amarillo) 36%,var(--naranja) 100%);transform:translateX(-50%)}
+html[data-marca="sol"] :is(.ficha-top,.prov-top)>div:last-child>*{width:100%;padding:var(--e-24) var(--e-24) var(--e-16);border-radius:var(--r-20) var(--r-20) 0 0;background:var(--blanco);box-shadow:var(--sombra-flota)}
+html[data-marca="sol"] .ficha-id .eyebrow{margin-bottom:var(--e-4)}
+html[data-marca="sol"] .ficha-top h2{font-size:clamp(36px,4.5vw,60px);line-height:1.04;letter-spacing:-.02em}
+
+/* ---------- Organigrama ---------- */
+/* Los cargos en tinta y los nombramientos recientes en el rojo de Sol (antes, morado y naranja) */
+html:root[data-marca="sol"]{--org:var(--tinta);--org-nuevo:var(--rojo)}
+html[data-marca="sol"] #org-svg text{font-family:var(--font-texto);fill:var(--tinta-3)}
+html[data-marca="sol"] :is(.org-panel,.org-titular){border:0;box-shadow:0 0 0 1px var(--linea);border-radius:var(--r-20)}
+html[data-marca="sol"] .org-titular{background:var(--superficie);box-shadow:none}
+html[data-marca="sol"] #org-res{border:0;border-radius:var(--r-20);box-shadow:var(--sombra-flota)}
+html[data-marca="sol"] details.org-rama>summary::before{content:"";display:inline-block;width:10px;height:10px;margin-right:6px;background:currentColor;-webkit-mask:var(--chevron) center/contain no-repeat;mask:var(--chevron) center/contain no-repeat;transition:transform var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] details.org-rama[open]>summary::before{transform:rotate(90deg)}
+
+/* ---------- Glosario ---------- */
+/* Rejilla de bordes compartidos: el término en serif y la definición a 14 */
+html[data-marca="sol"] .glosario{gap:0;border-top:1px solid var(--linea);border-left:1px solid var(--linea)}
+html[data-marca="sol"] .glosario>div{padding:var(--e-20) var(--e-24);border:0;border-right:1px solid var(--linea);border-bottom:1px solid var(--linea);border-radius:0;box-shadow:none;background:none;scroll-margin-top:96px}
+html[data-marca="sol"] .glosario dt{margin-bottom:var(--e-8);font:400 21px/1.2 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .glosario dd{color:var(--tinta-2)}
+html[data-marca="sol"] .glosario>div:target{background:var(--ambar-claro)}
+
+/* ---------- Cómo se hace una ley ---------- */
+/* Sus pasos numerados (su «Cómo contribuir»): «01» en Geist Mono y tinta-3, el titular en serif, sin línea ni círculos */
+html[data-marca="sol"] .como-ley{counter-reset:paso;gap:var(--e-32);border-left:0;margin-left:0;max-width:760px}
+html[data-marca="sol"] .como-ley li{counter-increment:paso;grid-template-columns:auto 1fr;gap:var(--e-20);padding:0}
+html[data-marca="sol"] .como-ley .num{position:static;width:auto;height:auto;padding-top:6px;border-radius:0;background:none;color:var(--tinta-3);font-size:0}
+html[data-marca="sol"] .como-ley .num::before{content:counter(paso,decimal-leading-zero);font:400 15px var(--font-mono)}
+html[data-marca="sol"] .como-ley h3{margin:0 0 var(--e-12);font:400 clamp(24px,2.4vw,30px)/1.15 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .como-ley p{color:var(--tinta-2);font-size:16px;line-height:1.6}
+html[data-marca="sol"] .como-ley .cifra{display:inline-flex;align-items:center;min-height:26px;padding:0 10px;border-radius:var(--r-pildora);background:var(--superficie);color:var(--tinta);font:500 12px var(--font-mono);letter-spacing:.04em}
+html[data-marca="sol"] .como-ley .ej{font-size:14px}
+
+@media (max-width:720px){ html[data-marca="sol"] :is(.ficha-top,.prov-top){grid-template-columns:1fr} }
+html[data-marca="sol"] .prov-top+.tus-grid{margin-top:var(--e-48)}
+
+/* ---------- Geografía ---------- */
+/* Los tonos de los mapas (geografia.js los lee de aquí): la población en tinta, lo que baja en rojo, lo que sube y la
+   renta en el azul de Sol, la edad en rojo oscuro */
+html:root[data-marca="sol"]{--geo-neutro:#222222;--geo-calido:#df1717;--geo-frio:#2346e8;--geo-renta:#2346e8;--geo-edad:#a50e0e}
+
+html[data-marca="sol"] .geo-card .t{font:400 22px/1.15 var(--display);letter-spacing:-.01em;text-decoration:none}
+html[data-marca="sol"] .geo-card .t:hover{text-decoration:underline;text-underline-offset:.2em;text-decoration-thickness:from-font}
+
+/* ---------- Elecciones ---------- */
+/* Los colores de sus gráficos (los módulos los leen de aquí): el Gobierno en tinta; en «La legislatura, día a día», las
+   votaciones en tinta, las leyes en rojo, los decretos-leyes en tinta y las preguntas en ámbar; el origen de las leyes
+   (Gobierno, grupos, Senado, comunidades) en tinta, azul, ámbar y gris; lo congelado, en azul */
+html:root[data-marca="sol"]{
+  --color-gob:#222222;
+  --cf-azul:#222222; --cf-verde:#df1717; --cf-morado:#222222; --cf-ambar:#c9962a;
+  --c-gob:#222222; --c-grupos:#2346e8; --c-sen:#c9962a; --c-ccaa:#9a9a9a;
+  --c-hielo:#2346e8;
+}
+
+
+/* ---------- Sobre el proyecto: quién está detrás ---------- */
+/* Reforma Digital en el atardecer, con su R grande en blanco; debajo, una línea discreta sobre cómo empezó */
+html[data-marca="sol"] .autor-rd{position:relative;isolation:isolate;overflow:hidden;display:grid;align-content:start;gap:var(--e-16);padding:clamp(32px,5vw,56px) clamp(24px,4.5vw,56px) clamp(48px,6vw,72px);border-radius:var(--r-28);background:var(--atardecer);color:var(--blanco);--foco:var(--blanco)}
+html[data-marca="sol"] .autor-rd .eyebrow{color:color-mix(in srgb,var(--blanco) 88%,transparent)}
+html[data-marca="sol"] .autor-rd h3{margin:0;font:400 clamp(32px,4vw,52px)/1.05 var(--display);letter-spacing:-.02em}
+html[data-marca="sol"] .autor-rd p{margin:0;max-width:56ch;font-size:clamp(17px,1.4vw,19px);line-height:1.6}
+html[data-marca="sol"] .autor-rd .autor-links{display:flex;flex-wrap:wrap;gap:var(--e-8);margin-top:var(--e-8)}
+html[data-marca="sol"] .autor-rd .boton-claro{box-shadow:none}
+html[data-marca="sol"] .autor-rd::after{content:"";position:absolute;z-index:-1;right:clamp(24px,5vw,64px);bottom:clamp(24px,4vw,48px);width:clamp(72px,9vw,120px);aspect-ratio:3/4;background:var(--blanco);
+  -webkit-mask:url(sol/r.svg) center/contain no-repeat;mask:url(sol/r.svg) center/contain no-repeat}
+html[data-marca="sol"] .autor-nota{margin:var(--e-12) 0 0;font-size:14px;color:var(--tinta-3)}
+html[data-marca="sol"] .autor-nota a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:from-font}
+@media (max-width:720px){ html[data-marca="sol"] .autor-rd{padding-bottom:150px} }
+
+/* =====================================================================================================================
+   Cabeceras de sección: una luz por familia, con el sol y sus halos de las imágenes de su web (og/template.html)
+   Actividad, en el amanecer de su pie; Quién es quién, en el atardecer de su portada; Entender, en la pieza gris.
+   ===================================================================================================================== */
+html[data-marca="sol"] main>.view>.view-intro:first-of-type:not(.prov-top){
+  --sol-d:min(34vw,460px); --sol-x:20%; --halo:rgb(255 255 255 / .2);   /* en vw: el mismo valor sirve para ancho y alto; asoma un 38 % */
+  position:relative;isolation:isolate;overflow:hidden;align-items:flex-end;min-height:300px;margin-top:var(--e-16);
+  padding:clamp(32px,5vw,64px) clamp(24px,4.5vw,56px);border-radius:var(--r-28);background:var(--superficie)}
+html[data-marca="sol"] main>.view>.view-intro:first-of-type:not(.prov-top)>*{position:relative;z-index:1}
+html[data-marca="sol"] main>.view>.view-intro:first-of-type:not(.prov-top)>div:first-child{max-width:min(62ch,62%)}
+html[data-marca="sol"] main>.view>.view-intro:first-of-type:not(.prov-top) h2{font-size:clamp(40px,5vw,68px);line-height:1.02;letter-spacing:-.025em}
+/* El sol: un disco que sube desde abajo a la derecha */
+html[data-marca="sol"] main>.view>.view-intro:first-of-type:not(.prov-top)::after{content:"";position:absolute;z-index:0;
+  right:calc(var(--sol-x) - var(--sol-d) / 2);bottom:calc(var(--sol-d) * -.62);width:var(--sol-d);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 50% 38%,#fff3c4 0%,#ffd34d 22%,var(--amarillo) 46%,var(--naranja) 82%,#f2551a 100%)}
+/* Sus halos: anillos finos alrededor del disco */
+html[data-marca="sol"] main>.view>.view-intro:first-of-type:not(.prov-top)::before{content:"";position:absolute;z-index:0;
+  right:calc(var(--sol-x) - var(--sol-d));bottom:calc(var(--sol-d) * -1.12);width:calc(var(--sol-d) * 2);aspect-ratio:1;
+  background:radial-gradient(circle closest-side,transparent 0 58%,var(--halo) 58% 58.5%,transparent 58.5% 68%,var(--halo) 68% 68.4%,
+    transparent 68.4% 80%,var(--halo) 80% 80.3%,transparent 80.3% 94%,var(--halo) 94% 94.25%,transparent 94.25%)}
+/* Actividad: el amanecer, texto en tinta */
+html[data-marca="sol"] :is(#dias,#votaciones,#leyes,#temas,#explora,#preguntas,#tema)>.view-intro:first-of-type{
+  --halo:rgb(34 34 34 / .13);color:var(--tinta);
+  background:radial-gradient(80% 70% at 50% -12%,#ffe58f 0%,rgba(255,229,143,0) 70%),linear-gradient(180deg,#ffd34d 0%,var(--amarillo) 46%,var(--naranja) 100%)}
+html[data-marca="sol"] :is(#dias,#votaciones,#leyes,#temas,#explora,#preguntas,#tema)>.view-intro:first-of-type :is(p,.eyebrow){color:var(--tinta)}
+html[data-marca="sol"] :is(#dias,#votaciones,#leyes,#temas,#explora,#preguntas,#tema)>.view-intro:first-of-type::after{
+  background:radial-gradient(circle at 50% 38%,#fff8de 0%,#ffe58f 30%,#ffd34d 60%,var(--amarillo) 100%)}
+/* Quién es quién: el atardecer, texto en blanco */
+html[data-marca="sol"] :is(#diputados,#grupos,#oradores,#organigrama)>.view-intro:first-of-type{
+  color:var(--blanco);--foco:var(--blanco);background:var(--atardecer)}
+html[data-marca="sol"] :is(#diputados,#grupos,#oradores,#organigrama)>.view-intro:first-of-type :is(p,.eyebrow,a,.linklike){color:var(--blanco)}
+html[data-marca="sol"] :is(#diputados,#grupos,#oradores,#organigrama)>.view-intro:first-of-type .eyebrow{color:color-mix(in srgb,var(--blanco) 88%,transparent)}
+/* Entender: la pieza gris con el sol */
+html[data-marca="sol"] :is(#glosario,#como-ley)>.view-intro:first-of-type{--halo:rgb(34 34 34 / .08)}
+@media (max-width:720px){
+  html[data-marca="sol"] main>.view>.view-intro:first-of-type:not(.prov-top){--sol-d:min(78vw,320px);--sol-x:22%;min-height:320px;align-items:flex-start}
+  html[data-marca="sol"] main>.view>.view-intro:first-of-type:not(.prov-top)>div:first-child{max-width:none}
+}
+
+/* =====================================================================================================================
+   Tarjetas que son un enlace (su .tarjeta-enlace): el chevrón abajo a la derecha y, al pasar el ratón, un sol suave que
+   sube desde abajo y el chevrón que avanza. Votaciones ajustadas, temas, apartados de Elecciones y comunidades.
+   ===================================================================================================================== */
+html[data-marca="sol"] :is(.vcard,.el-tarjeta,.geo-card,.ts){position:relative;isolation:isolate;overflow:hidden;
+  transition:box-shadow var(--t-medio) var(--curva-salida),background-color var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] :is(.vcard,.el-tarjeta,.geo-card)::before{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;
+  background:radial-gradient(90% 55% at 50% 118%,#ffd34d 0%,rgb(255 190 11 / .55) 35%,rgb(255 122 26 / 0) 75%);opacity:0;transform:translateY(24%);
+  transition:opacity var(--t-medio) var(--curva-salida),transform 420ms var(--curva-salida)}
+html[data-marca="sol"] :is(.vcard,.el-tarjeta,.geo-card,.ts)::after{content:"";position:absolute;right:var(--e-20);bottom:var(--e-20);width:14px;height:14px;
+  background:currentColor;-webkit-mask:var(--chevron) center/contain no-repeat;mask:var(--chevron) center/contain no-repeat;
+  transition:transform var(--t-medio) var(--curva-salida)}
+@media (hover:hover) and (pointer:fine){
+  html[data-marca="sol"] :is(.vcard,.el-tarjeta,.geo-card):hover{box-shadow:var(--sombra-suave)}
+  html[data-marca="sol"] :is(.vcard,.el-tarjeta,.geo-card):hover::before{opacity:1;transform:none}
+  html[data-marca="sol"] :is(.vcard,.el-tarjeta,.geo-card,.ts):hover::after{transform:translateX(4px)}
+}
+html[data-marca="sol"] :is(.vcard,.el-tarjeta,.geo-card){padding-bottom:var(--e-48)}
+html[data-marca="sol"] .el-tarjeta{border:0;border-radius:var(--r-20)}
+/* Los enlaces de texto con chevrón: el chevrón avanza al pasar el ratón */
+@media (hover:hover) and (pointer:fine){
+  html[data-marca="sol"] .linklike::after{transition:transform var(--t-medio) var(--curva-salida)}
+  html[data-marca="sol"] .linklike:hover::after{transform:translateX(3px)}
+  html[data-marca="sol"] :is(a,button):hover>svg.icono-fin{transform:translateX(3px)}
+  html[data-marca="sol"] :is(a,button)>svg.icono-fin{transition:transform var(--t-medio) var(--curva-salida)}
+}
+@media (prefers-reduced-motion:reduce){
+  html[data-marca="sol"] :is(.vcard,.el-tarjeta,.geo-card)::before{transform:none}
+  html[data-marca="sol"] :is(.vcard,.el-tarjeta,.geo-card,.ts,.linklike)::after,html[data-marca="sol"] svg.icono-fin{transition:none!important;transform:none!important}
+}
+
+/* En los apartados de Elecciones, el titular en serif y sin la flecha de texto (ya lleva el chevrón de la tarjeta) */
+html[data-marca="sol"] .el-tarjeta .t{font:400 22px/1.15 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .el-tarjeta .t svg.icono-fin{display:none}
+/* Los grupos de apartados de la portada de Elecciones, como sus proyectos numerados: «01 · LA LEGISLATURA» en etiqueta
+   roja y el titular de sección en serif grande, sin la raya de arriba */
+html[data-marca="sol"] .elh-grupo{padding-top:var(--e-96)}
+html[data-marca="sol"] .elh-grupo-h{display:block;border-top:0;padding-top:0;margin-bottom:var(--e-24)}
+html[data-marca="sol"] .elh-grupo-h .k{display:block;margin-bottom:var(--e-16);font:500 12px/1.3 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--rojo)}
+html[data-marca="sol"] .elh-grupo-h .k b{display:inline;font-weight:500}
+html[data-marca="sol"] .elh-grupo-h h2{font-size:clamp(32px,4vw,52px);line-height:1.05;letter-spacing:-.02em}
+html[data-marca="sol"] .elh-grupo-h p{margin-top:var(--e-12);font-size:17px;line-height:1.6;color:var(--tinta-2)}
+html:root[data-marca="sol"]{--el-neutro:#222222;--el-calido:#df1717;--el-votos:#222222;--el-escanos:#df1717}
+/* «El Congreso que pudo ser»: en la caja gris de Sol, no en un rosa */
+html[data-marca="sol"] .chart.ps{background:var(--superficie);box-shadow:none}
+
+
+/* ---------- ¿Quién lo dijo?: sus animaciones con los tiempos de Sol ---------- */
+/* El aviso del reto: la píldora flotante de Sol (sombra cálida), que entra subiendo y late en amarillo */
+html[data-marca="sol"] #qld-aviso{border:0;box-shadow:var(--sombra-flota)}
+@keyframes sol-latido{50%{box-shadow:0 0 0 6px rgb(255 190 11 / .45)}}
+@keyframes sol-bien{40%{box-shadow:0 0 0 10px rgb(255 190 11 / .4),var(--sombra-suave)}}
+@media (prefers-reduced-motion:no-preference){
+  html[data-marca="sol"] #qld-aviso{animation:sol-entra 360ms var(--curva-salida) 1.2s backwards}
+  html[data-marca="sol"] .qld-aviso-ir i{animation:sol-latido 2s var(--curva-salida) 1.6s 3}
+  /* Acierto: un destello del sol alrededor de la tarjeta; fallo: el mismo temblor, con la curva de Sol */
+  html[data-marca="sol"] .qld-card.bien{animation:sol-bien 600ms var(--curva-salida)}
+  html[data-marca="sol"] .qld-card.mal{animation:qld-mal 360ms var(--curva-salida)}
+  html[data-marca="sol"] .qld-fin .qld-cuadros i{animation:qld-cuadro 360ms var(--curva-salida) backwards}
+}
+html[data-marca="sol"] .qld-cuadros i{border-radius:6px}
+
+/* ---------- Elecciones: el camino hasta las urnas (tarjeta de la cuenta atrás) ---------- */
+/* Un calendario de cuadros planos, una semana por fila: lo pasado en tinta, hoy en rojo, lo que viene en gris, los
+   plazos en gris oscuro, la campaña en amarillo y el día de votar con un borde rojo. Sin degradados ni círculos. */
+html[data-marca="sol"] .elh-cuenta{gap:var(--e-20)}
+html[data-marca="sol"] .elh-cuenta .n span{font-size:14px;color:var(--tinta-2)}
+html[data-marca="sol"] .cm-rejilla{grid-template-columns:repeat(7,14px);grid-auto-rows:14px;gap:3px}
+html[data-marca="sol"] .cm-rejilla b{font:500 9px/14px var(--font-mono);color:var(--tinta-3)}
+html[data-marca="sol"] .elh-camino i{border-radius:0;box-shadow:none}
+html[data-marca="sol"] .cm-rejilla i{background:var(--superficie)}
+html[data-marca="sol"] .elh-camino i.pasado{background:var(--tinta)}
+html[data-marca="sol"] .elh-camino i.hito{background:#c4c4c4}
+html[data-marca="sol"] .elh-camino i.campana{background:var(--amarillo)}
+html[data-marca="sol"] .elh-camino i.voto{background:var(--blanco);box-shadow:inset 0 0 0 2px var(--rojo)}
+html[data-marca="sol"] .elh-camino i.hoy{background:var(--rojo)}
+html[data-marca="sol"] .cm-ext{font:500 11px var(--font-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--tinta-3)}
+html[data-marca="sol"] .cm-ley{gap:10px;font-size:13.5px;color:var(--tinta-2)}
+html[data-marca="sol"] .cm-ley li{grid-template-columns:10px 1fr;gap:10px}
+html[data-marca="sol"] .cm-ley i{width:10px;height:10px}
+html[data-marca="sol"] .cm-ley b{font:500 15px var(--font-mono);color:var(--tinta)}
+@keyframes sol-pixel{from{opacity:0}}
+@media (prefers-reduced-motion:no-preference){
+  html[data-marca="sol"] .cm-rejilla i:not(.vacio){animation:sol-pixel 240ms var(--curva-salida) backwards;animation-delay:calc(var(--k) * 8ms + 200ms)}
+}
+@media (max-width:420px){ html[data-marca="sol"] .elh-camino{grid-template-columns:1fr} }
+
+/* ---------- Sobre el proyecto: colaboradores ---------- */
+/* Como su equipo (core-team.css): rejilla de bordes compartidos, el retrato dentro de un marco del atardecer (o del
+   amanecer, alternando), el nombre en serif, el usuario debajo y la flecha de enlace externo en un círculo */
+/* La rejilla mide lo que sus tarjetas (de 280 px): con pocas personas no deja un marco vacío */
+html[data-marca="sol"] .colab{display:flex;flex-wrap:wrap;width:fit-content;max-width:100%;gap:0;border:1px solid var(--linea);border-radius:var(--r-20);overflow:hidden}
+html[data-marca="sol"] .colab>li{width:280px}
+html[data-marca="sol"] .colab>li+li{border-left:1px solid var(--linea)}
+html[data-marca="sol"] .colab-p{display:block;padding:var(--e-24)}
+html[data-marca="sol"] .colab-foto{border-radius:0;background:var(--atardecer);transition:transform var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] .colab-foto img{inset:var(--e-16);width:calc(100% - var(--e-32));height:calc(100% - var(--e-32))}
+html[data-marca="sol"] .colab-tu .colab-foto{background:radial-gradient(100% 90% at 0% 100%,var(--naranja),transparent 80%),var(--amarillo)}
+/* «¿Te sumas?»: el «+» pixelado de Sol, grande y en tinta */
+html[data-marca="sol"] .colab-mas{position:absolute;inset:0;margin:auto;width:30%;aspect-ratio:1;background:var(--tinta);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 15'%3E%3Cpath d='M6 0h3v3H6zM0 6h3v3H0zM6 6h3v3H6zM12 6h3v3h-3zM6 12h3v3H6z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 15'%3E%3Cpath d='M6 0h3v3H6zM0 6h3v3H0zM6 6h3v3H6zM12 6h3v3h-3zM6 12h3v3H6z'/%3E%3C/svg%3E") center/contain no-repeat;
+  transition:transform 420ms var(--curva-salida)}
+html[data-marca="sol"] .colab-info{padding-top:var(--e-20)}
+html[data-marca="sol"] .colab-info b{font:400 clamp(22px,2.2vw,26px)/1.15 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .colab-info small{margin-top:var(--e-4);font-size:16px;color:var(--tinta-2)}
+html[data-marca="sol"] .colab-ir{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;box-shadow:0 0 0 1px var(--linea)}
+html[data-marca="sol"] .colab-ir svg.icono-fin{margin:0;transition:transform var(--t-medio) var(--curva-salida)}
+@media (hover:hover) and (pointer:fine){
+  html[data-marca="sol"] .colab-p:hover .colab-foto{transform:scale(.98)}
+  html[data-marca="sol"] .colab-p:hover .colab-ir svg{transform:translate(2px,-2px)}
+  html[data-marca="sol"] .colab-tu:hover .colab-mas{transform:rotate(90deg)}
+}
+@media (max-width:640px){ html[data-marca="sol"] .colab{width:100%} html[data-marca="sol"] .colab>li{width:50%} html[data-marca="sol"] .colab-p{padding:var(--e-16)} html[data-marca="sol"] .colab-ir{display:none} }
+
+/* ---------- Portada de Elecciones ---------- */
+/* «En qué punto estamos»: una pista gruesa que se llena en tinta hasta hoy; los hitos, cuadros pixelados (lo pasado
+   en tinta, lo próximo con borde rojo); «hoy», una píldora roja; los nombres a 14 y las fechas en etiqueta */
+html[data-marca="sol"] .elh-cal{margin-top:var(--e-24);padding-top:var(--e-24)}
+html[data-marca="sol"] .el-cal::before{top:calc(var(--e-24) + 5px);height:6px;border-radius:3px;background:var(--superficie)}
+html[data-marca="sol"] .elh-cal::after{top:calc(var(--e-24) + 5px);height:6px;border-radius:3px;background:var(--tinta)}
+html[data-marca="sol"] .el-cal .h{gap:6px;padding-right:var(--e-12)}
+html[data-marca="sol"] .el-cal .h i{width:16px;height:16px;margin-top:0;border-radius:0;border:0;background:var(--blanco);box-shadow:inset 0 0 0 2px var(--tinta-3)}
+html[data-marca="sol"] .el-cal .h.pasado i{background:var(--tinta);box-shadow:none}
+html[data-marca="sol"] .el-cal .h.ahora i{background:var(--rojo);box-shadow:0 0 0 4px rgb(223 23 23 / .2)}
+html[data-marca="sol"] .elh-cal .h.proximo i{background:var(--blanco);box-shadow:inset 0 0 0 3px var(--rojo)}
+html[data-marca="sol"] .el-cal .h b{font:500 14px/1.3 var(--font-texto)}
+html[data-marca="sol"] .el-cal .h small{font:500 11px/1.3 var(--font-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--tinta-3)}
+html[data-marca="sol"] .el-cal .h.pasado b{color:var(--tinta-3)}
+html[data-marca="sol"] .elh-cal .h.proximo :is(b,small){color:var(--rojo)}
+html[data-marca="sol"] .elh-cal .hoy{top:-2px;padding:2px 8px;border-radius:var(--r-pildora);background:var(--rojo);color:var(--blanco);font:500 10.5px var(--font-mono);letter-spacing:.06em}
+@media (max-width:760px){
+  html[data-marca="sol"] .elh-cal{padding-top:0}
+  html[data-marca="sol"] .el-cal::before{top:0;left:11px;width:4px;height:auto}
+}
+/* Las filas de tarjetas ocupan todo el ancho, tengan las que tengan */
+html[data-marca="sol"] .el-tarjetas{grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:var(--e-16)}
+html[data-marca="sol"] .el-tarjeta{min-height:260px}
+html[data-marca="sol"] .el-tarjeta .d{font-size:14px;line-height:1.45;color:var(--tinta-2)}
+html[data-marca="sol"] .el-tarjeta .c{margin-top:var(--e-12);font-family:var(--font-mono);font-weight:500;letter-spacing:-.03em}
+html[data-marca="sol"] .el-tarjeta .p{font-size:13px;color:var(--tinta-3)}
+html[data-marca="sol"] .el-tarjeta .v{margin-top:var(--e-12)}
+/* «Qué prometieron y qué votaron», todavía no: la caja gris con su píldora ámbar de «Coming soon» (.in-proximo) */
+/* Como su «04 · Elecciones · Coming soon»: el atardecer, su urna y la píldora ámbar */
+html[data-marca="sol"] .elh-pronto{opacity:1;border:0;box-shadow:none;background:var(--atardecer);color:var(--blanco);grid-template-rows:auto auto auto 1fr;overflow:hidden}
+html[data-marca="sol"] .elh-pronto::before,html[data-marca="sol"] .elh-pronto::after{display:none}
+html[data-marca="sol"] .elh-pronto .d{color:color-mix(in srgb,var(--blanco) 90%,transparent)}
+html[data-marca="sol"] .elh-pronto .p{justify-self:start;margin-top:var(--e-8);padding:var(--e-8) var(--e-12);border-radius:var(--r-pildora);background:var(--ambar-claro);color:var(--ambar-texto);font:500 13px var(--font-texto)}
+html[data-marca="sol"] .elh-urna{display:block;justify-self:center;align-self:end;width:min(100%,240px);height:auto;margin:var(--e-8) 0 calc(-1 * var(--e-16))}
+/* Los minigráficos de las encuestas */
+html[data-marca="sol"] .el-mbar{font-size:13px}
+html[data-marca="sol"] .el-mbar i{height:10px;border-radius:0}
+html[data-marca="sol"] .el-mbar em{font-family:var(--font-mono)}
+html[data-marca="sol"] .el-m350{height:18px;border-radius:0}
+html[data-marca="sol"] .el-m350 .m176{background:var(--tinta)}
+html[data-marca="sol"] .el-m350-p{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.04em;color:var(--tinta-3)}
+html[data-marca="sol"] .el-mlinea polyline{stroke:var(--rojo)}
+html[data-marca="sol"] .el-mlinea polygon{fill:url(#none);fill:rgb(255 190 11 / .28)}
+html[data-marca="sol"] .el-mcol i{border-radius:0;background:var(--superficie);box-shadow:inset 0 0 0 1px var(--linea)}
+html[data-marca="sol"] .el-mcol>span:last-child i{background:var(--rojo);box-shadow:none}
+html[data-marca="sol"] .el-mcol em{font-family:var(--font-mono)}
+/* El atardecer de la portada de Elecciones, con los halos del sol detrás de la cuenta atrás (sus imágenes de redes) */
+html[data-marca="sol"] .elh-hero{position:relative;isolation:isolate;overflow:hidden}
+html[data-marca="sol"] .elh-hero::before{content:"";position:absolute;z-index:-1;right:-14%;bottom:-62%;width:min(64vw,820px);aspect-ratio:1;pointer-events:none;
+  background:radial-gradient(circle closest-side,transparent 0 40%,rgb(255 255 255 / .24) 40% 40.5%,transparent 40.4% 54%,rgb(255 255 255 / .2) 54% 54.4%,
+    transparent 54.3% 70%,rgb(255 255 255 / .17) 70% 70.3%,transparent 70.25% 88%,rgb(255 255 255 / .14) 88% 88.25%,transparent 88.2%)}
+/* «02 · Los escaños»: el mapa de los 350 y «El precio de un escaño», en dos columnas */
+html[data-marca="sol"] .elh-grupo:has(.elh-350){grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);column-gap:var(--e-16);align-items:stretch}
+html[data-marca="sol"] .elh-grupo:has(.elh-350)>.elh-grupo-h{grid-column:1 / -1}
+html[data-marca="sol"] .elh-grupo:has(.elh-350)>.el-tarjetas{grid-template-columns:1fr;align-content:stretch}
+html[data-marca="sol"] .elh-grupo:has(.elh-350)>.el-tarjetas>.el-tarjeta{height:100%}
+@media (max-width:900px){ html[data-marca="sol"] .elh-grupo:has(.elh-350){grid-template-columns:1fr} }
+
+html[data-marca="sol"] .el-precio{gap:8px;font-size:13px}
+html[data-marca="sol"] .el-precio-f i{border-radius:0;background:var(--tinta)}
+html[data-marca="sol"] .el-precio-f:nth-last-child(-n+5) i{background:var(--rojo)}
+html[data-marca="sol"] .el-precio-f em{font:500 12.5px var(--font-mono)}
+html[data-marca="sol"] .el-precio-p{font:500 11px var(--font-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--tinta-3)}
+
+/* ---------- Elecciones: el menú de los apartados ---------- */
+/* Arriba, dónde estás y el paso («Apartado 12 de 14» con anterior y siguiente en círculos); los seis bloques en una
+   fila, en serif con su número en mono (el actual en gris, con el número rojo); los apartados del bloque, en un control
+   segmentado (el actual en blanco con sombra); y un guion por apartado, como el «Proyecto 04 de 04» de su portada. */
+html[data-marca="sol"] .el-cabeza{padding-top:var(--e-8)}
+html[data-marca="sol"] .el-migas{padding-top:0;font-size:14px;color:var(--tinta-3)}
+html[data-marca="sol"] .el-migas a{color:var(--tinta-2);text-underline-offset:.2em;text-decoration-thickness:from-font}
+html[data-marca="sol"] .el-paso-n{font:500 11px var(--font-mono);letter-spacing:.08em;color:var(--tinta-3)}
+html[data-marca="sol"] .el-paso-b{width:36px;height:36px;border:0;background:var(--blanco);box-shadow:0 0 0 1px var(--linea);
+  transition:background var(--t-rapido) var(--curva-salida),transform var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] a.el-paso-b:hover{background:var(--superficie)}
+html[data-marca="sol"] a.el-paso-b:active{transform:scale(.96)}
+html[data-marca="sol"] span.el-paso-b{opacity:1;box-shadow:0 0 0 1px var(--linea);background:var(--superficie)}
+html[data-marca="sol"] .el-ruta{gap:var(--e-16);padding-top:var(--e-20);margin-bottom:var(--e-16)}
+html[data-marca="sol"] .el-grupos{gap:var(--e-4);margin-inline:calc(-1 * var(--e-12))}
+html[data-marca="sol"] .el-grupos a{min-height:44px;align-items:center;gap:8px;padding:0 var(--e-12);font:400 18px/1 var(--display);letter-spacing:-.01em;color:var(--tinta-2);
+  transition:background var(--t-rapido) var(--curva-salida),color var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] .el-grupos a small{font:500 11px var(--font-mono);letter-spacing:.04em;color:var(--tinta-3)}
+html[data-marca="sol"] .el-grupos a:hover{color:var(--tinta);background:var(--superficie)}
+html[data-marca="sol"] .el-grupos .act a{color:var(--tinta);background:var(--superficie)}
+html[data-marca="sol"] .el-grupos .act a small{color:var(--rojo)}
+html[data-marca="sol"] .el-pags{display:inline-flex;width:fit-content;max-width:100%;gap:2px;padding:4px;border-radius:var(--r-pildora);background:var(--superficie)}
+html[data-marca="sol"] .el-pags a{display:inline-flex;align-items:center;min-height:36px;padding:0 var(--e-16);border:0;border-radius:var(--r-pildora);font:500 14px var(--font-texto);color:var(--tinta-2);
+  transition:background var(--t-medio) var(--curva-salida),color var(--t-rapido) var(--curva-salida),box-shadow var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] .el-pags a:hover{color:var(--tinta)}
+html[data-marca="sol"] .el-pags a[aria-current="page"]{background:var(--blanco);color:var(--tinta);box-shadow:var(--sombra-suave)}
+html[data-marca="sol"] .el-barras{gap:4px;margin-top:var(--e-4)}
+html[data-marca="sol"] .el-barras i{height:3px;border-radius:0;background:var(--linea)}
+html[data-marca="sol"] .el-barras i.corte{margin-left:12px}
+html[data-marca="sol"] .el-barras i.hecho{background:var(--tinta)}
+html[data-marca="sol"] .el-barras i.act{background:var(--rojo)}
+@media (max-width:640px){
+  html[data-marca="sol"] .el-paso-n{display:none}
+  html[data-marca="sol"] .el-grupos{-webkit-mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 40px),transparent);padding-inline:var(--e-12)}
+  html[data-marca="sol"] .el-pags{border-radius:var(--r-20)}
+}
+
+
+/* ---------- Oradores ---------- */
+/* Barra de búsqueda en píldora y controles segmentados; tarjetas con la foto (en el color del grupo), el nombre en
+   serif, las cifras en mono y, al pasar el ratón, el sol suave y el chevrón; el directorio A–Z con índice de letras;
+   el panel de quien no es diputado, como su hoja: radio 28 y sombra flotante */
+html[data-marca="sol"] .or-barra{gap:var(--e-8) var(--e-12);margin-top:var(--e-24)}
+html[data-marca="sol"] .or-busca{min-height:44px;padding:0 var(--e-16);border:1px solid var(--tinta-3);color:var(--tinta-3)}
+html[data-marca="sol"] .or-busca:focus-within{box-shadow:0 0 0 2px var(--foco);border-color:transparent}
+html[data-marca="sol"] .or-busca input{font-size:16px}
+html[data-marca="sol"] .or-seg{padding:3px;background:var(--superficie)}
+html[data-marca="sol"] .or-seg button{min-height:38px;padding:0 var(--e-16);font:500 14px var(--font-texto);color:var(--tinta-2);transition:background var(--t-medio) var(--curva-salida),box-shadow var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] .or-seg button[aria-pressed="true"]{background:var(--blanco);color:var(--tinta);box-shadow:var(--sombra-suave)}
+html[data-marca="sol"] .or-n-res{margin-top:var(--e-12);font:500 11px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--tinta-3)}
+html[data-marca="sol"] .or-cards{gap:var(--e-16);margin-top:var(--e-16)}
+html[data-marca="sol"] .or-card{position:relative;isolation:isolate;overflow:hidden;gap:var(--e-12);padding:var(--e-20) var(--e-20) var(--e-16);border:0;border-radius:var(--r-20);box-shadow:0 0 0 1px var(--linea);transition:box-shadow var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] .or-card::before{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;background:radial-gradient(90% 55% at 50% 118%,#ffd34d 0%,rgb(255 190 11 / .5) 35%,rgb(255 122 26 / 0) 75%);opacity:0;transform:translateY(24%);transition:opacity var(--t-medio) var(--curva-salida),transform 420ms var(--curva-salida)}
+@media (hover:hover) and (pointer:fine){
+  html[data-marca="sol"] .or-card:hover{box-shadow:var(--sombra-suave)}
+  html[data-marca="sol"] .or-card:hover::before{opacity:1;transform:none}
+  html[data-marca="sol"] .or-card:hover .or-ir::after{transform:translateX(3px)}
+}
+html[data-marca="sol"] .or-foto{width:56px;height:56px;box-shadow:0 0 0 2px var(--blanco),0 0 0 4px var(--grupo,var(--linea));font:500 15px var(--font-mono)}
+html[data-marca="sol"] .or-foto.avatar{box-shadow:none}
+html[data-marca="sol"] .or-g{font:500 11px/1.35 var(--font-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--tinta-3)}
+html[data-marca="sol"] .or-n{font:400 22px/1.12 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .or-stats{gap:var(--e-8) var(--e-20);font-size:12px;color:var(--tinta-3)}
+html[data-marca="sol"] .or-stats b{font:500 20px/1 var(--font-mono);letter-spacing:-.02em;color:var(--tinta)}
+html[data-marca="sol"] .or-stats .tone{font-size:13px;color:var(--tinta)}
+html[data-marca="sol"] .or-cita{font-size:14.5px;line-height:1.5;color:var(--tinta)}
+html[data-marca="sol"] .or-pie{padding-top:var(--e-12);border-top:1px solid var(--linea);font-size:13px;color:var(--tinta-3)}
+html[data-marca="sol"] .or-ir{display:inline-flex;align-items:center;gap:6px;color:var(--tinta)}
+html[data-marca="sol"] .or-ir::after{content:"";width:12px;height:12px;background:currentColor;-webkit-mask:var(--chevron) center/contain no-repeat;mask:var(--chevron) center/contain no-repeat;transition:transform var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] .or-letras{position:sticky;top:calc(var(--alto-barra) + 72px);z-index:5;gap:4px;margin-top:var(--e-16);padding:var(--e-8);border-radius:var(--r-20);background:rgb(255 255 255 / .8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+html[data-marca="sol"] .or-letras button{width:36px;height:36px;border:0;border-radius:var(--r-12);background:var(--superficie);font:500 13px var(--font-mono);transition:background var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] .or-letras button:hover{background:var(--tinta);color:var(--blanco)}
+html[data-marca="sol"] .or-dir{gap:var(--e-16) var(--e-40);margin-top:var(--e-24)}
+html[data-marca="sol"] .or-dir-l{scroll-margin-top:160px}
+html[data-marca="sol"] .or-dir-l h3{font:400 32px/1 var(--display);color:var(--rojo);border-bottom-color:var(--linea);padding-bottom:var(--e-8)}
+html[data-marca="sol"] .or-fila{min-height:56px;border-bottom-color:var(--linea);transition:background var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] .or-fila:hover{background:var(--superficie)}
+html[data-marca="sol"] .or-fila-n b{font-weight:500}
+html[data-marca="sol"] .or-fila-d{font-family:var(--font-mono)}
+html[data-marca="sol"] .or-mini{font:500 11px var(--font-mono)}
+html[data-marca="sol"] #or-panel{border-radius:var(--r-28);box-shadow:var(--sombra-flota);background:var(--blanco)}
+html[data-marca="sol"] #or-panel::backdrop{background:rgb(34 34 34 / .35);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+html[data-marca="sol"] .or-panel-in{gap:var(--e-16);padding:0 0 var(--e-24)}
+html[data-marca="sol"] .or-panel-in header{padding:var(--e-24);background:var(--atardecer);color:var(--blanco)}
+html[data-marca="sol"] .or-panel-in header :is(.or-g,.or-n){color:var(--blanco)}
+html[data-marca="sol"] .or-panel-in header .or-foto{box-shadow:0 0 0 2px var(--blanco)}
+html[data-marca="sol"] .or-panel-in>:not(header){margin-inline:var(--e-24)}
+html[data-marca="sol"] .or-cerrar{width:44px;height:44px;border:0;background:rgb(255 255 255 / .35);color:var(--blanco);font-size:22px}
+html[data-marca="sol"] .or-panel-r{font-size:14px;color:var(--tinta-2)}
+@media (prefers-reduced-motion:no-preference){ html[data-marca="sol"] #or-panel[open]{animation:sol-entra 360ms var(--curva-salida)} }
+html[data-marca="sol"] .or-stats{display:flex;flex-wrap:wrap;gap:var(--e-8) var(--e-20);align-items:flex-start}
+html[data-marca="sol"] .or-tonos{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--e-12);align-items:center}
+html[data-marca="sol"] .or-tonos .tonebar{margin:0}
+html[data-marca="sol"] .or-stats .tone{min-height:20px;align-items:center}
+/* Estructura fija: todas las tarjetas igual de altas, con el pie abajo; el cargo en una línea (entero al pasar el
+   ratón), la cita en tres y los temas en una */
+html[data-marca="sol"] .or-card{display:flex;flex-direction:column;align-items:stretch}
+html[data-marca="sol"] .or-id{gap:4px}
+html[data-marca="sol"] .or-g{display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden}
+html[data-marca="sol"] .or-cargo{display:block;font-size:12.5px;line-height:1.35;color:var(--tinta-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-marca="sol"] .or-cita{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+html[data-marca="sol"] .or-temas{flex-wrap:nowrap;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,#000 80%,transparent);mask-image:linear-gradient(90deg,#000 80%,transparent)}
+html[data-marca="sol"] .or-temas .tag{flex:none}
+html[data-marca="sol"] .or-pie{margin-top:auto}
+/* El paginador: píldoras, la página actual en tinta, anterior y siguiente con el chevrón */
+html[data-marca="sol"] .or-pags{display:flex;flex-wrap:wrap;align-items:center;gap:var(--e-4);margin-top:var(--e-24)}
+html[data-marca="sol"] .or-pags button{min-width:40px;height:40px;padding:0 var(--e-12);border:0;border-radius:var(--r-pildora);background:var(--superficie);font:500 14px var(--font-mono);color:var(--tinta);cursor:pointer;transition:background var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] .or-pags button:hover:not(:disabled){background:#e6e6e6}
+html[data-marca="sol"] .or-pags button[aria-current="page"]{background:var(--tinta);color:var(--blanco)}
+html[data-marca="sol"] .or-pags button:disabled{background:var(--apagado);color:var(--apagado-texto);cursor:default}
+html[data-marca="sol"] .or-pags-h{padding:0 var(--e-4);color:var(--tinta-3)}
+html[data-marca="sol"] .or-pags-n{margin-left:auto;font:500 11px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--tinta-3)}
+/* Las letras del directorio, con cuántos oradores tiene cada una; la elegida en tinta */
+html[data-marca="sol"] .or-letras{position:static}
+html[data-marca="sol"] .or-letras button{width:auto;min-width:44px;height:44px;display:inline-grid;place-items:center;padding:0 var(--e-8);line-height:1}
+html[data-marca="sol"] .or-letras button small{font-size:9.5px;color:var(--tinta-3)}
+html[data-marca="sol"] .or-letras button[aria-pressed="true"]{background:var(--tinta);color:var(--blanco)}
+html[data-marca="sol"] .or-letras button[aria-pressed="true"] small{color:rgb(255 255 255 / .7)}
+html[data-marca="sol"] .or-dir{grid-template-columns:1fr}
+html[data-marca="sol"] .or-dir-l ul{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));column-gap:var(--e-40)}
+html[data-marca="sol"] .or-panel-in header{position:sticky;top:0;z-index:2}
+
+/* ---------- Por día ---------- */
+/* El filtro en control segmentado; el índice de jornadas como casillas (el día en mono, un punto por sesión: rojo el
+   pleno), que se desplaza; la fecha de cada jornada fija a la izquierda; las cifras de la sesión en mono y el orden
+   del día plegable con el chevrón */
+html[data-marca="sol"] .dias-barra{gap:var(--e-8) var(--e-16);margin-top:var(--e-24)}
+html[data-marca="sol"] .dias-barra .or-seg small{font:500 11px var(--font-mono);color:var(--tinta-3);opacity:1}
+html[data-marca="sol"] .dias-n{font:500 11px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--tinta-3)}
+html[data-marca="sol"] .dias-indice{gap:var(--e-4);margin-top:var(--e-16);-webkit-mask-image:linear-gradient(90deg,transparent,#000 24px);mask-image:linear-gradient(90deg,transparent,#000 24px);padding-left:24px}
+html[data-marca="sol"] .dia-i{width:52px;padding:var(--e-8) 0;border:0;border-radius:var(--r-16);background:var(--superficie);gap:4px;transition:background var(--t-rapido) var(--curva-salida),transform var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] .dia-i:hover{background:#e6e6e6}
+html[data-marca="sol"] .dia-i:active{transform:scale(.96)}
+html[data-marca="sol"] .dia-i small,html[data-marca="sol"] .dia-i em{font-family:var(--font-mono);color:var(--tinta-3)}
+html[data-marca="sol"] .dia-i b{font:500 18px var(--font-mono);letter-spacing:-.02em}
+html[data-marca="sol"] .dia-i span i{border-radius:0;background:var(--tinta-3)}
+html[data-marca="sol"] .dia-i span i.pleno{background:var(--rojo)}
+html[data-marca="sol"] .day{gap:var(--e-24);padding-block:var(--e-24) var(--e-32);border-bottom-color:var(--linea)}
+html[data-marca="sol"] .day .date{top:calc(var(--alto-barra) + 72px)}
+html[data-marca="sol"] .date .d{font:500 44px/1 var(--font-mono);letter-spacing:-.04em}
+html[data-marca="sol"] .date .m,html[data-marca="sol"] .date .w{font:500 11px/1.4 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-3)}
+html[data-marca="sol"] .date .m{margin-top:var(--e-8);color:var(--rojo)}
+html[data-marca="sol"] .session{gap:var(--e-16)}
+html[data-marca="sol"] .session-head h3{font:400 clamp(22px,2.2vw,26px)/1.15 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .organ{font:500 11px var(--font-mono);letter-spacing:.08em;color:var(--rojo)}
+html[data-marca="sol"] .ses-cifras{gap:var(--e-4) var(--e-20);font-size:13px;color:var(--tinta-3)}
+html[data-marca="sol"] .ses-cifras b{font:500 15px var(--font-mono);color:var(--tinta)}
+html[data-marca="sol"] details.od-plegable>summary{display:flex;align-items:center;gap:var(--e-8);min-height:48px;padding:0;border-top:1px solid var(--linea);font:500 14px var(--font-texto);list-style:none}
+html[data-marca="sol"] details.od-plegable>summary::-webkit-details-marker{display:none}
+html[data-marca="sol"] details.od-plegable>summary::before{content:"";width:12px;height:12px;background:currentColor;-webkit-mask:var(--chevron) center/contain no-repeat;mask:var(--chevron) center/contain no-repeat;transition:transform var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] details.od-plegable[open]>summary::before{transform:rotate(90deg)}
+@media (max-width:640px){ html[data-marca="sol"] .day .date{position:static} html[data-marca="sol"] .date .d{font-size:32px} }
+
+/* ---------- Grupos ---------- */
+/* Una tarjeta por grupo: arriba una franja de su color; la sigla en etiqueta, el nombre en serif; los escaños con una
+   barra de lo que pesan en los 350 (la raya, la mayoría absoluta); cuatro cifras en mono; la barra de tonos y sus
+   temas; y el chevrón a sus diputados. Las cajas antiguas (.panel), como las demás. */
+html[data-marca="sol"] .gr-cards{gap:var(--e-16);margin-top:var(--e-24)}
+html[data-marca="sol"] .gr-card{position:relative;isolation:isolate;overflow:hidden;gap:var(--e-16);padding:var(--e-24) var(--e-20) var(--e-20);border:0;border-radius:var(--r-20);box-shadow:0 0 0 1px var(--linea);transition:box-shadow var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] .gr-card::before{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;background:radial-gradient(90% 55% at 50% 118%,#ffd34d 0%,rgb(255 190 11 / .45) 35%,rgb(255 122 26 / 0) 75%);opacity:0;transform:translateY(24%);transition:opacity var(--t-medio) var(--curva-salida),transform 420ms var(--curva-salida)}
+@media (hover:hover) and (pointer:fine){
+  html[data-marca="sol"] .gr-card:hover{box-shadow:var(--sombra-suave)}
+  html[data-marca="sol"] .gr-card:hover::before{opacity:1;transform:none}
+  html[data-marca="sol"] .gr-card:hover .gr-ir::after{transform:translateX(3px)}
+}
+html[data-marca="sol"] .gr-sigla{font:500 11px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--tinta-3)}
+html[data-marca="sol"] .gr-nombre{font:400 24px/1.1 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .gr-esc{font-size:13px;color:var(--tinta-3)}
+html[data-marca="sol"] .gr-esc-gob{font-size:14px;color:var(--tinta-2)}
+html[data-marca="sol"] .gr-esc-n b{font:500 22px var(--font-mono);letter-spacing:-.02em}
+html[data-marca="sol"] .gr-esc-b{height:8px;border-radius:0;background:var(--superficie)}
+html[data-marca="sol"] .gr-esc-b i{border-radius:0}
+html[data-marca="sol"] .gr-esc-b em{background:var(--tinta)}
+html[data-marca="sol"] .gr-cifras{gap:var(--e-12) var(--e-16);padding-top:var(--e-12);border-top:1px solid var(--linea);font-size:12px;color:var(--tinta-3)}
+html[data-marca="sol"] .gr-cifras b{font:500 18px var(--font-mono);letter-spacing:-.02em}
+html[data-marca="sol"] .gr-tono .tonebar{margin:0}
+html[data-marca="sol"] .gr-ir{display:inline-flex;align-items:center;gap:6px;font-size:14px}
+html[data-marca="sol"] .gr-ir::after{content:"";width:12px;height:12px;background:currentColor;-webkit-mask:var(--chevron) center/contain no-repeat;mask:var(--chevron) center/contain no-repeat;transition:transform var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] .gr-sec{padding-top:var(--e-80)}
+html[data-marca="sol"] .panel{padding:var(--e-24);border:0;border-radius:var(--r-20);background:var(--blanco);box-shadow:0 0 0 1px var(--linea)}
+html[data-marca="sol"] .panel>h3{margin:0 0 var(--e-8);font:400 clamp(22px,2.2vw,26px)/1.15 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .panel>p{margin:0 0 var(--e-16);font-size:14px;color:var(--tinta-2)}
+
+/* ---------- Diputados ---------- */
+/* El directorio arriba: cuadrícula de fotos (la foto con el anillo de su grupo, el nombre, grupo y provincia en
+   etiqueta y tres cifras en mono), o la tabla; al pasar el ratón, el sol suave */
+html[data-marca="sol"] .dp-dir .sec-h{margin-bottom:0}
+html[data-marca="sol"] .dp-cards{gap:var(--e-12);margin-top:var(--e-16)}
+html[data-marca="sol"] .dp-card{position:relative;isolation:isolate;overflow:hidden;gap:var(--e-12);padding:var(--e-16);border:0;border-radius:var(--r-20);box-shadow:0 0 0 1px var(--linea);transition:box-shadow var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] .dp-card::before{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;background:radial-gradient(90% 55% at 50% 118%,#ffd34d 0%,rgb(255 190 11 / .45) 35%,rgb(255 122 26 / 0) 75%);opacity:0;transform:translateY(24%);transition:opacity var(--t-medio) var(--curva-salida),transform 420ms var(--curva-salida)}
+@media (hover:hover) and (pointer:fine){
+  html[data-marca="sol"] .dp-card:hover{box-shadow:var(--sombra-suave)}
+  html[data-marca="sol"] .dp-card:hover::before{opacity:1;transform:none}
+}
+html[data-marca="sol"] .dp-foto{width:60px;height:60px;box-shadow:0 0 0 2px var(--blanco),0 0 0 4px var(--grupo);font:500 15px var(--font-mono)}
+html[data-marca="sol"] .dp-foto.avatar{box-shadow:none}
+html[data-marca="sol"] .dp-id b{font:400 19px/1.15 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .dp-id small{font:500 10.5px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--tinta-3)}
+html[data-marca="sol"] .dp-cifras{gap:var(--e-16);padding-top:var(--e-12);border-top:1px solid var(--linea);font-size:11px;color:var(--tinta-3)}
+html[data-marca="sol"] .dp-cifras b{font:500 15px var(--font-mono);letter-spacing:-.02em}
+html[data-marca="sol"] .or-seg button{white-space:nowrap}
+@media (max-width:640px){ html[data-marca="sol"] .or-seg{max-width:100%;overflow-x:auto;scrollbar-width:none} html[data-marca="sol"] .or-seg::-webkit-scrollbar{display:none} }
+/* Grupos, uno a uno: el hemiciclo (los escaños del grupo elegido en su color; los demás en gris, con la curva de
+   Sol) con los botones de cada grupo debajo, y su tarjeta grande al lado */
+html[data-marca="sol"] .gr-vistas{margin-top:var(--e-24)}
+html[data-marca="sol"] .gr-dos{gap:var(--e-16);margin-top:var(--e-16)}
+html[data-marca="sol"] .gr-hemi-caja{gap:var(--e-20)}
+html[data-marca="sol"] .gr-hemi circle{transition:fill var(--t-medio) var(--curva-salida),r var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] .gr-hemi circle.off{fill:#e6e6e6}
+html[data-marca="sol"] .gr-hemi circle:not(.off):hover{r:7}
+html[data-marca="sol"] .gr-botones{gap:var(--e-4)}
+html[data-marca="sol"] .gr-b{min-height:36px;padding:0 var(--e-12);border:0;background:var(--superficie);font:500 14px var(--font-texto);transition:background var(--t-rapido) var(--curva-salida)}
+html[data-marca="sol"] .gr-b:hover{background:#e6e6e6}
+html[data-marca="sol"] .gr-b small{font:500 11px var(--font-mono);color:var(--tinta-3)}
+html[data-marca="sol"] .gr-b[aria-pressed="true"]{background:var(--tinta);color:var(--blanco)}
+html[data-marca="sol"] .gr-b[aria-pressed="true"] small{color:rgb(255 255 255 / .7)}
+html[data-marca="sol"] .gr-sel .gr-card{padding:var(--e-32) var(--e-24) var(--e-24);align-content:start}
+html[data-marca="sol"] .gr-sel .gr-ir{margin-top:auto}
+html[data-marca="sol"] .gr-sel .gr-nombre{font-size:clamp(28px,3vw,36px)}
+html[data-marca="sol"] .gr-sel .gr-esc-n b{font-size:32px}
+@media (prefers-reduced-motion:no-preference){ html[data-marca="sol"] .gr-sel .gr-card{animation:sol-entra 360ms var(--curva-salida)} }
+html[data-marca="sol"] .gr-quien{gap:var(--e-8);padding-top:var(--e-12);border-top:1px solid var(--linea);font-size:14px}
+html[data-marca="sol"] .gr-quien small{font:500 11px var(--font-mono);letter-spacing:.08em;color:var(--tinta-3)}
+html[data-marca="sol"] .gr-quien em{font:500 13px var(--font-mono);color:var(--tinta-3)}
+
+/* ---------- Ficha de diputado: pestañas ---------- */
+/* Las pestañas, un control segmentado fijo al bajar (bajo la barra del periodo), translúcido como ella; en Resumen,
+   «Lo que ha dicho» y «Lo que ha votado» en filas de línea fina con la fecha en mono */
+html[data-marca="sol"] .ficha-tabs{top:calc(var(--alto-barra) + 64px);margin-top:var(--e-32);padding:4px;background:rgb(242 242 242 / .82);-webkit-backdrop-filter:saturate(180%) blur(16px);backdrop-filter:saturate(180%) blur(16px)}
+html[data-marca="sol"] .ficha-tabs button{min-height:40px;padding:0 var(--e-16);font:500 14px var(--font-texto);color:var(--tinta-2);transition:background var(--t-medio) var(--curva-salida),color var(--t-rapido) var(--curva-salida),box-shadow var(--t-medio) var(--curva-salida)}
+html[data-marca="sol"] .ficha-tabs button:hover{color:var(--tinta)}
+html[data-marca="sol"] .ficha-tabs button small{font:500 11px var(--font-mono);color:var(--tinta-3);opacity:1}
+html[data-marca="sol"] .ficha-tabs button[aria-selected="true"]{background:var(--blanco);color:var(--tinta);box-shadow:var(--sombra-suave)}
+html[data-marca="sol"] #ficha-panel>.sec:first-child,html[data-marca="sol"] #ficha-panel>div>.sec:first-child{padding-top:var(--e-48)}
+@media (prefers-reduced-motion:no-preference){ html[data-marca="sol"] #ficha-panel>*{animation:sol-entra 360ms var(--curva-salida)} }
+html[data-marca="sol"] .ficha-l li{grid-template-columns:56px minmax(0,1fr) auto;gap:var(--e-12);padding:var(--e-12) 0;border-bottom-color:var(--linea)}
+html[data-marca="sol"] .ficha-l-f{font:500 11px/1.6 var(--font-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--tinta-3)}
+html[data-marca="sol"] .ficha-l-t b{font-size:14.5px}
+html[data-marca="sol"] .ficha-l-t small{font-size:12.5px;color:var(--tinta-3)}
+html[data-marca="sol"] .ficha-libre{color:var(--rojo)!important;font:500 11px var(--font-mono)!important;letter-spacing:.06em;text-transform:uppercase}
+html[data-marca="sol"] .ficha-ult .chart>.linklike{justify-self:start}
+html[data-marca="sol"] .ficha-ult .chart>.linklike::after{content:"";display:inline-block;width:12px;height:12px;margin-left:.45em;vertical-align:-.05em;background:currentColor;-webkit-mask:var(--chevron) center/contain no-repeat;mask:var(--chevron) center/contain no-repeat}
+html[data-marca="sol"] .ficha-l-t small:not(.ficha-libre),html[data-marca="sol"] .ficha-l-t .linklike{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+/* Sin franja de color: el grupo se reconoce por el punto junto a la sigla y por sus escaños en el mini hemiciclo */
+html[data-marca="sol"] .gr-card{padding:var(--e-20)}
+html[data-marca="sol"] .gr-sigla{color:var(--tinta-2)}
+html[data-marca="sol"] .gr-sigla i{width:8px;height:8px;border-radius:50%}
+html[data-marca="sol"] .gr-mini{width:104px;margin:-4px -4px 0 0}
+html[data-marca="sol"] .gr-mini circle.off{fill:#e6e6e6}
+html[data-marca="sol"] .gr-esc-n{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 6px}
+html[data-marca="sol"] .gr-esc-n small{margin-left:var(--e-8);font:500 11px var(--font-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--tinta-3)}
+
+
+/* ---------- Declaración de intereses ---------- */
+/* Cuatro cajas con su anillo: el número de cada apartado en etiqueta roja y el título en serif; las actividades a lo
+   ancho, una por fila (el periodo en mono, dónde y qué, el sector en píldora); lo que no se declara, en gris */
+html[data-marca="sol"] .int-grid{gap:var(--e-16)}
+html[data-marca="sol"] .int-caja{gap:var(--e-12);padding:var(--e-24);border:0;border-radius:var(--r-20);box-shadow:0 0 0 1px var(--linea)}
+html[data-marca="sol"] .int-k{font:500 11px var(--font-mono);letter-spacing:.08em;color:var(--rojo)}
+html[data-marca="sol"] .int-caja h3{margin-bottom:var(--e-4);font:400 clamp(22px,2.2vw,26px)/1.15 var(--display);letter-spacing:-.01em}
+html[data-marca="sol"] .int-act li{grid-template-columns:120px minmax(0,1fr) auto;gap:var(--e-16);padding:var(--e-16) 0;border-top-color:var(--linea)}
+html[data-marca="sol"] .int-per{font:500 13px var(--font-mono);letter-spacing:-.01em;color:var(--tinta)}
+html[data-marca="sol"] .int-que b{font-weight:500;font-size:15.5px}
+html[data-marca="sol"] .int-que span,html[data-marca="sol"] .int-l li span{font-size:14.5px;line-height:1.5;color:var(--tinta-2)}
+html[data-marca="sol"] .int-l li{padding:var(--e-12) 0;border-top-color:var(--linea)}
+html[data-marca="sol"] .int-l li b{font-weight:500}
+html[data-marca="sol"] .int-obs{font-size:15px;line-height:1.6;color:var(--tinta);padding-left:var(--e-16);box-shadow:inset 2px 0 0 var(--linea)}
+html[data-marca="sol"] .int-nada{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--tinta-3)}
+html[data-marca="sol"] .int-nada::before{content:"";width:6px;height:6px;background:var(--tinta-3)}
