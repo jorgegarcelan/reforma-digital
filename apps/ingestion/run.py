@@ -233,7 +233,8 @@ def main() -> None:
         parser.error("--local solo permite bootstrap --source")
     from escano import analisis
     analisis.LIMITE_LLAMADAS = args.limit
-    with psycopg.connect(os.environ["DATABASE_URL"], autocommit=True) as db:
+    database_url = os.environ.get("CONGRESS_DATABASE_URL") or os.environ["DATABASE_URL"]
+    with psycopg.connect(database_url, autocommit=True) as db:
         # Un único escritor, también entre ejecución local y GitHub Actions.
         db.execute("SELECT pg_advisory_lock(492773)")
         previous = db.execute("SELECT state_url,source_revision FROM congreso_checkpoint WHERE id").fetchone()

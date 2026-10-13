@@ -12,6 +12,22 @@ from escano import analisis
 import run
 
 
+@pytest.mark.parametrize("writer_url", ["postgresql://synthetic-writer/database", ""])
+def test_runner_uses_writer_connection(monkeypatch, writer_url):
+    reader_url = "postgresql://synthetic-reader/database"
+    monkeypatch.setenv("DATABASE_URL", reader_url)
+    monkeypatch.setenv("CONGRESS_DATABASE_URL", writer_url)
+    monkeypatch.setattr(sys, "argv", ["run.py", "rebuild"])
+
+    def connect(url, **kwargs):
+        assert url == (writer_url or reader_url)
+        raise RuntimeError("synthetic-connection-selected")
+
+    monkeypatch.setattr(run.psycopg, "connect", connect)
+    with pytest.raises(RuntimeError, match="synthetic-connection-selected"):
+        run.main()
+
+
 def test_helmcode_retries_and_validates(monkeypatch):
     monkeypatch.setenv("HELMCODE_API_KEY", "synthetic-test-token")
     monkeypatch.setattr(analisis.time, "sleep", lambda _: None)
