@@ -28,6 +28,7 @@ export function SeatsMap({
   canarias,
   seats,
   hemicycleRadius,
+  note,
 }: {
   width: number;
   top: number;
@@ -36,6 +37,7 @@ export function SeatsMap({
   canarias: string;
   seats: Seat[];
   hemicycleRadius: number;
+  note: string;
 }) {
   const [hemicycle, setHemicycle] = useState(false);
   const svg = useRef<SVGSVGElement>(null);
@@ -67,7 +69,7 @@ export function SeatsMap({
       className="gap-4"
     >
       <div className="relative z-10 flex flex-wrap items-start justify-between gap-4">
-        <div className="max-w-72">
+        <div className="grid max-w-72 gap-2">
           <Stat
             value="350"
             caption={
@@ -76,6 +78,7 @@ export function SeatsMap({
                 : 'escaños, repartidos entre 52 circunscripciones'
             }
           />
+          <p className="m-0 text-sm text-muted-foreground">{note}</p>
         </div>
         <TabsList aria-label="Vista">
           <TabsTrigger value="mapa" className="px-3">

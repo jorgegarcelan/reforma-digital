@@ -723,6 +723,7 @@ export async function ElectionsHome() {
             canarias={map.canarias}
             seats={seats}
             hemicycleRadius={5.3 * k * 0.96}
+            note={`Diputados de la ${index.meta.legislatura} legislatura, elegidos en ${format(last.fecha, { month: 'long', year: 'numeric' })}.`}
           />
           <Legend
             small
