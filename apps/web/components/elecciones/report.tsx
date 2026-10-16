@@ -103,9 +103,20 @@ export function Bars({ rows, max, mark }: { rows: Bar[]; max?: number; mark?: nu
   );
 }
 
-export function Legend({ items }: { items: { label: string; color: string }[] }) {
+export function Legend({
+  items,
+  small,
+}: {
+  items: { label: string; color: string }[];
+  small?: boolean;
+}) {
   return (
-    <ul className="m-0 flex list-none flex-wrap gap-x-5 gap-y-2 p-0 text-base text-muted-foreground">
+    <ul
+      className={cn(
+        'm-0 flex list-none flex-wrap gap-y-2 p-0 text-muted-foreground',
+        small ? 'gap-x-3 text-sm' : 'gap-x-5 text-base',
+      )}
+    >
       {items.map((item) => (
         <li key={item.label} className="inline-flex items-center gap-2">
           <i className="block size-2.5 rounded-full" style={{ background: item.color }} />
@@ -131,6 +142,40 @@ export function Explore({ links }: { links: { href: string; text: string }[] }) 
         </Link>
       ))}
     </div>
+  );
+}
+
+// Un apartado de la sección como tarjeta enlazada: título, qué contiene y, si la portada no lo
+// enseña ya, una cifra o un gráfico pequeño. Las tarjetas vecinas comparten sus cuatro filas
+// (subgrid), así que las cifras y los gráficos empiezan a la misma altura aunque el texto mida distinto.
+export function PageCard({
+  href,
+  title,
+  text,
+  span = 12,
+  children,
+}: {
+  href: string;
+  title: string;
+  text: string;
+  span?: keyof typeof spans;
+  children?: ReactNode;
+}) {
+  return (
+    <Card
+      render={<Link href={href} />}
+      className={cn(
+        'col-span-12 row-span-4 grid min-w-0 grid-rows-subgrid gap-4 p-6 text-base no-underline outline-none transition-colors hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/50 lg:p-8 max-sm:p-5',
+        spans[span],
+      )}
+    >
+      <h3 className="m-0 font-heading text-2xl leading-tight font-normal">{title}</h3>
+      <p className="m-0 max-w-[48ch] leading-snug text-muted-foreground">{text}</p>
+      <div className="grid content-start gap-4">{children}</div>
+      <span className="self-end justify-self-end pt-2">
+        <Icon name="derecha" size={16} />
+      </span>
+    </Card>
   );
 }
 

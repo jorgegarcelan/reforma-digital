@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@reforma-digital/design/ui/tabs';
 import { seatRadius } from '../../lib/elecciones/seats';
 import { Label, Stat } from './report';
+import { Tips } from './tips';
 
 export type Seat = {
   ax: number;
@@ -11,7 +12,9 @@ export type Seat = {
   bx: number;
   by: number;
   color: string;
-  label: string;
+  name: string;
+  detail: string;
+  href: string;
   delay: number;
 };
 
@@ -100,48 +103,58 @@ export function SeatsMap({
             ))}
           </ul>
         </div>
-        <svg
-          ref={svg}
-          viewBox={`0 0 ${width} ${height}`}
-          role="img"
-          aria-label="Mapa de España con un punto por escaño, que se reordena en el hemiciclo del Congreso"
-          className="block h-auto w-full max-w-3xl justify-self-center"
-        >
-          <g
-            className="fill-muted stroke-background transition-opacity duration-500"
-            style={{ opacity: hemicycle ? 0.12 : 1 }}
+        {/* Los escaños no entran en el orden de tabulación: cada diputado está en las listas de su provincia y de su grupo. */}
+        <Tips className="w-full max-w-3xl justify-self-center">
+          <svg
+            ref={svg}
+            viewBox={`0 0 ${width} ${height}`}
+            role="img"
+            aria-label="Mapa de España con un punto por escaño, que se reordena en el hemiciclo del Congreso"
+            className="block h-auto w-full"
           >
-            {provinces.map((p) => (
-              <path key={p.id} d={p.d} strokeWidth={0.8}>
-                <title>{p.name}</title>
-              </path>
-            ))}
-            <path d={canarias} fill="none" className="stroke-border" strokeWidth={0.8} />
-          </g>
-          <g className="stroke-background">
-            {seats.map((s, i) => (
-              <circle
-                key={i}
-                cx={s.ax}
-                cy={s.ay}
-                r={seatRadius}
-                fill={s.color}
-                strokeWidth={0.8}
-                className="transition-transform duration-900 ease-(--ease-brand) motion-reduce:transition-none"
-                style={{
-                  transformBox: 'fill-box',
-                  transformOrigin: 'center',
-                  transform: hemicycle
-                    ? `translate(${s.bx - s.ax}px, ${s.by - s.ay}px) scale(${scale})`
-                    : 'none',
-                  transitionDelay: `${s.delay}ms`,
-                }}
-              >
-                <title>{s.label}</title>
-              </circle>
-            ))}
-          </g>
-        </svg>
+            <g
+              className="fill-muted stroke-background transition-opacity duration-500"
+              style={{ opacity: hemicycle ? 0.12 : 1 }}
+            >
+              {provinces.map((p) => (
+                <path key={p.id} d={p.d} strokeWidth={0.8}>
+                  <title>{p.name}</title>
+                </path>
+              ))}
+              <path d={canarias} fill="none" className="stroke-border" strokeWidth={0.8} />
+            </g>
+            <g className="stroke-background">
+              {seats.map((s) => (
+                <a
+                  key={s.href}
+                  href={s.href}
+                  tabIndex={-1}
+                  data-tip={s.name}
+                  data-tip-text={s.detail}
+                  data-tip-color={s.color}
+                  className="[&:hover>circle]:stroke-foreground"
+                >
+                  <circle
+                    cx={s.ax}
+                    cy={s.ay}
+                    r={seatRadius}
+                    fill={s.color}
+                    strokeWidth={0.8}
+                    className="transition-transform duration-900 ease-(--ease-brand) motion-reduce:transition-none"
+                    style={{
+                      transformBox: 'fill-box',
+                      transformOrigin: 'center',
+                      transform: hemicycle
+                        ? `translate(${s.bx - s.ax}px, ${s.by - s.ay}px) scale(${scale})`
+                        : 'none',
+                      transitionDelay: `${s.delay}ms`,
+                    }}
+                  />
+                </a>
+              ))}
+            </g>
+          </svg>
+        </Tips>
       </div>
     </Tabs>
   );
