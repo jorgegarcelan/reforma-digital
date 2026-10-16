@@ -26,7 +26,7 @@ import { clusters, sunflower } from '../../lib/elecciones/seats';
 import { href } from '../congreso/common';
 import { ProvincePicker, type ProvinceSummary } from './province-picker';
 import { Icon } from '../brand/icon';
-import { Bars, Cell, Chapter, Grid, Label, Legend, PageCard, Stat } from './report';
+import { Bars, CardCta, Cell, Chapter, Grid, Label, Legend, PageCard, Stat } from './report';
 import { SeatsMap, type Seat } from './seats-map';
 import { Tips } from './tips';
 
@@ -135,6 +135,7 @@ const card = (id: ElectionPage, span: 4 | 6 | 12, children?: ReactNode) => (
     href={electionsHref(id)}
     title={electionPages[id].title}
     text={electionPages[id].text}
+    cta={electionPages[id].cta}
     span={span}
   >
     {children}
@@ -438,21 +439,31 @@ export async function ElectionsHome() {
     ...p,
     delay: Math.round((((p.ax - west) / span) * 0.45 + ((i * 37) % 100) / 1250) * 1700),
   }));
+  // El dibujo, recortado a lo que ocupan los escaños en las dos vistas; 30 unidades de margen
+  // dejan entrar la costa que queda por encima y por debajo de los puntos.
+  const seatYs = seats.flatMap((s) => [s.ay, s.by]);
+  const drawingTop = Math.max(0, Math.min(...seatYs) - 30);
+  const drawingHeight = Math.min(map.alto, Math.max(...seatYs) + 30) - drawingTop;
   const legend = hemicycleOrder.filter((g) => active.some((d) => d.grupo === g));
   const changes = election.escanos_cambian.filter(([id]) => map.provincias[id]);
+  const changesText = new Intl.ListFormat('es', { type: 'conjunction' }).format(
+    changes.map(([id, before, after]) => {
+      const n = Math.abs(after - before);
+      return `${map.provincias[id]?.corto ?? id} ${after > before ? 'gana' : 'pierde'} ${n === 1 ? 'un escaño' : `${n} escaños`}`;
+    }),
+  );
 
   // El precio de un escaño, de la provincia más cara a la más barata.
   const prices = Object.entries(last.prov)
-    .map(([id, p]) => ({ id, name: map.provincias[id]?.corto ?? id, price: p.validos / p.e }))
+    .map(([id, p]) => ({ name: map.provincias[id]?.corto ?? id, price: p.validos / p.e }))
     .sort((a, b) => b.price - a.price);
   const dearest = prices[0];
   const cheapest = prices.at(-1);
   if (!dearest || !cheapest) throw new Error('Faltan los resultados por provincia');
-  const priceRow = (p: { id: string; name: string; price: number }) => ({
+  const priceRow = (p: { name: string; price: number }) => ({
     label: p.name,
     value: p.price,
     display: thousands(p.price),
-    href: href(`geografia/${p.id}`),
   });
 
   // El mapa del voto: la familia política más votada en cada provincia.
@@ -698,10 +709,12 @@ export async function ElectionsHome() {
           </>
         }
       >
-        <Cell>
+        {/* Como las demás tarjetas, toda la tarjeta lleva a «Los 350»; las pestañas y los escaños quedan encima del enlace. */}
+        <Cell span={7} className="relative transition-colors hover:bg-muted/60">
           <SeatsMap
             width={map.ancho}
-            height={map.alto}
+            top={drawingTop}
+            height={drawingHeight}
             provinces={Object.entries(map.provincias).map(([id, p]) => ({
               id,
               name: p.circ,
@@ -710,36 +723,49 @@ export async function ElectionsHome() {
             canarias={map.canarias}
             seats={seats}
             hemicycleRadius={5.3 * k * 0.96}
-            groups={legend.map((g) => ({
-              label: index.grupos[g]?.nombre ?? g,
+          />
+          <Legend
+            small
+            items={legend.map((g) => ({
+              label: `${index.grupos[g]?.nombre ?? g} ${active.filter((d) => d.grupo === g).length}`,
               color: groupColor(g),
-              seats: active.filter((d) => d.grupo === g).length,
             }))}
           />
+          <Link
+            href={electionsHref('350')}
+            className="mt-auto self-end no-underline outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-3 focus-visible:after:ring-ring/50"
+          >
+            <CardCta>{electionPages['350'].cta}</CardCta>
+          </Link>
         </Cell>
-        <Cell span={8} label={`Votos por escaño en ${year}`}>
-          <Bars rows={prices.slice(0, 5).map(priceRow)} max={dearest.price} />
-          <span aria-hidden="true" className="block border-t border-dashed border-border" />
-          <Bars rows={prices.slice(-5).map(priceRow)} max={dearest.price} />
-          <p className="m-0 text-sm text-muted-foreground">
-            Las cinco provincias donde un escaño costó más votos y las cinco donde costó menos.
-          </p>
-        </Cell>
-        <Cell span={4} label={`Cambios para ${election.votacion.slice(0, 4)}`}>
-          {changes.length ? (
-            changes.map(([id, before, after]) => (
-              <Stat
-                key={id}
-                value={`${after > before ? '+' : '−'}${Math.abs(after - before)}`}
-                caption={`${map.provincias[id]?.corto ?? id} pasa de ${before} a ${after} escaños por su población`}
-              />
-            ))
-          ) : (
-            <Stat value="0" caption="provincias cambian de escaños" />
+        <div className="col-span-12 grid grid-cols-12 grid-rows-[auto_auto_auto_1fr] gap-4 md:col-span-5">
+          {card(
+            'escano',
+            12,
+            <>
+              <div className="grid gap-3">
+                <Bars rows={prices.slice(-5).reverse().map(priceRow)} max={dearest.price} narrow />
+                <span aria-hidden="true" className="font-mono text-sm text-muted-foreground">
+                  …
+                </span>
+                <Bars
+                  rows={prices
+                    .slice(0, 5)
+                    .reverse()
+                    .map((p) => ({ ...priceRow(p), color: 'var(--brand)' }))}
+                  max={dearest.price}
+                  narrow
+                />
+                <Label>Votos por escaño en {year}</Label>
+              </div>
+              {changes.length > 0 && (
+                <p className="m-0 border-t border-border pt-4 text-muted-foreground">
+                  En {election.votacion.slice(0, 4)}, {changesText} respecto a {year}.
+                </p>
+              )}
+            </>,
           )}
-        </Cell>
-        {card('350', 6)}
-        {card('escano', 6)}
+        </div>
       </Chapter>
 
       <Chapter
@@ -887,7 +913,7 @@ export async function ElectionsHome() {
               items={winnerFamilies.map((f) => ({ label: `${f.label} ${f.n}`, color: f.color }))}
             />
           </Cell>
-          <div className="col-span-12 grid gap-4 md:col-span-5">
+          <div className="col-span-12 grid grid-cols-12 gap-4 md:col-span-5">
             {card('mapa', 12)}
             {card('voto', 12)}
           </div>

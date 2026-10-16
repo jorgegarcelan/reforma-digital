@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@reforma-digital/design/ui/tabs';
 import { seatRadius } from '../../lib/elecciones/seats';
-import { Label, Stat } from './report';
+import { Stat } from './report';
 import { Tips } from './tips';
 
 export type Seat = {
@@ -19,23 +19,23 @@ export type Seat = {
 };
 
 // Un punto por escaño: primero en su provincia y, al verlo, cada uno vuela a su sitio del hemiciclo.
-// Las pestañas de arriba cambian de vista. Al lado, la cifra y los grupos con sus escaños; en móvil, el mapa va antes que los grupos.
+// Encima, fuera del dibujo para no tapar Galicia, la cifra y las pestañas que cambian de vista.
 export function SeatsMap({
   width,
+  top,
   height,
   provinces,
   canarias,
   seats,
   hemicycleRadius,
-  groups,
 }: {
   width: number;
+  top: number;
   height: number;
   provinces: { id: string; name: string; d: string }[];
   canarias: string;
   seats: Seat[];
   hemicycleRadius: number;
-  groups: { label: string; color: string; seats: number }[];
 }) {
   const [hemicycle, setHemicycle] = useState(false);
   const svg = useRef<SVGSVGElement>(null);
@@ -64,10 +64,19 @@ export function SeatsMap({
     <Tabs
       value={hemicycle ? 'hemiciclo' : 'mapa'}
       onValueChange={(value) => setHemicycle(value === 'hemiciclo')}
-      className="gap-6"
+      className="gap-4"
     >
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <Label>Del mapa al hemiciclo</Label>
+      <div className="relative z-10 flex flex-wrap items-start justify-between gap-4">
+        <div className="max-w-72">
+          <Stat
+            value="350"
+            caption={
+              hemicycle
+                ? 'escaños en el hemiciclo, cada uno en su sitio'
+                : 'escaños, repartidos entre 52 circunscripciones'
+            }
+          />
+        </div>
         <TabsList aria-label="Vista">
           <TabsTrigger value="mapa" className="px-3">
             Mapa
@@ -77,85 +86,58 @@ export function SeatsMap({
           </TabsTrigger>
         </TabsList>
       </div>
-      <div className="grid items-center gap-8 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-12">
-        <div className="grid content-start gap-6 max-lg:contents">
-          <Stat
-            value="350"
-            caption={
-              hemicycle
-                ? 'escaños en el hemiciclo, cada uno en su sitio'
-                : 'escaños, repartidos entre 52 circunscripciones'
-            }
-          />
-          <p className="m-0 text-base leading-relaxed text-muted-foreground">
-            Cada punto es un diputado de la XV legislatura, con el color de su grupo.
-          </p>
-          <ul className="m-0 grid list-none gap-2 border-t border-border p-0 pt-6 text-base max-lg:order-last">
-            {groups.map((g) => (
-              <li
-                key={g.label}
-                className="grid grid-cols-[10px_minmax(0,1fr)_auto] items-center gap-3"
-              >
-                <i className="block size-2.5 rounded-full" style={{ background: g.color }} />
-                <span className="leading-snug">{g.label}</span>
-                <span className="font-mono tabular-nums">{g.seats}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        {/* Los escaños no entran en el orden de tabulación: cada diputado está en las listas de su provincia y de su grupo. */}
-        <Tips className="w-full max-w-3xl justify-self-center">
-          <svg
-            ref={svg}
-            viewBox={`0 0 ${width} ${height}`}
-            role="img"
-            aria-label="Mapa de España con un punto por escaño, que se reordena en el hemiciclo del Congreso"
-            className="block h-auto w-full"
+      {/* Los escaños no entran en el orden de tabulación: cada diputado está en las listas de su provincia y de su grupo. */}
+      <Tips className="relative z-10 mx-auto w-full max-w-3xl">
+        <svg
+          ref={svg}
+          viewBox={`0 ${top} ${width} ${height}`}
+          role="img"
+          aria-label="Mapa de España con un punto por escaño, que se reordena en el hemiciclo del Congreso"
+          className="block h-auto w-full"
+        >
+          <g
+            className="fill-muted stroke-background transition-opacity duration-500"
+            style={{ opacity: hemicycle ? 0.12 : 1 }}
           >
-            <g
-              className="fill-muted stroke-background transition-opacity duration-500"
-              style={{ opacity: hemicycle ? 0.12 : 1 }}
-            >
-              {provinces.map((p) => (
-                <path key={p.id} d={p.d} strokeWidth={0.8}>
-                  <title>{p.name}</title>
-                </path>
-              ))}
-              <path d={canarias} fill="none" className="stroke-border" strokeWidth={0.8} />
-            </g>
-            <g className="stroke-background">
-              {seats.map((s) => (
-                <a
-                  key={s.href}
-                  href={s.href}
-                  tabIndex={-1}
-                  data-tip={s.name}
-                  data-tip-text={s.detail}
-                  data-tip-color={s.color}
-                  className="[&:hover>circle]:stroke-foreground"
-                >
-                  <circle
-                    cx={s.ax}
-                    cy={s.ay}
-                    r={seatRadius}
-                    fill={s.color}
-                    strokeWidth={0.8}
-                    className="transition-transform duration-900 ease-(--ease-brand) motion-reduce:transition-none"
-                    style={{
-                      transformBox: 'fill-box',
-                      transformOrigin: 'center',
-                      transform: hemicycle
-                        ? `translate(${s.bx - s.ax}px, ${s.by - s.ay}px) scale(${scale})`
-                        : 'none',
-                      transitionDelay: `${s.delay}ms`,
-                    }}
-                  />
-                </a>
-              ))}
-            </g>
-          </svg>
-        </Tips>
-      </div>
+            {provinces.map((p) => (
+              <path key={p.id} d={p.d} strokeWidth={0.8}>
+                <title>{p.name}</title>
+              </path>
+            ))}
+            <path d={canarias} fill="none" className="stroke-border" strokeWidth={0.8} />
+          </g>
+          <g className="stroke-background">
+            {seats.map((s) => (
+              <a
+                key={s.href}
+                href={s.href}
+                tabIndex={-1}
+                data-tip={s.name}
+                data-tip-text={s.detail}
+                data-tip-color={s.color}
+                className="[&:hover>circle]:stroke-foreground"
+              >
+                <circle
+                  cx={s.ax}
+                  cy={s.ay}
+                  r={seatRadius}
+                  fill={s.color}
+                  strokeWidth={0.8}
+                  className="transition-transform duration-900 ease-(--ease-brand) motion-reduce:transition-none"
+                  style={{
+                    transformBox: 'fill-box',
+                    transformOrigin: 'center',
+                    transform: hemicycle
+                      ? `translate(${s.bx - s.ax}px, ${s.by - s.ay}px) scale(${scale})`
+                      : 'none',
+                    transitionDelay: `${s.delay}ms`,
+                  }}
+                />
+              </a>
+            ))}
+          </g>
+        </svg>
+      </Tips>
     </Tabs>
   );
 }

@@ -69,15 +69,31 @@ export function Stat({ value, caption }: { value: ReactNode; caption: ReactNode 
 
 export type Bar = { label: string; value: number; display: string; color?: string; href?: string };
 
-// `mark` dibuja una línea de referencia, como la mayoría absoluta.
-export function Bars({ rows, max, mark }: { rows: Bar[]; max?: number; mark?: number }) {
+// `mark` dibuja una línea de referencia, como la mayoría absoluta. `narrow`, para tarjetas
+// estrechas con nombres cortos.
+export function Bars({
+  rows,
+  max,
+  mark,
+  narrow,
+}: {
+  rows: Bar[];
+  max?: number;
+  mark?: number;
+  narrow?: boolean;
+}) {
   const top = max ?? Math.max(...rows.map((row) => row.value), 1);
   return (
     <ul className="m-0 grid list-none gap-3 p-0">
       {rows.map((row) => (
         <li
           key={row.label}
-          className="grid grid-cols-[minmax(0,12rem)_minmax(0,1fr)_5rem] items-center gap-4 text-base leading-snug max-sm:grid-cols-[minmax(0,7.5rem)_minmax(0,1fr)_4.5rem] max-sm:gap-3"
+          className={cn(
+            'grid items-center gap-4 text-base leading-snug max-sm:gap-3',
+            narrow
+              ? 'grid-cols-[minmax(0,6rem)_minmax(0,1fr)_4.5rem]'
+              : 'grid-cols-[minmax(0,12rem)_minmax(0,1fr)_5rem] max-sm:grid-cols-[minmax(0,7.5rem)_minmax(0,1fr)_4.5rem]',
+          )}
         >
           {row.href ? <Link href={row.href}>{row.label}</Link> : <span>{row.label}</span>}
           <span className="relative h-4 rounded-full bg-muted">
@@ -152,12 +168,14 @@ export function PageCard({
   href,
   title,
   text,
+  cta,
   span = 12,
   children,
 }: {
   href: string;
   title: string;
   text: string;
+  cta: string;
   span?: keyof typeof spans;
   children?: ReactNode;
 }) {
@@ -172,10 +190,20 @@ export function PageCard({
       <h3 className="m-0 font-heading text-2xl leading-tight font-normal">{title}</h3>
       <p className="m-0 max-w-[48ch] leading-snug text-muted-foreground">{text}</p>
       <div className="grid content-start gap-4">{children}</div>
-      <span className="self-end justify-self-end pt-2">
+      <CardCta>{cta}</CardCta>
+    </Card>
+  );
+}
+
+// La frase y la flecha al pie de una tarjeta enlazada.
+export function CardCta({ children }: { children: ReactNode }) {
+  return (
+    <span className="flex items-center justify-end gap-2 self-end pt-2 text-sm text-muted-foreground">
+      {children}
+      <span className="text-foreground">
         <Icon name="derecha" size={16} />
       </span>
-    </Card>
+    </span>
   );
 }
 
