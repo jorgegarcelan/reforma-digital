@@ -459,12 +459,41 @@ export const radarSchema = z.object({
   ),
 });
 
+const range = { med: z.number(), p05: z.number(), p95: z.number() };
 export const projectionSchema = z.object({
   fecha: z.iso.date(),
   central: z.record(z.string(), z.number()),
   media: z.record(z.string(), z.number()),
   provincias: z.record(z.string(), z.record(z.string(), z.number())),
+  // Parte del voto de cada partido en cada provincia y el último escaño: quién lo gana, quién
+  // queda segundo y cuántos puntos le faltan.
+  votos: z.record(z.string(), z.record(z.string(), z.number())),
+  ultimos: z.record(
+    z.string(),
+    z.object({ gana: z.string(), segundo: z.string(), falta: z.number() }),
+  ),
   bloques: z.record(z.string(), z.array(z.string())),
+  // Las simulaciones: `hist[n]` es la parte de ellas en que se sacan n escaños.
+  simulacion: z.object({
+    n: count,
+    partidos: z.record(
+      z.string(),
+      z.object({ ...range, media: z.number(), hist: z.array(z.number()) }),
+    ),
+    bloques: z.record(
+      z.string(),
+      z.object({
+        ...range,
+        partidos: z.array(z.string()),
+        p176: z.number(),
+        hist: z.array(z.number()),
+      }),
+    ),
+    primero: z.record(z.string(), z.number()),
+    solo176: z.record(z.string(), z.number()),
+  }),
+  // La proyección más probable con la media de cada semana.
+  serie: z.array(z.tuple([date, z.record(z.string(), count)])),
 });
 
 export const marketsSchema = z.object({

@@ -17,7 +17,6 @@ import {
 
 import { Icon } from '../brand/icon';
 import {
-  projectionSchema,
   marketsSchema,
   accuracySchema,
   mapSchema,
@@ -36,12 +35,12 @@ import {
 import { municipalities } from '../../lib/congreso/queries';
 import { pollsHidden } from '../../lib/congreso/polls';
 import { Intro, Stats, Source, Filters, Pagination, Empty, date, href, number } from './common';
-import { Coalition } from './coalition';
 import { ElectionContext } from './election-context';
 import { Bars, ReportIntro, ReportSection, ReportStats } from '../elecciones/report';
 import { The350 } from '../elecciones/the-350';
 import { ElectionHistory } from '../elecciones/history';
 import { Polls } from '../elecciones/polls';
+import { Projection } from '../elecciones/projection';
 import { SeatPrice } from '../elecciones/seat-price';
 
 export async function Geography({
@@ -222,57 +221,7 @@ export async function Elections({
           <p>La publicación está restringida durante el periodo indicado en la fuente.</p>
         </>
       );
-    if (selected === 'proyeccion') {
-      const data = await read('encuestas/proyeccion.json', projectionSchema);
-      const geography = await getGeography();
-      return (
-        <>
-          <ReportIntro title="Los escaños de la media">
-            <p>
-              Proyección calculada el {date(data.fecha)}. Es una estimación, no un resultado
-              electoral.
-            </p>
-          </ReportIntro>
-          <Coalition seats={data.central} />
-          <ReportSection title="Reparto central">
-            <ReportStats
-              items={Object.entries(data.central)
-                .sort(([, a], [, b]) => b - a)
-                .map(([id, n]) => [n, id])}
-            />
-          </ReportSection>
-          <ReportSection title="Provincia a provincia">
-            <div
-              className={
-                'cg-grid grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] gap-5 [@media(max-width:_800px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))] [@media(max-width:_560px)]:[grid-template-columns:1fr]'
-              }
-            >
-              {Object.entries(data.provincias).map(([id, seats]) => (
-                <Card
-                  key={id}
-                  render={
-                    <article
-                      className={
-                        'cg-card [overflow-wrap:anywhere] [&_h2]:[font-size:28px] [&_h3]:text-lg [&_h3]:[line-height:1.3] [&_h3]:[margin:12px_0] [&_p]:[color:var(--text-secondary)] [&_p]:[margin:12px_0] [&_.cg-stats]:gap-5 [&_.cg-stats_dd]:[font-size:28px] [&_.cg-stats_dt]:[max-width:14ch]'
-                      }
-                    />
-                  }
-                >
-                  <CardContent>
-                    <h3>{geography.provincias[id]?.n || id}</h3>
-                    <p>
-                      {Object.entries(seats)
-                        .map(([p, n]) => `${p}: ${n}`)
-                        .join(' · ')}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </ReportSection>
-        </>
-      );
-    }
+    if (selected === 'proyeccion') return <Projection />;
     if (selected === 'mercados') {
       const data = await read('encuestas/mercados.json', marketsSchema);
       return (
