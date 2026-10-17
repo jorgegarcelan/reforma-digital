@@ -1,164 +1,137 @@
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
-import { cn } from '@reforma-digital/design/lib/utils';
-import { Button } from '@reforma-digital/design/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@reforma-digital/design/ui/tabs';
-import { apportion, singleSeat } from '../../lib/elecciones/apportion';
 import { thousands } from '../../lib/elecciones/format';
 
-const gain = '#3C8C6A';
+// Ceuta y Melilla eligen un diputado cada una; el resto de provincias parte de dos (art. 162 LOREG).
+const singleSeat = new Set(['51', '52']);
+const minimumColor = 'var(--foreground)';
+const populationColor = 'var(--brand)';
 
+// La regla del reparto, explicada con los números del decreto: el mínimo que tiene cada provincia,
+// los escaños que se reparten por población y lo que pesa un voto en cada sitio.
 export function Apportionment({
   population,
-  current,
+  seats,
   provinces,
+  year,
 }: {
   population: Record<string, number>;
-  current: Record<string, number>;
+  seats: Record<string, number>;
   provinces: Record<string, { name: string; href: string }>;
+  year: number;
 }) {
-  const [total, setTotal] = useState(350);
-  const [minimum, setMinimum] = useState(2);
-  const seats = apportion(population, total, minimum);
-  const codes = Object.keys(population).sort((a, b) => (population[b] ?? 0) - (population[a] ?? 0));
-  const perSeat = codes
-    .filter((c) => !singleSeat.has(c))
-    .map((c) => ({ c, people: (population[c] ?? 0) / (seats[c] ?? 1) }))
-    .sort((a, b) => a.people - b.people);
+  const codes = Object.keys(seats).sort((a, b) => (population[b] ?? 0) - (population[a] ?? 0));
+  const minimum = (c: string) => (singleSeat.has(c) ? 1 : 2);
+  const total = codes.reduce((sum, c) => sum + (seats[c] ?? 0), 0);
+  const fixed = codes.reduce((sum, c) => sum + minimum(c), 0);
+  const shared = codes.filter((c) => !singleSeat.has(c));
+  const people = shared.reduce((sum, c) => sum + (population[c] ?? 0), 0);
+  const quota = people / (total - fixed);
+  const perSeat = shared
+    .map((c) => ({ c, n: (population[c] ?? 0) / (seats[c] ?? 1) }))
+    .sort((a, b) => a.n - b.n);
   const light = perSeat[0];
   const heavy = perSeat.at(-1);
-  const moved = codes.reduce((sum, c) => sum + Math.max(0, (seats[c] ?? 0) - (current[c] ?? 0)), 0);
   const name = (c: string) => provinces[c]?.name ?? c;
+  const ratio =
+    light && heavy
+      ? (heavy.n / light.n).toLocaleString('es-ES', {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        })
+      : '';
+
+  const steps = [
+    {
+      n: '1',
+      value: thousands(fixed),
+      title: 'escaños, igual para todas',
+      text: `Cada provincia empieza con dos diputados, tenga la población que tenga; Ceuta y Melilla, con uno. Así se reparten ${thousands(fixed)} de los ${total}.`,
+    },
+    {
+      n: '2',
+      value: thousands(total - fixed),
+      title: 'escaños, según la población',
+      text: `Los ${thousands(total - fixed)} restantes se dan por habitantes: uno por cada ${thousands(quota)} personas del padrón de ${year}. Los que sobran al redondear van a las provincias que más se quedaron cerca de otro.`,
+    },
+    {
+      n: '3',
+      value: `${ratio}×`,
+      title: 'pesa más un voto en la provincia más pequeña',
+      text:
+        light && heavy
+          ? `${name(light.c)} elige un diputado por cada ${thousands(light.n)} habitantes; ${name(heavy.c)}, uno por cada ${thousands(heavy.n)}. El mínimo de dos pesa mucho más donde vive menos gente.`
+          : '',
+    },
+  ];
 
   return (
-    <div className="grid gap-6">
-      <div className="flex flex-wrap items-end gap-x-8 gap-y-4">
-        <div className="grid gap-2">
-          <span className="text-sm text-muted-foreground">Mínimo por provincia</span>
-          <Tabs value={String(minimum)} onValueChange={(value) => setMinimum(Number(value))}>
-            <TabsList aria-label="Mínimo de escaños por provincia">
-              {[1, 2, 3, 4].map((v) => (
-                <TabsTrigger key={v} value={String(v)} className="px-3.5">
-                  {v}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
-        <label className="grid min-w-60 flex-1 gap-2">
-          <span className="text-sm text-muted-foreground">
-            Diputados en el Congreso:{' '}
-            <b className="font-mono font-medium text-foreground tabular-nums">{total}</b>
-          </span>
-          <input
-            type="range"
-            min={300}
-            max={400}
-            step={1}
-            value={total}
-            onChange={(event) => setTotal(Number(event.target.value))}
-            className="accent-foreground"
-          />
-          <small className="text-xs text-muted-foreground">
-            La Constitución permite entre 300 y 400
-          </small>
-        </label>
-        <Button
-          variant="outline"
-          disabled={total === 350 && minimum === 2}
-          onClick={() => {
-            setTotal(350);
-            setMinimum(2);
-          }}
-        >
-          Volver a la ley actual
-        </Button>
-      </div>
-      <dl className="m-0 grid gap-6 border-y border-border py-5 sm:grid-cols-2" aria-live="polite">
-        {light && heavy && (
-          <div className="flex flex-col-reverse justify-end gap-1">
-            <dt className="max-w-[44ch] text-sm leading-snug text-muted-foreground">
-              pesa un voto de {name(light.c)} frente a uno de {name(heavy.c)} (
-              {thousands(light.people)} y {thousands(heavy.people)} habitantes por escaño)
-            </dt>
-            <dd className="m-0 font-heading text-[40px] leading-none tracking-tight tabular-nums">
-              {(heavy.people / light.people).toLocaleString('es-ES', {
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              })}
-              ×
-            </dd>
-          </div>
-        )}
-        <div className="flex flex-col-reverse justify-end gap-1">
-          <dt className="text-sm leading-snug text-muted-foreground">
-            {moved === 1 ? 'escaño cambiaría' : 'escaños cambiarían'} de provincia respecto al
-            reparto del 29N
-          </dt>
-          <dd className="m-0 font-heading text-[40px] leading-none tracking-tight tabular-nums">
-            {moved}
-          </dd>
-        </div>
-      </dl>
-      <ol className="m-0 grid list-none gap-1 p-0">
-        {codes.map((c) => {
-          const now = seats[c] ?? 0;
-          const before = current[c] ?? 0;
-          return (
-            <li
-              key={c}
-              className="grid grid-cols-[minmax(0,7.5rem)_minmax(0,1fr)_3.5rem] items-center gap-3 text-sm"
-            >
-              <Link href={provinces[c]?.href ?? '#'} className="no-underline hover:underline">
-                {name(c)}
-              </Link>
-              <span className="flex flex-wrap gap-0.5" aria-hidden="true">
-                {Array.from({ length: Math.max(now, before) }, (_, j) => (
-                  <i
-                    key={j}
-                    className={cn(
-                      'block size-2.5 rounded-[2px]',
-                      j < Math.min(now, before)
-                        ? 'bg-muted-foreground/45'
-                        : now > before
-                          ? ''
-                          : 'border-[1.5px] border-brand',
-                    )}
-                    style={
-                      j >= Math.min(now, before) && now > before ? { background: gain } : undefined
-                    }
-                  />
-                ))}
-              </span>
-              <span className="text-right font-mono tabular-nums">
-                {now}
-                {now !== before && (
-                  <small className={cn('ml-1', now > before ? 'text-[#3C8C6A]' : 'text-brand')}>
-                    {now > before ? '+' : '−'}
-                    {Math.abs(now - before)}
-                  </small>
-                )}
-              </span>
-            </li>
-          );
-        })}
+    <div className="grid gap-8">
+      <ol className="m-0 grid list-none gap-6 p-0 md:grid-cols-3">
+        {steps.map((s) => (
+          <li key={s.n} className="grid content-start gap-2">
+            <span className="font-mono text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
+              Paso {s.n}
+            </span>
+            <p className="m-0 grid gap-1">
+              <b className="font-heading text-[40px] leading-none font-normal tracking-tight tabular-nums">
+                {s.value}
+              </b>
+              <span className="font-medium">{s.title}</span>
+            </p>
+            <p className="m-0 text-sm leading-relaxed text-muted-foreground">{s.text}</p>
+          </li>
+        ))}
       </ol>
-      <p className="m-0 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5">
-          <i className="block size-2.5 rounded-[2px] bg-muted-foreground/45" />
-          Escaño que ya tiene hoy
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <i className="block size-2.5 rounded-[2px]" style={{ background: gain }} />
-          Ganaría
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <i className="block size-2.5 rounded-[2px] border-[1.5px] border-brand" />
-          Perdería
-        </span>
-      </p>
+      <div className="grid gap-3 border-t border-border pt-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+          <p className="m-0 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <i className="block size-2.5 rounded-[2px]" style={{ background: minimumColor }} />
+              El mínimo por ley
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <i className="block size-2.5 rounded-[2px]" style={{ background: populationColor }} />
+              Por su población
+            </span>
+          </p>
+          <span className="font-mono text-xs text-muted-foreground max-sm:hidden">
+            habitantes por escaño
+          </span>
+        </div>
+        <ol className="m-0 grid list-none gap-1 p-0">
+          {codes.map((c) => {
+            const n = seats[c] ?? 0;
+            const base = minimum(c);
+            return (
+              <li
+                key={c}
+                className="grid grid-cols-[minmax(0,7.5rem)_minmax(0,1fr)_2rem_5.5rem] items-center gap-3 text-sm max-sm:grid-cols-[minmax(0,6rem)_minmax(0,1fr)_2rem]"
+              >
+                <Link href={provinces[c]?.href ?? '#'} className="no-underline hover:underline">
+                  {name(c)}
+                </Link>
+                <span
+                  className="flex flex-wrap gap-0.5"
+                  role="img"
+                  aria-label={`${base} por el mínimo y ${n - base} por población`}
+                >
+                  {Array.from({ length: n }, (_, j) => (
+                    <i
+                      key={j}
+                      className="block size-2.5 rounded-[2px]"
+                      style={{ background: j < base ? minimumColor : populationColor }}
+                    />
+                  ))}
+                </span>
+                <span className="text-right font-mono tabular-nums">{n}</span>
+                <span className="text-right font-mono text-xs text-muted-foreground tabular-nums max-sm:hidden">
+                  {thousands((population[c] ?? 0) / Math.max(1, n))}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
     </div>
   );
 }

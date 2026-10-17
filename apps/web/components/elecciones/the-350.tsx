@@ -71,16 +71,17 @@ export async function The350() {
       </Grid>
       <section className="mt-16 grid gap-6">
         <Heading title="La regla: por qué Soria elige 2 y Madrid 38">
-          La ley da a cada provincia un mínimo de dos diputados (a Ceuta y Melilla, uno) y reparte
-          el resto según su población. Con el padrón de {source.padron.anio} sale justo el reparto
-          del decreto del 29N. Cambia la regla y mira qué pasaría.
+          Los diputados de cada provincia no dependen solo de cuánta gente vive en ella. La ley
+          electoral (art. 162 de la LOREG) los reparte en dos pasos, con el padrón de{' '}
+          {source.padron.anio}, y de ahí sale el reparto del decreto del 29N.
         </Heading>
         <Grid>
           <Cell>
             <Apportionment
               population={source.padron.pob}
-              current={election.escanos}
+              seats={election.escanos}
               provinces={provinces}
+              year={source.padron.anio}
             />
           </Cell>
         </Grid>
@@ -103,7 +104,7 @@ export async function The350() {
               width={map.ancho}
               height={map.alto}
               background={
-                <g aria-hidden="true">
+                <g key="mapa" aria-hidden="true">
                   {Object.entries(map.provincias).map(([id, p]) => (
                     <path
                       key={id}
