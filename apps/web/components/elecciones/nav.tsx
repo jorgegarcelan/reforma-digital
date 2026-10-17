@@ -78,7 +78,8 @@ export function ElectionsFrame({
         <span className="mr-4 flex items-center font-mono text-xs font-medium tracking-[0.08em] uppercase max-md:w-full max-md:pt-2">
           {String(g + 1).padStart(2, '0')} · {group?.name}
         </span>
-        <div className="flex overflow-x-auto max-md:w-full">
+        {/* Se desplaza en horizontal en móvil, sin barra: el subrayado de 1 px abría un scroll vertical. */}
+        <div className="flex overflow-x-auto [scrollbar-width:none] max-md:w-full [&::-webkit-scrollbar]:hidden">
           {group?.pages.map((id) => (
             <Link
               key={id}
