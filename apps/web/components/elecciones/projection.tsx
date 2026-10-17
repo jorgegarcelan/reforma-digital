@@ -5,7 +5,7 @@ import { realHemicycle } from '../../lib/elecciones/hemicycle';
 import { links } from '../../lib/site';
 import { href } from '../congreso/common';
 import { Majority, ProjectionMap, SeatSeries, SeatSum } from './projection-parts';
-import { Cell, Grid, Heading, Label, Legend, ReportIntro } from './report';
+import { Cell, Grid, Label, Legend, ReportIntro, SectionHeading } from './report';
 import { Tips } from './tips';
 
 const longDate = new Intl.DateTimeFormat('es-ES', {
@@ -131,11 +131,11 @@ export async function Projection() {
         </p>
       </ReportIntro>
       <section className="grid gap-6">
-        <Heading title="Si las elecciones fueran hoy">
+        <SectionHeading title="Si las elecciones fueran hoy">
           Los escaños que salen de la media de las encuestas del {date(projection.fecha)}, provincia
           a provincia y con la ley D&apos;Hondt; y lo probable que es cada cosa, en{' '}
           {S.n.toLocaleString('es-ES')} simulaciones.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell span={7}>
             <Tips>
@@ -206,10 +206,10 @@ export async function Projection() {
       </section>
 
       <section className="mt-16 grid gap-6">
-        <Heading title="Escaños por partido">
+        <SectionHeading title="Escaños por partido">
           La raya es lo más probable; la barra, el margen en 9 de cada 10 simulaciones; el rombo, lo
           que sacó en 2023.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell>
             <Tips>
@@ -281,10 +281,10 @@ export async function Projection() {
       </section>
 
       <section className="mt-16 grid gap-6">
-        <Heading title="¿Llegan a 176?">
+        <SectionHeading title="¿Llegan a 176?">
           Cuántas simulaciones acaban con cada número de escaños. A la derecha de la línea, mayoría
           absoluta.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell>
             <Majority
@@ -301,9 +301,9 @@ export async function Projection() {
       </section>
 
       <section className="mt-16 grid gap-6">
-        <Heading title="Semana a semana">
+        <SectionHeading title="Semana a semana">
           La proyección con la media de cada semana desde 2023 (sin simulaciones: lo más probable).
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell>
             <SeatSeries
@@ -320,10 +320,10 @@ export async function Projection() {
       </section>
 
       <section className="mt-16 grid gap-6">
-        <Heading title="Provincia a provincia">
+        <SectionHeading title="Provincia a provincia">
           Quién se llevaría más escaños en cada una. Con borde discontinuo, donde el último escaño
           está a menos de medio punto. Pulsa una provincia.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <ProjectionMap
             provinces={provinces}
@@ -370,7 +370,7 @@ export async function Projection() {
       </section>
 
       <section className="mt-16 grid gap-6">
-        <Heading title="Cómo se hace" />
+        <SectionHeading title="Cómo se hace" />
         <Grid>
           <Cell>
             <ol className="m-0 grid list-none gap-4 p-0 md:grid-cols-2">

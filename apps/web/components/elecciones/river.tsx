@@ -212,7 +212,7 @@ export function River({
                       width={Math.max(0, (xs[j + 1] ?? 0) - (xs[j] ?? 0))}
                       fill={f.color}
                       className={cn(
-                        'transition-[y,height,opacity] duration-500 motion-reduce:transition-none',
+                        'transition-opacity duration-500',
                         j !== selected && j !== hover && 'opacity-60',
                       )}
                       style={{ y: g.y, height: Math.max(0, g.h) }}

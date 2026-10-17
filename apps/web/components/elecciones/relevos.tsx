@@ -54,13 +54,7 @@ function Name({ person }: { person: Person }) {
       {person.name}
     </>
   );
-  return person.href ? (
-    <Link href={person.href} className="no-underline hover:underline">
-      {content}
-    </Link>
-  ) : (
-    <span>{content}</span>
-  );
+  return person.href ? <Link href={person.href}>{content}</Link> : <span>{content}</span>;
 }
 
 // Los escaños que cambiaron de manos y cuándo: pulsar un mes los marca en el hemiciclo y en la lista.
@@ -189,14 +183,14 @@ export function Relevos({
               key={`${d.date}-${d.out.name}`}
               className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-3 gap-y-0.5 border-t border-border py-2.5 text-sm first:border-t-0"
             >
-              <span className="row-span-2 font-mono text-xs text-muted-foreground">
+              <span className="row-span-2 font-mono text-sm text-muted-foreground">
                 {shortDate(d.date)}
               </span>
               <span className="leading-snug">
                 <Name person={d.out} /> <span className="text-muted-foreground">→</span>{' '}
                 <Name person={d.in} />
               </span>
-              <span className="text-xs text-muted-foreground">{d.where}</span>
+              <span className="text-sm text-muted-foreground">{d.where}</span>
             </li>
           ))}
         </ul>

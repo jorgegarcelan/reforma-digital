@@ -8,6 +8,7 @@ import { Button } from '@reforma-digital/design/ui/button';
 import { stages } from '../../lib/elecciones/laws';
 import { useFirstSight } from './first-sight';
 import { Tips } from './tips';
+import { useScale } from './use-width';
 import { thousands } from '../../lib/elecciones/format';
 
 // El viaje de cada ley de la legislatura (de `elecciones/viajes.json`), preparado en el servidor.
@@ -227,6 +228,8 @@ function Path({
     setPlaying(true);
   };
   // La primera vez que se ve entero, se reproduce solo (salvo con movimiento reducido).
+  const chart = useRef<HTMLDivElement>(null);
+  const k = useScale(chart, W);
   const box = useFirstSight(() => {
     if (!reducedMotion() && time.current >= tEnd) setTimeout(play, 500);
   }, 0.55);
@@ -237,7 +240,7 @@ function Path({
     <div ref={box} className="grid gap-4">
       <div className="flex flex-wrap items-center gap-4">
         <Button variant="sunset" onClick={play}>
-          {playing ? '❚❚' : '▶'} {label}
+          {label}
         </Button>
         <input
           type="range"
@@ -259,69 +262,78 @@ function Path({
         </span>
       </div>
       <div className="relative overflow-x-auto">
-        <svg
-          viewBox={`0 0 ${W} ${height}`}
-          role="img"
-          aria-label="Cada ley de la legislatura, según la etapa a la que había llegado en la fecha elegida"
-          className="block h-auto w-full min-w-[640px]"
-          onMouseLeave={() => setCard(null)}
-        >
-          <g
-            className="transition-opacity duration-500"
-            style={{ opacity: fell ? 1 : 0 }}
-            aria-hidden="true"
+        <div ref={chart} className="min-w-[640px]">
+          <svg
+            viewBox={`0 0 ${W} ${height}`}
+            role="img"
+            aria-label="Cada ley de la legislatura, según la etapa a la que había llegado en la fecha elegida"
+            className="block h-auto w-full"
+            onMouseLeave={() => setCard(null)}
           >
-            <rect
-              x={0}
-              y={yFall - 6}
-              width={W}
-              height={height - yFall + 6}
-              rx={8}
-              className="fill-brand/10"
-            />
-            <text
-              x={6}
-              y={yFall + 8}
-              className="fill-brand font-mono text-[11px] font-medium tracking-[0.06em]"
+            <g
+              className="transition-opacity duration-500"
+              style={{ opacity: fell ? 1 : 0 }}
+              aria-hidden="true"
             >
-              CADUCAN CON LA DISOLUCIÓN
-            </text>
-          </g>
-          {pathColumns.map((name, c) => (
-            <g key={name}>
+              <rect
+                x={0}
+                y={yFall - 6}
+                width={W}
+                height={height - yFall + 6}
+                rx={8}
+                className="fill-brand/10"
+              />
               <text
-                x={colX(c)}
-                y={14}
-                className="fill-foreground font-mono text-[15px] font-medium"
+                x={6}
+                y={yFall + 8}
+                className="fill-brand font-mono font-medium tracking-[0.06em]"
+                style={{ fontSize: 12 * k }}
               >
-                {thousands(counts[c] ?? 0)}
-              </text>
-              <text x={colX(c)} y={30} className="fill-muted-foreground text-[11px] font-medium">
-                {name}
+                CADUCAN CON LA DISOLUCIÓN
               </text>
             </g>
-          ))}
-          {prepared.map((l) => {
-            const s = spots.get(l.exp);
-            if (!s) return null;
-            const dim = filter && !filter(l);
-            return (
-              <circle
-                key={l.exp}
-                r={dot * 0.42}
-                fill={l.color}
-                className="cursor-pointer transition-[transform,opacity] duration-500 ease-(--ease-brand) motion-reduce:transition-none"
-                style={{
-                  transform: `translate(${s.x}px, ${s.y}px)`,
-                  opacity: s.o * (dim ? 0.12 : 1),
-                }}
-                onMouseEnter={(event) => setCard({ law: l, x: event.clientX, y: event.clientY })}
-                onMouseLeave={() => setCard(null)}
-                onClick={() => router.push(l.href)}
-              />
-            );
-          })}
-        </svg>
+            {pathColumns.map((name, c) => (
+              <g key={name}>
+                <text
+                  x={colX(c)}
+                  y={14}
+                  className="fill-foreground font-mono font-medium"
+                  style={{ fontSize: 15 * k }}
+                >
+                  {thousands(counts[c] ?? 0)}
+                </text>
+                <text
+                  x={colX(c)}
+                  y={30}
+                  className="fill-muted-foreground font-medium"
+                  style={{ fontSize: 12 * k }}
+                >
+                  {name}
+                </text>
+              </g>
+            ))}
+            {prepared.map((l) => {
+              const s = spots.get(l.exp);
+              if (!s) return null;
+              const dim = filter && !filter(l);
+              return (
+                <circle
+                  key={l.exp}
+                  r={dot * 0.42}
+                  fill={l.color}
+                  className="cursor-pointer transition-[transform,opacity] duration-500 ease-(--ease-brand) motion-reduce:transition-none"
+                  style={{
+                    transform: `translate(${s.x}px, ${s.y}px)`,
+                    opacity: s.o * (dim ? 0.12 : 1),
+                  }}
+                  onMouseEnter={(event) => setCard({ law: l, x: event.clientX, y: event.clientY })}
+                  onMouseLeave={() => setCard(null)}
+                  onClick={() => router.push(l.href)}
+                />
+              );
+            })}
+          </svg>
+        </div>
         <div
           aria-live="polite"
           className={cn(
@@ -367,7 +379,7 @@ function LawCard({ law, x, y }: { law: Journey; x: number; y: number }) {
       style={{ left: Math.max(8, left), top: Math.max(8, top) }}
     >
       <p className="m-0 font-medium">{law.title}</p>
-      <p className="m-0 text-xs text-muted-foreground">
+      <p className="m-0 text-sm text-muted-foreground">
         {law.presenterName} · {law.exp}
       </p>
       <ol className="m-0 grid list-none gap-1 border-l-2 border-border py-0 pl-3">
@@ -375,7 +387,7 @@ function LawCard({ law, x, y }: { law: Journey; x: number; y: number }) {
           date ? (
             <li key={stepNames[j]}>
               {stepNames[j]}{' '}
-              <span className="font-mono text-xs text-muted-foreground">{shortDate(date)}</span>
+              <span className="font-mono text-sm text-muted-foreground">{shortDate(date)}</span>
             </li>
           ) : null,
         )}
@@ -383,7 +395,7 @@ function LawCard({ law, x, y }: { law: Journey; x: number; y: number }) {
           <li className="font-medium">
             {ends[law.destination]}
             {law.end && law.destination !== 'pendiente' && (
-              <span className="font-mono text-xs font-normal text-muted-foreground">
+              <span className="font-mono text-sm font-normal text-muted-foreground">
                 {' '}
                 {shortDate(law.end)}
               </span>
@@ -392,7 +404,7 @@ function LawCard({ law, x, y }: { law: Journey; x: number; y: number }) {
         )}
       </ol>
       {law.extensions > 0 && (
-        <p className="m-0 text-xs text-muted-foreground">
+        <p className="m-0 text-sm text-muted-foreground">
           Plazo de enmiendas ampliado {law.extensions} {law.extensions === 1 ? 'vez' : 'veces'}.
         </p>
       )}
@@ -551,6 +563,8 @@ function Flows({
   // Al verse por primera vez, el diagrama se dibuja de izquierda a derecha; también el rastro de
   // cada selección.
   const [drawn, setDrawn] = useState(false);
+  const chart = useRef<HTMLDivElement>(null);
+  const k = useScale(chart, SW);
   const box = useFirstSight(() => setDrawn(true), 0.35);
   useEffect(() => {
     if (reducedMotion()) setDrawn(true);
@@ -564,142 +578,144 @@ function Flows({
     <div ref={box} className="grid gap-4">
       <div className="overflow-x-auto">
         <Tips className="min-w-[760px]">
-          <svg
-            viewBox={`0 0 ${SW} ${SH}`}
-            role="img"
-            aria-label={`De las ${total} leyes presentadas en la legislatura, ${nodes.find((n) => n.id === 'e5')?.n ?? 0} acabaron en ley`}
-            className="block h-auto w-full"
-          >
-            <defs>
-              <clipPath id="flows-reveal">
-                <rect
-                  x={-2}
-                  y={0}
-                  width={SW + 4}
-                  height={SH}
-                  className="origin-left transition-transform duration-[2200ms] ease-in-out motion-reduce:transition-none"
-                  style={{ transform: drawn ? 'scaleX(1)' : 'scaleX(0)' }}
-                />
-              </clipPath>
-              <clipPath id="flows-trail">
-                <rect
-                  key={picked?.id ?? 'none'}
-                  x={-2}
-                  y={0}
-                  width={SW + 4}
-                  height={SH}
-                  className="origin-left motion-safe:animate-[flows-sweep_1.7s_ease-in-out]"
-                />
-              </clipPath>
-            </defs>
-            <style>
-              {'@keyframes flows-sweep{from{transform:scaleX(0)}to{transform:scaleX(1)}}'}
-            </style>
-            <g clipPath="url(#flows-reveal)">
-              {links.map((link) => (
-                <path
-                  key={`${link.a.id}-${link.b.id}`}
-                  d={link.d}
-                  fill={link.color}
-                  className="cursor-pointer transition-[fill-opacity] duration-200 hover:[fill-opacity:0.55]"
-                  fillOpacity={picked ? 0.09 : 0.32}
-                  onClick={() => pick(link.pick)}
-                  {...tip(`${link.a.name} → ${link.b.name}`, link.n)}
-                />
-              ))}
-            </g>
-            {selected && picked && (
-              <g clipPath="url(#flows-trail)">
-                {links.map((link) => {
-                  const m = selected.filter(link.has).length;
-                  return m ? (
-                    <path
-                      key={`${link.a.id}-${link.b.id}`}
-                      d={link.band(0, m * scale)}
-                      fill={picked.color}
-                      fillOpacity={0.78}
-                      className="cursor-pointer"
-                      onClick={() => pick(picked)}
-                      data-tip={`${link.a.name} → ${link.b.name}`}
-                      data-tip-text={`${thousands(m)} de las ${thousands(link.n)} leyes de este tramo`}
-                      data-tip-color={picked.color}
-                    />
-                  ) : null;
-                })}
-              </g>
-            )}
-            {nodes.map((n) => {
-              const m = count(n);
-              return (
-                <rect
-                  key={n.id}
-                  x={sx(n.col)}
-                  y={n.y}
-                  width={nodeW}
-                  height={Math.max(1.5, n.n * scale)}
-                  rx={2}
-                  fill={n.color}
-                  className={cn(
-                    'cursor-pointer transition-opacity duration-500',
-                    m === 0 && 'opacity-30',
-                  )}
-                  style={{
-                    opacity: drawn ? undefined : 0,
-                    transitionDelay: drawn ? `${(sx(n.col) / SW) * 2200}ms` : undefined,
-                  }}
-                  onClick={() => pick(n)}
-                  {...tip(n.label, n.n, '. Pulsa para verlas')}
-                  data-tip-color={n.color}
-                />
-              );
-            })}
-            <g
-              className="pointer-events-none fill-foreground text-[12px] transition-opacity duration-500"
-              style={{ opacity: drawn ? 1 : 0, transitionDelay: drawn ? '1200ms' : undefined }}
+          <div ref={chart}>
+            <svg
+              viewBox={`0 0 ${SW} ${SH}`}
+              role="img"
+              aria-label={`De las ${total} leyes presentadas en la legislatura, ${nodes.find((n) => n.id === 'e5')?.n ?? 0} acabaron en ley`}
+              className="block h-auto w-full"
             >
-              {nodes
-                .filter((n) => n.trunk)
-                .map((n) => {
+              <defs>
+                <clipPath id="flows-reveal">
+                  <rect
+                    x={-2}
+                    y={0}
+                    width={SW + 4}
+                    height={SH}
+                    className="origin-left transition-transform duration-[2200ms] ease-in-out motion-reduce:transition-none"
+                    style={{ transform: drawn ? 'scaleX(1)' : 'scaleX(0)' }}
+                  />
+                </clipPath>
+                <clipPath id="flows-trail">
+                  <rect
+                    key={picked?.id ?? 'none'}
+                    x={-2}
+                    y={0}
+                    width={SW + 4}
+                    height={SH}
+                    className="origin-left motion-safe:animate-[flows-sweep_1.7s_ease-in-out]"
+                  />
+                </clipPath>
+              </defs>
+              <style>
+                {'@keyframes flows-sweep{from{transform:scaleX(0)}to{transform:scaleX(1)}}'}
+              </style>
+              <g clipPath="url(#flows-reveal)">
+                {links.map((link) => (
+                  <path
+                    key={`${link.a.id}-${link.b.id}`}
+                    d={link.d}
+                    fill={link.color}
+                    className="cursor-pointer transition-[fill-opacity] duration-200 hover:[fill-opacity:0.55]"
+                    fillOpacity={picked ? 0.09 : 0.32}
+                    onClick={() => pick(link.pick)}
+                    {...tip(`${link.a.name} → ${link.b.name}`, link.n)}
+                  />
+                ))}
+              </g>
+              {selected && picked && (
+                <g clipPath="url(#flows-trail)">
+                  {links.map((link) => {
+                    const m = selected.filter(link.has).length;
+                    return m ? (
+                      <path
+                        key={`${link.a.id}-${link.b.id}`}
+                        d={link.band(0, m * scale)}
+                        fill={picked.color}
+                        fillOpacity={0.78}
+                        className="cursor-pointer"
+                        onClick={() => pick(picked)}
+                        data-tip={`${link.a.name} → ${link.b.name}`}
+                        data-tip-text={`${thousands(m)} de las ${thousands(link.n)} leyes de este tramo`}
+                        data-tip-color={picked.color}
+                      />
+                    ) : null;
+                  })}
+                </g>
+              )}
+              {nodes.map((n) => {
+                const m = count(n);
+                return (
+                  <rect
+                    key={n.id}
+                    x={sx(n.col)}
+                    y={n.y}
+                    width={nodeW}
+                    height={Math.max(1.5, n.n * scale)}
+                    rx={2}
+                    fill={n.color}
+                    className={cn(
+                      'cursor-pointer transition-opacity duration-500',
+                      m === 0 && 'opacity-30',
+                    )}
+                    style={{
+                      opacity: drawn ? undefined : 0,
+                      transitionDelay: drawn ? `${(sx(n.col) / SW) * 2200}ms` : undefined,
+                    }}
+                    onClick={() => pick(n)}
+                    {...tip(n.label, n.n, '. Pulsa para verlas')}
+                    data-tip-color={n.color}
+                  />
+                );
+              })}
+              <g
+                className="pointer-events-none fill-foreground transition-opacity duration-500"
+                style={{
+                  fontSize: 12 * k,
+                  opacity: drawn ? 1 : 0,
+                  transitionDelay: drawn ? '1200ms' : undefined,
+                }}
+              >
+                {nodes
+                  .filter((n) => n.trunk)
+                  .map((n) => {
+                    const m = count(n);
+                    return (
+                      <text
+                        key={n.id}
+                        x={sx(n.col)}
+                        y={n.y - 20}
+                        className={cn(m === 0 && 'opacity-45')}
+                      >
+                        <tspan className="font-medium">{n.name}</tspan>
+                        <tspan x={sx(n.col)} dy={14} className="fill-muted-foreground font-mono">
+                          {m === null
+                            ? `${thousands(n.n)} · ${pct(n.n)}`
+                            : `${thousands(m)} de ${thousands(n.n)}`}
+                        </tspan>
+                      </text>
+                    );
+                  })}
+                {side.map(({ n, y }) => {
                   const m = count(n);
                   return (
                     <text
                       key={n.id}
-                      x={sx(n.col)}
-                      y={n.y - 20}
+                      x={sx(n.col) + nodeW + 6}
+                      y={y}
                       className={cn(m === 0 && 'opacity-45')}
                     >
-                      <tspan className="font-medium">{n.name}</tspan>
-                      <tspan
-                        x={sx(n.col)}
-                        dy={14}
-                        className="fill-muted-foreground font-mono text-[11px]"
-                      >
-                        {m === null
-                          ? `${thousands(n.n)} · ${pct(n.n)}`
-                          : `${thousands(m)} de ${thousands(n.n)}`}
+                      {n.name}
+                      <tspan className="fill-muted-foreground font-mono">
+                        {' '}
+                        {m === null ? thousands(n.n) : `${thousands(m)} de ${thousands(n.n)}`}
                       </tspan>
                     </text>
                   );
                 })}
-              {side.map(({ n, y }) => {
-                const m = count(n);
-                return (
-                  <text
-                    key={n.id}
-                    x={sx(n.col) + nodeW + 6}
-                    y={y}
-                    className={cn(m === 0 && 'opacity-45')}
-                  >
-                    {n.name}
-                    <tspan className="fill-muted-foreground font-mono text-[11px]">
-                      {' '}
-                      {m === null ? thousands(n.n) : `${thousands(m)} de ${thousands(n.n)}`}
-                    </tspan>
-                  </text>
-                );
-              })}
-            </g>
-          </svg>
+              </g>
+            </svg>
+          </div>
         </Tips>
       </div>
       <p className="m-0 text-sm text-muted-foreground">
@@ -725,7 +741,7 @@ function Flows({
                   className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 rounded-md px-2 py-1.5 text-sm no-underline hover:bg-muted"
                 >
                   <span>{l.title}</span>
-                  <span className="font-mono text-xs text-muted-foreground">{l.exp}</span>
+                  <span className="font-mono text-sm text-muted-foreground">{l.exp}</span>
                 </Link>
               </li>
             ))}

@@ -4,7 +4,7 @@ import { marketsSchema, projectionSchema } from '../../lib/congreso/schema';
 import { thousands } from '../../lib/elecciones/format';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { OddsChart } from './odds-chart';
-import { Cell, Grid, Heading, ReportIntro } from './report';
+import { Cell, Grid, ReportIntro, SectionHeading } from './report';
 
 const longDate = new Intl.DateTimeFormat('es-ES', {
   timeZone: 'UTC',
@@ -84,11 +84,11 @@ export async function Markets() {
         </p>
       </ReportIntro>
       <section className="grid gap-6">
-        <Heading title="Lo que apuestan">
+        <SectionHeading title="Lo que apuestan">
           En Polymarket se apuesta dinero a lo que pasará; el precio de cada apuesta es la
           probabilidad que le da el mercado. No es una encuesta: es lo que creen, con dinero,
           quienes apuestan. Datos del {date(markets.actualizado)}.
-        </Heading>
+        </SectionHeading>
         <Grid>
           {present.map((m) => {
             const o = m.opciones[0];
@@ -150,7 +150,7 @@ export async function Markets() {
         ];
         return (
           <section key={m.tipo} className="mt-16 grid gap-6">
-            <Heading title={m.pregunta}>{intro[m.tipo]}</Heading>
+            <SectionHeading title={m.pregunta}>{intro[m.tipo]}</SectionHeading>
             <Grid>
               <Cell span={5} className="content-start">
                 <ul className="m-0 grid list-none gap-2 p-0 text-sm">
@@ -194,10 +194,10 @@ export async function Markets() {
       })}
 
       <section className="mt-16 grid gap-6">
-        <Heading title="Las apuestas y la proyección">
+        <SectionHeading title="Las apuestas y la proyección">
           Lo que dice el mercado al lado de lo que sale de nuestra{' '}
           <Link href={electionsHref('proyeccion')}>proyección</Link> con la media de las encuestas.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell>
             <table className="w-full border-collapse text-left">

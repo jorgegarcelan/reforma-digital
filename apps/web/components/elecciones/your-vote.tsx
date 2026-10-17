@@ -7,6 +7,7 @@ import { ramp, thousands } from '../../lib/elecciones/format';
 import { Cell, Heading, Label } from './report';
 import { ProvinceSelect, Simulator, type PriceProvince } from './simulator';
 import { Tips } from './tips';
+import { useScale } from './use-width';
 
 const decimal = (n: number) =>
   n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -109,7 +110,7 @@ export function YourVote({
         </Tabs>
         <div
           ref={box}
-          className="[&_[data-active]]:stroke-foreground [&_[data-active]]:[stroke-width:2.5] [&_[data-province]]:cursor-pointer [&_[data-province]]:transition-[fill] [&_[data-province]]:duration-300"
+          className="[&_[data-active]]:stroke-foreground [&_[data-active]]:[stroke-width:2.5] [&_[data-province]]:cursor-pointer"
           onClick={(event) =>
             choose(
               event.target instanceof Element
@@ -170,6 +171,8 @@ function Balance({
 }) {
   const W = 640;
   const H = 170;
+  const chart = useRef<HTMLDivElement>(null);
+  const k = useScale(chart, W);
   const m = 16;
   const balls = useMemo(() => {
     const xs = provinces.map((p) => ({ p, v: p.valid / p.seats, r: 3 + Math.sqrt(p.seats) * 1.9 }));
@@ -199,45 +202,48 @@ function Balance({
         <span>Más caro</span>
       </p>
       <Tips>
-        <svg
-          viewBox={`0 0 ${W} ${H}`}
-          role="img"
-          aria-label="Votos por escaño en cada provincia, de la más barata a la más cara"
-          className="block h-auto w-full overflow-visible"
-        >
-          <line x1={m} x2={W - m} y1={H / 2} y2={H / 2} className="stroke-border" />
-          {balls.map((b) => (
-            <circle
-              key={b.p.code}
-              cx={b.x}
-              cy={b.y}
-              r={b.r}
-              className={cn(
-                'cursor-pointer transition-colors',
-                b.p.code === selected
-                  ? 'fill-foreground'
-                  : 'fill-muted-foreground/35 hover:fill-muted-foreground/60',
-              )}
-              data-tip={b.p.name}
-              data-tip-text={`${thousands(b.p.valid / b.p.seats)} votos por escaño · ${b.p.seats} escaños`}
-              onClick={() => onSelect(b.p.code)}
-            />
-          ))}
-          {labelled.map((b) => (
-            <text
-              key={b.p.code}
-              x={Math.min(W - 4, Math.max(4, b.x))}
-              y={b.y - b.r - 6}
-              textAnchor={b.x < 60 ? 'start' : b.x > W - 60 ? 'end' : 'middle'}
-              className={cn(
-                'pointer-events-none text-[12px]',
-                b.p.code === selected ? 'fill-foreground font-medium' : 'fill-muted-foreground',
-              )}
-            >
-              {b.p.name}
-            </text>
-          ))}
-        </svg>
+        <div ref={chart}>
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            role="img"
+            aria-label="Votos por escaño en cada provincia, de la más barata a la más cara"
+            className="block h-auto w-full overflow-visible"
+          >
+            <line x1={m} x2={W - m} y1={H / 2} y2={H / 2} className="stroke-border" />
+            {balls.map((b) => (
+              <circle
+                key={b.p.code}
+                cx={b.x}
+                cy={b.y}
+                r={b.r}
+                className={cn(
+                  'cursor-pointer transition-colors',
+                  b.p.code === selected
+                    ? 'fill-foreground'
+                    : 'fill-muted-foreground/35 hover:fill-muted-foreground/60',
+                )}
+                data-tip={b.p.name}
+                data-tip-text={`${thousands(b.p.valid / b.p.seats)} votos por escaño · ${b.p.seats} escaños`}
+                onClick={() => onSelect(b.p.code)}
+              />
+            ))}
+            {labelled.map((b) => (
+              <text
+                key={b.p.code}
+                x={Math.min(W - 4, Math.max(4, b.x))}
+                y={b.y - b.r - 6}
+                textAnchor={b.x < 60 ? 'start' : b.x > W - 60 ? 'end' : 'middle'}
+                className={cn(
+                  'pointer-events-none',
+                  b.p.code === selected ? 'fill-foreground font-medium' : 'fill-muted-foreground',
+                )}
+                style={{ fontSize: 12 * k }}
+              >
+                {b.p.name}
+              </text>
+            ))}
+          </svg>
+        </div>
       </Tips>
       <p className="m-0 text-sm text-muted-foreground">
         Cada bola es una provincia, del tamaño de sus escaños. Pulsa una para hacerla tuya.

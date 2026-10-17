@@ -3,11 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { cn } from '@reforma-digital/design/lib/utils';
-import { Button } from '@reforma-digital/design/ui/button';
-
-const chip =
-  'inline-flex min-h-9 items-center rounded-full px-2.5 font-mono text-xs no-underline tabular-nums transition-colors';
+import { Button, buttonVariants } from '@reforma-digital/design/ui/button';
 
 // Las elecciones, una por botón; «Reproducir» las recorre de una en una desde la elegida.
 export function Years({
@@ -39,7 +35,7 @@ export function Years({
   return (
     <nav aria-label="Elección" className="mb-6 flex flex-wrap items-center gap-1.5">
       <Button variant="sunset" size="sm" className="mr-1" onClick={toggle}>
-        {active ? '❚❚ Pausa' : '▶ Reproducir'}
+        {active ? 'Pausa' : 'Reproducir'}
       </Button>
       {items.map((x) => (
         <Link
@@ -48,10 +44,10 @@ export function Years({
           aria-current={x.id === current ? 'page' : undefined}
           scroll={false}
           onClick={() => setPlaying(false)}
-          className={cn(
-            chip,
-            x.id === current ? 'bg-foreground text-background' : 'hover:bg-muted',
-          )}
+          className={buttonVariants({
+            variant: x.id === current ? 'default' : 'ghost',
+            size: 'sm',
+          })}
         >
           {x.label}
         </Link>

@@ -14,6 +14,7 @@ import { dhondt, type Quotient } from '../../lib/elecciones/dhondt';
 import { ink, thousands } from '../../lib/elecciones/format';
 import { useFirstSight } from './first-sight';
 import { Cell, Label } from './report';
+import { Icon } from '../brand/icon';
 import { Tips } from './tips';
 
 // En qué punto va la explicación: `k` escaños repartidos; en la fase 1 se señala la barra que se
@@ -236,7 +237,6 @@ export function Simulator({
               ref={shape}
               strokeWidth={1.5}
               vectorEffect="non-scaling-stroke"
-              className="transition-colors duration-500"
               style={{
                 stroke: leader ? color[leader] : 'var(--foreground)',
                 fill: `color-mix(in oklab, ${leader ? color[leader] : 'var(--foreground)'} 22%, transparent)`,
@@ -257,13 +257,7 @@ export function Simulator({
               size="sm"
               onClick={() => (playing ? setPlaying(false) : step ? setPlaying(true) : play())}
             >
-              {playing
-                ? '❚❚ Pausa'
-                : step
-                  ? '▶ Seguir'
-                  : done
-                    ? '↻ Repetir el reparto'
-                    : '▶ Ver el reparto'}
+              {playing ? 'Pausa' : step ? 'Seguir' : done ? 'Repetir el reparto' : 'Ver el reparto'}
             </Button>
             <Button
               size="sm"
@@ -279,10 +273,10 @@ export function Simulator({
                 setDone(!next);
               }}
             >
-              Siguiente escaño →
+              Siguiente escaño <Icon name="derecha" size={14} />
             </Button>
             <Button size="sm" variant="outline" onClick={() => edit(real)}>
-              ↺ Resultado real
+              <Icon name="reintentar" size={16} /> Resultado real
             </Button>
           </div>
           <div ref={bars} className="grid gap-1.5">
@@ -321,9 +315,9 @@ export function Simulator({
                     <span className="flex items-center gap-2">
                       <span className="relative h-3 flex-1">
                         <i
-                          className="absolute inset-y-0 left-0 block rounded-[2px] transition-[width] duration-500"
+                          className="absolute inset-0 block origin-left rounded-[2px] transition-transform duration-500 motion-reduce:transition-none"
                           style={{
-                            width: `${width(passes ? v / d : v)}%`,
+                            transform: `scaleX(${width(passes ? v / d : v) / 100})`,
                             background: passes ? color[name] : 'var(--muted)',
                           }}
                         />
@@ -397,7 +391,7 @@ export function Simulator({
                     }
                     data-tip-color={c}
                     className={cn(
-                      'grid min-h-12 content-start gap-0.5 rounded-md p-1.5 font-mono text-xs leading-tight transition-colors duration-300',
+                      'grid min-h-12 content-start gap-0.5 rounded-md p-1.5 font-mono text-xs leading-tight',
                       !q && 'border border-dashed border-border text-muted-foreground',
                     )}
                     style={c ? { background: c, color: ink(c) } : undefined}
@@ -530,7 +524,7 @@ export function Simulator({
                         <td
                           key={d}
                           className={cn(
-                            'rounded-[3px] px-2 py-1.5 text-right transition-colors duration-300',
+                            'rounded-[3px] px-2 py-1.5 text-right',
                             !taken && 'bg-muted/50',
                             is(last, name, d) && 'outline-2 -outline-offset-2 outline-foreground',
                             is(out, name, d) &&

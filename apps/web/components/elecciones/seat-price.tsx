@@ -5,7 +5,7 @@ import { electionLabel, ramp, thousands } from '../../lib/elecciones/format';
 import { realHemicycle } from '../../lib/elecciones/hemicycle';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { CouldBe, type LastSeat } from './could-be';
-import { Cell, Grid, Heading, ReportIntro, Stat } from './report';
+import { Cell, Grid, Heading, ReportIntro, SectionHeading, Stat } from './report';
 import { Tips } from './tips';
 import { Years } from './years';
 import { ExampleSimulator, type PriceProvince } from './simulator';
@@ -277,79 +277,82 @@ function Favours({
         lo que le tocaría con un reparto proporcional: por encima, la ley le da más escaños que su
         parte de los votos; por debajo, menos.
       </Heading>
-      <Tips>
-        <svg
-          viewBox={`0 0 ${W} ${H}`}
-          role="img"
-          aria-label="Votos y escaños de cada partido frente al reparto proporcional"
-          className="block h-auto w-full overflow-visible"
-        >
-          <g className="fill-muted-foreground stroke-border font-mono text-[10px]">
-            {ticksV.map((v) => (
-              <g key={v}>
-                <line x1={x(v)} x2={x(v)} y1={m.t} y2={H - m.b} />
-                <text x={x(v)} y={H - m.b + 16} textAnchor="middle" stroke="none">
-                  {v >= 1e6 ? `${decimal(v / 1e6, 0)} M` : `${thousands(v / 1000)} mil`}
-                </text>
-              </g>
-            ))}
-            {ticksS.map((s) => (
-              <g key={s}>
-                <line x1={m.l} x2={W - m.r} y1={y(s)} y2={y(s)} />
-                <text x={m.l - 6} y={y(s) + 4} textAnchor="end" stroke="none">
-                  {s}
-                </text>
-              </g>
-            ))}
-            <text x={W - m.r} y={H - 2} textAnchor="end" stroke="none">
-              votos →
-            </text>
-            <text x={m.l - 6} y={m.t - 2} textAnchor="end" stroke="none">
-              escaños
-            </text>
-          </g>
-          <line
-            x1={x(0)}
-            y1={y(0)}
-            x2={x(end)}
-            y2={y((end / e.validos) * 350)}
-            className="stroke-muted-foreground"
-            strokeDasharray="4 4"
-          />
-          <text
-            x={x(end * 0.55)}
-            y={y((end * 0.55 * 350) / e.validos) + 16}
-            className="fill-muted-foreground text-[11px]"
+      {/* En pantallas estrechas se desplaza: así los rótulos no bajan de 12 px. */}
+      <div className="overflow-x-auto">
+        <Tips className="min-w-[520px]">
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            role="img"
+            aria-label="Votos y escaños de cada partido frente al reparto proporcional"
+            className="block h-auto w-full overflow-visible"
           >
-            reparto proporcional
-          </text>
-          {parties.map(([short, full, family, v, s]) => (
-            <circle
-              key={`${short}-${full}`}
-              cx={x(v)}
-              cy={y(s)}
-              r={7}
-              fill={familyColor(family)}
-              className="stroke-background"
-              strokeWidth={1.5}
-              data-tip={full}
-              data-tip-text={`${thousands(v)} votos · ${s} ${s === 1 ? 'escaño' : 'escaños'}; con un reparto proporcional, ${decimal(proportional(v))}`}
-              data-tip-color={familyColor(family)}
+            <g className="fill-muted-foreground stroke-border font-mono text-xs">
+              {ticksV.map((v) => (
+                <g key={v}>
+                  <line x1={x(v)} x2={x(v)} y1={m.t} y2={H - m.b} />
+                  <text x={x(v)} y={H - m.b + 16} textAnchor="middle" stroke="none">
+                    {v >= 1e6 ? `${decimal(v / 1e6, 0)} M` : `${thousands(v / 1000)} mil`}
+                  </text>
+                </g>
+              ))}
+              {ticksS.map((s) => (
+                <g key={s}>
+                  <line x1={m.l} x2={W - m.r} y1={y(s)} y2={y(s)} />
+                  <text x={m.l - 6} y={y(s) + 4} textAnchor="end" stroke="none">
+                    {s}
+                  </text>
+                </g>
+              ))}
+              <text x={W - m.r} y={H - 2} textAnchor="end" stroke="none">
+                votos →
+              </text>
+              <text x={m.l - 6} y={m.t - 2} textAnchor="end" stroke="none">
+                escaños
+              </text>
+            </g>
+            <line
+              x1={x(0)}
+              y1={y(0)}
+              x2={x(end)}
+              y2={y((end / e.validos) * 350)}
+              className="stroke-muted-foreground"
+              strokeDasharray="4 4"
             />
-          ))}
-          {labels.map((l) => (
             <text
-              key={l.short}
-              x={l.x}
-              y={l.y}
-              textAnchor={l.anchor}
-              className="pointer-events-none fill-foreground text-[11px] font-medium"
+              x={x(end * 0.55)}
+              y={y((end * 0.55 * 350) / e.validos) + 16}
+              className="fill-muted-foreground text-xs"
             >
-              {l.short}
+              reparto proporcional
             </text>
-          ))}
-        </svg>
-      </Tips>
+            {parties.map(([short, full, family, v, s]) => (
+              <circle
+                key={`${short}-${full}`}
+                cx={x(v)}
+                cy={y(s)}
+                r={7}
+                fill={familyColor(family)}
+                className="stroke-background"
+                strokeWidth={1.5}
+                data-tip={full}
+                data-tip-text={`${thousands(v)} votos · ${s} ${s === 1 ? 'escaño' : 'escaños'}; con un reparto proporcional, ${decimal(proportional(v))}`}
+                data-tip-color={familyColor(family)}
+              />
+            ))}
+            {labels.map((l) => (
+              <text
+                key={l.short}
+                x={l.x}
+                y={l.y}
+                textAnchor={l.anchor}
+                className="pointer-events-none fill-foreground text-xs font-medium"
+              >
+                {l.short}
+              </text>
+            ))}
+          </svg>
+        </Tips>
+      </div>
       <div className="grid gap-2 border-t border-border pt-4">
         <p className="m-0 text-sm text-muted-foreground">
           Frente a un reparto proporcional, la ley mueve{' '}
@@ -425,10 +428,10 @@ function SeatPriceExample() {
         </p>
       </ReportIntro>
       <section className="grid gap-6">
-        <Heading title="Cómo se reparte un escaño">
+        <SectionHeading title="Cómo se reparte un escaño">
           Los resultados de cada provincia no están disponibles ahora mismo. Mientras tanto, la
           regla con una provincia de ejemplo: cambia los votos y mira cómo se reparten sus escaños.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <ExampleSimulator
             province={{

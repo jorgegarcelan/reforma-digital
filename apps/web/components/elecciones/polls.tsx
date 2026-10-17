@@ -2,7 +2,7 @@ import { getElections, getPolls } from '../../lib/congreso/data';
 import { Source } from '../congreso/common';
 import { PollChart, type ChartParty } from './poll-chart';
 import { PollTable } from './poll-table';
-import { Cell, Grid, Heading, Label, ReportIntro } from './report';
+import { Cell, Grid, Label, ReportIntro, SectionHeading } from './report';
 
 const points = (n: number) =>
   n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -58,10 +58,10 @@ export async function Polls() {
         </p>
       </ReportIntro>
       <section className="grid gap-6">
-        <Heading title="La media de hoy">
+        <SectionHeading title="La media de hoy">
           De las {recent} encuestas de los últimos 45 días, la más reciente de cada empresa. Cambio
           respecto a hace 30 días.
-        </Heading>
+        </SectionHeading>
         <Grid>
           {today.slice(0, 6).map((p) => {
             const d = p.before === null ? null : p.now - p.before;
@@ -86,7 +86,7 @@ export async function Polls() {
                         ? 'sin dato de hace 30 días'
                         : Math.abs(d) < 0.25
                           ? '= en 30 días'
-                          : `${d > 0 ? '▲' : '▼'} ${points(Math.abs(d))} puntos en 30 días`}
+                          : `${d > 0 ? '+' : '−'}${points(Math.abs(d))} puntos en 30 días`}
                     </span>
                   </p>
                   <svg
@@ -123,10 +123,10 @@ export async function Polls() {
       </section>
 
       <section className="mt-16 grid gap-6">
-        <Heading title="La media, día a día">
+        <SectionHeading title="La media, día a día">
           Cada línea es la media; la sombra, cuánto se separan las encuestas entre sí; cada punto,
           una encuesta. Pasa por encima para ver un día.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell>
             <PollChart

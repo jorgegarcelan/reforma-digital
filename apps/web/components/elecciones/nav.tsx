@@ -111,7 +111,9 @@ export function ElectionsFrame({
             className="grid gap-2 rounded-xl p-6 no-underline ring-1 ring-foreground/10 hover:bg-muted max-sm:p-4"
           >
             <small className="font-mono text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
-              ← Anterior
+              <span className="inline-flex items-center gap-1.5">
+                <Icon name="izquierda" size={14} /> Anterior
+              </span>
             </small>
             <b className="text-lg font-medium">{electionPages[previous].title}</b>
           </Link>
@@ -124,7 +126,9 @@ export function ElectionsFrame({
             className="grid gap-2 rounded-xl p-6 text-right no-underline ring-1 ring-foreground/10 hover:bg-muted max-sm:p-4"
           >
             <small className="font-mono text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
-              Siguiente →
+              <span className="inline-flex items-center gap-1.5">
+                Siguiente <Icon name="derecha" size={14} />
+              </span>
             </small>
             <b className="text-lg font-medium">{electionPages[next].title}</b>
           </Link>

@@ -3,7 +3,7 @@ import { balanceSchema } from '../../lib/congreso/schema';
 import { shortDate, thousands } from '../../lib/elecciones/format';
 import { Empty, href } from '../congreso/common';
 import { Relevos, type Departure, type RelevoSeat } from './relevos';
-import { Cell, Grid, Heading, ReportIntro } from './report';
+import { Cell, Grid, ReportIntro, SectionHeading } from './report';
 
 const day = (iso: string) => Date.parse(`${iso}T00:00:00Z`) / 864e5;
 const longDate = new Intl.DateTimeFormat('es-ES', {
@@ -148,11 +148,11 @@ export async function Repeat() {
         )}
       </Grid>
       <section className="mt-16 grid gap-6">
-        <Heading title="Antes de las listas: los relevos">
+        <SectionHeading title="Antes de las listas: los relevos">
           En los 350 escaños de la XV legislatura se han sentado{' '}
           {thousands(source.relevos.personas)} personas: {source.relevos.salidas.length} diputados
           dejaron el escaño y entró el siguiente de su lista.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Relevos seats={seats} box={box} departures={departures} span={span} />
         </Grid>

@@ -8,6 +8,7 @@ import { Button } from '@reforma-digital/design/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@reforma-digital/design/ui/tabs';
 import { useFirstSight } from './first-sight';
 import { Tips } from './tips';
+import { useScale } from './use-width';
 import { thousands } from '../../lib/elecciones/format';
 
 type Day = [votes: number, laws: number, decrees: number, questions: number];
@@ -210,6 +211,8 @@ function Calendar({
     [unanswered, 'preguntas sin respuesta', true],
   ];
   const height = years.length * blockH;
+  const chart = useRef<HTMLDivElement>(null);
+  const k = useScale(chart, W);
 
   return (
     <div ref={box} className="grid gap-5">
@@ -230,11 +233,7 @@ function Calendar({
       </dl>
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="sunset" onClick={play}>
-          {playing
-            ? '❚❚ Pausa'
-            : cursor >= list.length - 1
-              ? '▶ Reproducir la legislatura'
-              : '▶ Seguir'}
+          {playing ? 'Pausa' : cursor >= list.length - 1 ? 'Reproducir la legislatura' : 'Seguir'}
         </Button>
         <Tabs value={mode} onValueChange={(value) => isMode(value) && setMode(value)}>
           <TabsList aria-label="Qué se pinta">
@@ -255,64 +254,69 @@ function Calendar({
       </div>
       <div className="overflow-x-auto">
         <Tips className="min-w-[640px]">
-          <svg
-            viewBox={`0 0 ${W} ${height}`}
-            role="img"
-            aria-label="Cada día de la legislatura, pintado según lo que se ha elegido"
-            className="block h-auto w-full"
-          >
-            {years.map((year, i) => (
-              <text
-                key={year}
-                x={0}
-                y={i * blockH + 20 + 4 * cell}
-                className="fill-foreground font-mono text-[12px] font-medium"
-              >
-                {year}
-              </text>
-            ))}
-            {months.map((m) => (
-              <text
-                key={`${m.year}-${m.name}`}
-                x={place(m.at).x}
-                y={years.indexOf(m.year) * blockH + 12}
-                className="fill-muted-foreground font-mono text-[10.5px]"
-              >
-                {m.name}
-              </text>
-            ))}
-            {list.map((iso, i) => {
-              const p = place(iso);
-              const color = fill(iso);
-              const [v, l, d, q] = days[iso] ?? [0, 0, 0, 0];
-              const parts = [
-                v && `${v} ${v === 1 ? 'votación' : 'votaciones'}`,
-                l && `${l} ${l === 1 ? 'ley publicada' : 'leyes publicadas'}`,
-                d && `${d} ${d === 1 ? 'decreto-ley' : 'decretos-leyes'}`,
-                q && `${thousands(q)} ${q === 1 ? 'pregunta registrada' : 'preguntas registradas'}`,
-              ].filter(Boolean);
-              const first = firstVote.get(iso);
-              return (
-                <rect
-                  key={iso}
-                  x={p.x}
-                  y={p.y}
-                  width={cell - 2}
-                  height={cell - 2}
-                  rx={2}
-                  fill={color ?? 'var(--muted)'}
-                  className={cn(
-                    'transition-opacity duration-150 hover:stroke-foreground hover:[stroke-width:1.5]',
-                    first && 'cursor-pointer',
-                  )}
-                  style={{ opacity: i > cursor ? 0.12 : color ? 1 : 0.55 }}
-                  data-tip={longDate.format(asDate(iso))}
-                  data-tip-text={`${parts.length ? parts.join(' · ') : 'Sin actividad registrada'}${first ? '. Pulsa para ver sus votaciones' : ''}`}
-                  onClick={() => first && router.push(`${voteHref}/${first}`)}
-                />
-              );
-            })}
-          </svg>
+          <div ref={chart}>
+            <svg
+              viewBox={`0 0 ${W} ${height}`}
+              role="img"
+              aria-label="Cada día de la legislatura, pintado según lo que se ha elegido"
+              className="block h-auto w-full"
+            >
+              {years.map((year, i) => (
+                <text
+                  key={year}
+                  x={0}
+                  y={i * blockH + 20 + 4 * cell}
+                  className="fill-foreground font-mono font-medium"
+                  style={{ fontSize: 12 * k }}
+                >
+                  {year}
+                </text>
+              ))}
+              {months.map((m) => (
+                <text
+                  key={`${m.year}-${m.name}`}
+                  x={place(m.at).x}
+                  y={years.indexOf(m.year) * blockH + 12}
+                  className="fill-muted-foreground font-mono"
+                  style={{ fontSize: 12 * k }}
+                >
+                  {m.name}
+                </text>
+              ))}
+              {list.map((iso, i) => {
+                const p = place(iso);
+                const color = fill(iso);
+                const [v, l, d, q] = days[iso] ?? [0, 0, 0, 0];
+                const parts = [
+                  v && `${v} ${v === 1 ? 'votación' : 'votaciones'}`,
+                  l && `${l} ${l === 1 ? 'ley publicada' : 'leyes publicadas'}`,
+                  d && `${d} ${d === 1 ? 'decreto-ley' : 'decretos-leyes'}`,
+                  q &&
+                    `${thousands(q)} ${q === 1 ? 'pregunta registrada' : 'preguntas registradas'}`,
+                ].filter(Boolean);
+                const first = firstVote.get(iso);
+                return (
+                  <rect
+                    key={iso}
+                    x={p.x}
+                    y={p.y}
+                    width={cell - 2}
+                    height={cell - 2}
+                    rx={2}
+                    fill={color ?? 'var(--muted)'}
+                    className={cn(
+                      'transition-opacity duration-150 hover:stroke-foreground hover:[stroke-width:1.5]',
+                      first && 'cursor-pointer',
+                    )}
+                    style={{ opacity: i > cursor ? 0.12 : color ? 1 : 0.55 }}
+                    data-tip={longDate.format(asDate(iso))}
+                    data-tip-text={`${parts.length ? parts.join(' · ') : 'Sin actividad registrada'}${first ? '. Pulsa para ver sus votaciones' : ''}`}
+                    onClick={() => first && router.push(`${voteHref}/${first}`)}
+                  />
+                );
+              })}
+            </svg>
+          </div>
         </Tips>
       </div>
       <p className="m-0 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -390,6 +394,8 @@ function Margins({ votes, voteHref }: { votes: Vote[]; voteHref: string }) {
   const [edge, setEdge] = useState(0);
   const svg = useRef<SVGSVGElement>(null);
   const dragging = useRef(false);
+  const chart = useRef<HTMLDivElement>(null);
+  const k = useScale(chart, W);
 
   const H = 260;
   const m = { l: 40, r: 8, t: 30, b: 30 };
@@ -427,118 +433,122 @@ function Margins({ votes, voteHref }: { votes: Vote[]; voteHref: string }) {
       </p>
       <div className="overflow-x-auto">
         <Tips className="min-w-[640px]">
-          <svg
-            ref={svg}
-            viewBox={`0 0 ${W} ${H}`}
-            role="group"
-            aria-label="Votaciones según la diferencia entre votos a favor y en contra"
-            className="block h-auto w-full touch-none overflow-visible select-none"
-            onPointerDown={(event) => {
-              dragging.current = true;
-              event.currentTarget.setPointerCapture(event.pointerId);
-              moveTo(event.clientX);
-            }}
-            onPointerMove={(event) => dragging.current && moveTo(event.clientX)}
-            onPointerUp={() => {
-              dragging.current = false;
-            }}
-          >
-            <g className="fill-muted-foreground font-mono text-[10.5px]">
-              {[0, 0.5, 1].map((f) => (
-                <text key={f} x={m.l - 6} y={y(top * f) + 4} textAnchor="end">
-                  {thousands(Math.round(top * f))}
-                </text>
-              ))}
-              {ticks.map((t) => (
-                <text key={t} x={x(t) + bw / 2} y={H - 12} textAnchor="middle">
-                  {t === 0 ? '0' : `${t > 0 ? '+' : '−'}${Math.abs(t * 10)}`}
-                </text>
-              ))}
-              <text x={W - m.r} y={H} textAnchor="end">
-                diferencia de votos (sí − no)
-              </text>
-            </g>
-            <rect
-              x={x(from)}
-              y={m.t - 6}
-              width={x(to) + bw - x(from)}
-              height={H - m.b - m.t + 6}
-              className="fill-foreground/5"
-            />
-            {[...byBin].map(([b, list]) => (
-              <rect
-                key={b}
-                x={x(b) + 0.5}
-                y={y(list.length)}
-                width={Math.max(1, bw - 1)}
-                height={H - m.b - y(list.length)}
-                rx={1.5}
-                fill={binColor(b)}
-                className="cursor-pointer transition-opacity duration-150"
-                style={{ opacity: inside(b) ? 1 : 0.35 }}
-                data-tip={binLabel(b)}
-                data-tip-text={`${thousands(list.length)} ${list.length === 1 ? 'votación' : 'votaciones'}`}
-                data-tip-color={binColor(b)}
-              />
-            ))}
-            <line
-              x1={x(0) + bw / 2}
-              x2={x(0) + bw / 2}
-              y1={m.t - 6}
-              y2={H - m.b}
-              className="stroke-border"
-            />
-            <g className="fill-muted-foreground text-[11px] font-medium">
-              <text x={x(0) + bw / 2 - 6} y={m.t - 18} textAnchor="end">
-                ← rechazadas
-              </text>
-              <text x={x(0) + bw / 2 + 6} y={m.t - 18}>
-                aprobadas →
-              </text>
-            </g>
-            {/* El tirador: se arrastra con el ratón o el dedo y se mueve con las flechas. */}
-            <g
-              role="slider"
-              tabIndex={0}
-              aria-label="Diferencia de votos"
-              aria-valuemin={low * 10}
-              aria-valuemax={high * 10}
-              aria-valuenow={edge * 10}
-              aria-valuetext={`${rangeLabel(edge)}: ${shown.length} votaciones`}
-              className="cursor-ew-resize outline-none [&:focus-visible_rect]:stroke-ring [&:focus-visible_rect]:[stroke-width:3]"
-              onKeyDown={(event) => {
-                const step = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 }[event.key];
-                if (step === undefined && event.key !== 'Home') return;
-                event.preventDefault();
-                setEdge((current) =>
-                  event.key === 'Home' ? 0 : Math.max(low, Math.min(high, current + (step ?? 0))),
-                );
+          <div ref={chart}>
+            <svg
+              ref={svg}
+              viewBox={`0 0 ${W} ${H}`}
+              role="group"
+              aria-label="Votaciones según la diferencia entre votos a favor y en contra"
+              className="block h-auto w-full touch-none overflow-visible select-none"
+              onPointerDown={(event) => {
+                dragging.current = true;
+                event.currentTarget.setPointerCapture(event.pointerId);
+                moveTo(event.clientX);
+              }}
+              onPointerMove={(event) => dragging.current && moveTo(event.clientX)}
+              onPointerUp={() => {
+                dragging.current = false;
               }}
             >
+              <g className="fill-muted-foreground font-mono" style={{ fontSize: 12 * k }}>
+                {[0, 0.5, 1].map((f) => (
+                  <text key={f} x={m.l - 6} y={y(top * f) + 4} textAnchor="end">
+                    {thousands(Math.round(top * f))}
+                  </text>
+                ))}
+                {ticks.map((t) => (
+                  <text key={t} x={x(t) + bw / 2} y={H - 12} textAnchor="middle">
+                    {t === 0 ? '0' : `${t > 0 ? '+' : '−'}${Math.abs(t * 10)}`}
+                  </text>
+                ))}
+                <text x={W - m.r} y={H} textAnchor="end">
+                  diferencia de votos (sí − no)
+                </text>
+              </g>
+              <rect
+                x={x(from)}
+                y={m.t - 6}
+                width={x(to) + bw - x(from)}
+                height={H - m.b - m.t + 6}
+                className="fill-foreground/5"
+              />
+              {[...byBin].map(([b, list]) => (
+                <rect
+                  key={b}
+                  x={x(b) + 0.5}
+                  y={y(list.length)}
+                  width={Math.max(1, bw - 1)}
+                  height={H - m.b - y(list.length)}
+                  rx={1.5}
+                  fill={binColor(b)}
+                  className="cursor-pointer transition-opacity duration-150"
+                  style={{ opacity: inside(b) ? 1 : 0.35 }}
+                  data-tip={binLabel(b)}
+                  data-tip-text={`${thousands(list.length)} ${list.length === 1 ? 'votación' : 'votaciones'}`}
+                  data-tip-color={binColor(b)}
+                />
+              ))}
               <line
-                x1={handleX}
-                x2={handleX}
+                x1={x(0) + bw / 2}
+                x2={x(0) + bw / 2}
                 y1={m.t - 6}
                 y2={H - m.b}
-                className="stroke-foreground"
-                strokeWidth={2}
+                className="stroke-border"
               />
-              <rect
-                x={handleX - 7}
-                y={(m.t + H - m.b) / 2 - 14}
-                width={14}
-                height={28}
-                rx={7}
-                className="fill-background stroke-foreground"
-                strokeWidth={1.5}
-              />
-              <path
-                d={`M${handleX - 2} ${(m.t + H - m.b) / 2 - 6}v12M${handleX + 2} ${(m.t + H - m.b) / 2 - 6}v12`}
-                className="stroke-foreground"
-                strokeWidth={1}
-              />
-            </g>
-          </svg>
+              <g className="fill-muted-foreground font-medium" style={{ fontSize: 12 * k }}>
+                <text x={x(0) + bw / 2 - 6} y={m.t - 18} textAnchor="end">
+                  ← rechazadas
+                </text>
+                <text x={x(0) + bw / 2 + 6} y={m.t - 18}>
+                  aprobadas →
+                </text>
+              </g>
+              {/* El tirador: se arrastra con el ratón o el dedo y se mueve con las flechas. */}
+              <g
+                role="slider"
+                tabIndex={0}
+                aria-label="Diferencia de votos"
+                aria-valuemin={low * 10}
+                aria-valuemax={high * 10}
+                aria-valuenow={edge * 10}
+                aria-valuetext={`${rangeLabel(edge)}: ${shown.length} votaciones`}
+                className="cursor-ew-resize outline-none [&:focus-visible_rect]:stroke-ring [&:focus-visible_rect]:[stroke-width:3]"
+                onKeyDown={(event) => {
+                  const step = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 }[
+                    event.key
+                  ];
+                  if (step === undefined && event.key !== 'Home') return;
+                  event.preventDefault();
+                  setEdge((current) =>
+                    event.key === 'Home' ? 0 : Math.max(low, Math.min(high, current + (step ?? 0))),
+                  );
+                }}
+              >
+                <line
+                  x1={handleX}
+                  x2={handleX}
+                  y1={m.t - 6}
+                  y2={H - m.b}
+                  className="stroke-foreground"
+                  strokeWidth={2}
+                />
+                <rect
+                  x={handleX - 7}
+                  y={(m.t + H - m.b) / 2 - 14}
+                  width={14}
+                  height={28}
+                  rx={7}
+                  className="fill-background stroke-foreground"
+                  strokeWidth={1.5}
+                />
+                <path
+                  d={`M${handleX - 2} ${(m.t + H - m.b) / 2 - 6}v12M${handleX + 2} ${(m.t + H - m.b) / 2 - 6}v12`}
+                  className="stroke-foreground"
+                  strokeWidth={1}
+                />
+              </g>
+            </svg>
+          </div>
         </Tips>
       </div>
       <div className="grid gap-2 border-t border-border pt-4" aria-live="polite">
@@ -560,7 +570,7 @@ function Margins({ votes, voteHref }: { votes: Vote[]; voteHref: string }) {
                 className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 rounded-md px-2 py-2 text-sm no-underline hover:bg-muted"
               >
                 <span className="leading-snug">{title}</span>
-                <span className="font-mono text-xs whitespace-nowrap text-muted-foreground">
+                <span className="font-mono text-sm whitespace-nowrap text-muted-foreground">
                   <b className="font-medium text-foreground">
                     {yes}–{no}
                   </b>{' '}

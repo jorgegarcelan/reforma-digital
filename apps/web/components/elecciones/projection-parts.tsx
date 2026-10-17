@@ -59,7 +59,7 @@ export function SeatSum({
           .map((p) => (
             <i
               key={p.id}
-              className="block h-full transition-[width] duration-300"
+              className="block h-full"
               style={{ width: `${(p.seats / 350) * 100}%`, background: p.color }}
             />
           ))}

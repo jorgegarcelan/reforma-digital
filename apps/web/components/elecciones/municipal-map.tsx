@@ -224,7 +224,7 @@ export function MunicipalMap({ groups }: { groups: MapGroup[] }) {
                 data-municipality={code}
                 data-tip={name}
                 fill={view.fill[code] ?? 'var(--muted)'}
-                className="stroke-card [stroke-width:0.35] transition-[fill] duration-300 hover:stroke-foreground hover:[stroke-width:1.5]"
+                className="stroke-card [stroke-width:0.35] hover:stroke-foreground hover:[stroke-width:1.5]"
                 vectorEffect="non-scaling-stroke"
               />
             ))}

@@ -148,7 +148,7 @@ export function ExpiringList({
                 />
               ))}
             </span>
-            <Link href={l.href} className="leading-snug no-underline hover:underline">
+            <Link href={l.href} className="leading-snug">
               {l.title}
             </Link>
             <span className="flex items-center gap-4 text-sm whitespace-nowrap text-muted-foreground max-sm:col-start-2">

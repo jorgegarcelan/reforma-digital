@@ -12,7 +12,8 @@ import {
   TableRow,
 } from '@reforma-digital/design/ui/table';
 import { thousands } from '../../lib/elecciones/format';
-import { Heading } from './report';
+import { Icon } from '../brand/icon';
+import { SectionHeading } from './report';
 
 type Row = {
   code: string;
@@ -106,7 +107,7 @@ export function ProvinceTable({
   return (
     <>
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <Heading title={`Las ${rows.length} circunscripciones en ${year}`} />
+        <SectionHeading title={`Las ${rows.length} circunscripciones en ${year}`} />
         <Input
           type="search"
           value={query}
@@ -131,10 +132,14 @@ export function ProvinceTable({
                   <button
                     type="button"
                     onClick={() => order(column)}
-                    className="min-h-9 font-medium hover:underline"
+                    className="inline-flex min-h-9 items-center gap-1 font-medium"
                   >
                     {text}
-                    {sort.column === column ? (sort.up ? ' ↑' : ' ↓') : ''}
+                    {sort.column === column && (
+                      <span className={sort.up ? 'inline-flex' : 'inline-flex rotate-180'}>
+                        <Icon name="arrowUp" size={14} />
+                      </span>
+                    )}
                   </button>
                 </TableHead>
               ))}

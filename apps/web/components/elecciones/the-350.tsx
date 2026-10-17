@@ -3,7 +3,7 @@ import { balanceSchema, mapSchema } from '../../lib/congreso/schema';
 import { href } from '../congreso/common';
 import { Apportionment } from './apportionment';
 import { Reparto, type RepartoElection } from './reparto';
-import { Cell, Grid, Heading, Legend, ReportIntro } from './report';
+import { Cell, Grid, Legend, ReportIntro, SectionHeading } from './report';
 import { SeatsCard } from './seats-card';
 
 const format = (iso: string, options: Intl.DateTimeFormatOptions) =>
@@ -70,11 +70,11 @@ export async function The350() {
         />
       </Grid>
       <section className="mt-16 grid gap-6">
-        <Heading title="La regla: por qué Soria elige 2 y Madrid 38">
+        <SectionHeading title="La regla: por qué Soria elige 2 y Madrid 38">
           Los diputados de cada provincia no dependen solo de cuánta gente vive en ella. La ley
           electoral (art. 162 de la LOREG) los reparte en dos pasos, con el padrón de{' '}
           {source.padron.anio}, y de ahí sale el reparto del decreto del 29N.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell>
             <Apportionment
@@ -87,11 +87,11 @@ export async function The350() {
         </Grid>
       </section>
       <section className="mt-16 grid gap-6">
-        <Heading title="Cómo ha cambiado el reparto">
+        <SectionHeading title="Cómo ha cambiado el reparto">
           Cada provincia tiene al menos dos diputados (Ceuta y Melilla, uno) y el resto se reparte
           según su población antes de cada elección. Cada punto es un escaño, del color de la
           familia que lo ganó. Pulsa uno para ir a su provincia.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell>
             <Reparto

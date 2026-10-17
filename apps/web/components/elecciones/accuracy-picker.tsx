@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { cn } from '@reforma-digital/design/lib/utils';
-import { Cell, Grid, Heading } from './report';
+import { Cell, Grid, SectionHeading } from './report';
 import { Tips } from './tips';
 import { useWidth } from './use-width';
 
@@ -81,7 +81,7 @@ export function AccuracyPicker({ elections }: { elections: AccuracyElection[] })
         })}
       </Grid>
       <section className="mt-10 grid gap-6">
-        <Heading
+        <SectionHeading
           title={
             miss
               ? `${e.name}: ${miss.name}, ${d > 0 ? 'sobrestimado' : 'infravalorado'} en ${decimal(Math.abs(d))} puntos`
@@ -90,7 +90,7 @@ export function AccuracyPicker({ elections }: { elections: AccuracyElection[] })
         >
           Cada fila, un partido: el círculo hueco es la media de las encuestas; el lleno, lo que
           votó la gente; los puntos claros, la última encuesta de cada empresa.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell>
             <div ref={box}>

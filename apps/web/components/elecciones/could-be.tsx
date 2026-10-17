@@ -174,14 +174,7 @@ export function CouldBe({
           className="block h-auto w-full"
         >
           {hemicycle.points.map(([px, py], i) => (
-            <circle
-              key={i}
-              cx={px}
-              cy={py}
-              r={5.3}
-              fill={colors[i] ?? 'var(--muted)'}
-              className="transition-[fill] duration-500"
-            />
+            <circle key={i} cx={px} cy={py} r={5.3} fill={colors[i] ?? 'var(--muted)'} />
           ))}
           <text
             x={hemicycle.label.x}
@@ -253,19 +246,19 @@ export function CouldBe({
               go(maxLog, (7000 * (maxLog - start)) / (maxLog - 2), start);
             }}
           >
-            {playing ? '❚❚ Pausa' : '▶ Reproducir'}
+            {playing ? 'Pausa' : 'Reproducir'}
           </Button>
           <span className="text-muted-foreground">Por menos de</span>
           {[...presets, [maxLog, 'Todos'] as const].map(([v, text]) => (
-            <button
+            <Button
               key={text}
-              type="button"
+              size="sm"
+              variant={Math.abs(level - Math.min(maxLog, v)) < 0.005 ? 'default' : 'ghost'}
               aria-pressed={Math.abs(level - Math.min(maxLog, v)) < 0.005}
               onClick={() => go(Math.min(maxLog, v), 900)}
-              className="min-h-9 rounded-full px-2.5 font-mono text-xs tabular-nums transition-colors hover:bg-muted aria-pressed:bg-foreground aria-pressed:text-background"
             >
               {text}
-            </button>
+            </Button>
           ))}
         </div>
         <div ref={chart}>

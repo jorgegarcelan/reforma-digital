@@ -20,6 +20,7 @@ import {
   type Municipality,
 } from '../../lib/elecciones/geography';
 import { Label, Legend } from './report';
+import { Icon } from '../brand/icon';
 import { useWidth } from './use-width';
 
 export type Step = { id: string; short: string; kicker: string; title: string; body: ReactNode };
@@ -47,7 +48,6 @@ const rgb = (hex: string): [number, number, number] => [
   parseInt(hex.slice(3, 5), 16),
   parseInt(hex.slice(5, 7), 16),
 ];
-const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 const pct = (n: number, digits = 0) =>
   `${(n * 100).toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits })} %`;
@@ -251,7 +251,7 @@ export function VoteStory({
           directo.
         </p>
         <Button variant="sunset" onClick={() => setPresenting(true)}>
-          Presentar ▶
+          Presentar
         </Button>
       </div>
       <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
@@ -272,15 +272,15 @@ export function VoteStory({
         <div className="sticky top-20 z-10 order-1 grid h-fit min-w-0 gap-3 bg-background py-2 lg:top-24 lg:order-2">
           <nav className="flex flex-wrap gap-1" aria-label="Ejes de la historia">
             {steps.map((s, i) => (
-              <button
+              <Button
                 key={s.id}
-                type="button"
+                size="sm"
+                variant={i === active ? 'default' : 'ghost'}
                 aria-current={i === active ? 'step' : undefined}
                 onClick={() => go(i)}
-                className="min-h-8 rounded-full px-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted aria-[current=step]:bg-foreground aria-[current=step]:text-background"
               >
                 {s.short}
-              </button>
+              </Button>
             ))}
           </nav>
           {!presenting && map}
@@ -304,7 +304,7 @@ export function VoteStory({
                 disabled={active === 0}
                 onClick={() => setActive(active - 1)}
               >
-                ←
+                <Icon name="izquierda" size={16} />
               </Button>
               <span className="font-mono text-sm tabular-nums">
                 {active + 1} / {steps.length}
@@ -316,7 +316,7 @@ export function VoteStory({
                 disabled={active === steps.length - 1}
                 onClick={() => setActive(active + 1)}
               >
-                →
+                <Icon name="derecha" size={16} />
               </Button>
               <Button variant="ghost" onClick={() => setPresenting(false)}>
                 Salir
@@ -366,7 +366,6 @@ function DotMap({
   const canvas = useRef<HTMLCanvasElement>(null);
   const width = useWidth(box, 600);
   const now = useRef<Look[]>([]);
-  const frame = useRef(0);
   const [tip, setTip] = useState<{ x: number; y: number; i: number } | null>(null);
   const { dots, map } = data;
   const height = (width * map.alto) / map.ancho;
@@ -465,29 +464,9 @@ function DotMap({
       });
       ctx.globalAlpha = 1;
     };
-    const from = now.current.length === target.length ? now.current : target;
-    const duration = reducedMotion() || from === target ? 0 : 900;
-    const start = performance.now();
-    cancelAnimationFrame(frame.current);
-    const tick = (t: number) => {
-      const p = duration ? Math.min(1, (t - start) / duration) : 1;
-      const e = ease(p);
-      const mix = (x: number, y: number) => x + (y - x) * e;
-      const looks = target.map((to, i): Look => {
-        const a = from[i] ?? to;
-        return {
-          r: mix(a.r, to.r),
-          a: mix(a.a, to.a),
-          arrow: mix(a.arrow, to.arrow),
-          c: [mix(a.c[0], to.c[0]), mix(a.c[1], to.c[1]), mix(a.c[2], to.c[2])],
-        };
-      });
-      now.current = looks;
-      draw(looks);
-      if (p < 1) frame.current = requestAnimationFrame(tick);
-    };
-    frame.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame.current);
+    // Cada paso se dibuja tal cual: sin animar tamaños ni colores (DESIGN.md, §8.4).
+    now.current = target;
+    draw(target);
   }, [target, width, height, k, scale, dots, outlines, map, swingColors]);
 
   // El municipio más cercano al puntero, para el detalle.

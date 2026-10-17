@@ -11,7 +11,7 @@ import { Icon } from '../brand/icon';
 import { href } from '../congreso/common';
 import { ProvinceMap, type MapProvince, type Winner } from './province-map';
 import { ProvinceTable } from './province-table';
-import { Cell, Grid, Heading, Label, Legend, ReportIntro, Stat } from './report';
+import { Cell, Grid, Label, Legend, ReportIntro, SectionHeading, Stat } from './report';
 import { River, type RiverElection } from './river';
 import { Tips } from './tips';
 import { Years } from './years';
@@ -191,14 +191,7 @@ export async function ElectionHistory({ election }: { election?: string }) {
             className="block h-auto w-full"
           >
             {hemicycle.points.map(([x, y], i) => (
-              <circle
-                key={i}
-                cx={x}
-                cy={y}
-                r={5.3}
-                fill={seatColors[i] ?? 'var(--muted)'}
-                className="transition-[fill] duration-500"
-              />
+              <circle key={i} cx={x} cy={y} r={5.3} fill={seatColors[i] ?? 'var(--muted)'} />
             ))}
             <text
               x={hemicycle.label.x}
@@ -288,11 +281,11 @@ export async function ElectionHistory({ election }: { election?: string }) {
       </Grid>
 
       <section className="mt-16 grid gap-6">
-        <Heading title="Los 350 escaños, legislatura a legislatura">
+        <SectionHeading title="Los 350 escaños, legislatura a legislatura">
           Cada familia en su sitio, de 1977 a la disolución de {E.at(-1)?.hasta.slice(0, 4)}, con el
           nombre de su candidatura más votada en cada elección. Pulsa una legislatura para verla en
           toda la página.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell>
             <River
@@ -309,10 +302,10 @@ export async function ElectionHistory({ election }: { election?: string }) {
       </section>
 
       <section id="provincias" className="mt-16 grid scroll-mt-28 gap-6">
-        <Heading title="Provincia a provincia">
+        <SectionHeading title="Provincia a provincia">
           Las {codes.length} circunscripciones en {label(e)}. Pulsa una provincia para ver su
           resultado.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <ProvinceMap
             key={e.id}
@@ -339,7 +332,7 @@ export async function ElectionHistory({ election }: { election?: string }) {
                     data-tip={`${name(code)} · ${label(e)}`}
                     data-tip-text={tipFor(code)}
                     data-tip-color={byCode[code]?.winner?.color}
-                    className="cursor-pointer fill-muted stroke-background transition-[fill] duration-300"
+                    className="cursor-pointer fill-muted stroke-background"
                     strokeWidth={0.8}
                   />
                 ))}
@@ -351,10 +344,10 @@ export async function ElectionHistory({ election }: { election?: string }) {
       </section>
 
       <section className="mt-16 grid gap-6">
-        <Heading title="Elección a elección">
+        <SectionHeading title="Elección a elección">
           Quién ganó cada provincia en las {E.length} generales. Pulsa un año para verlo arriba;
           pulsa una provincia para abrir su ficha.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell>
             <div className="overflow-x-auto">
@@ -371,8 +364,11 @@ export async function ElectionHistory({ election }: { election?: string }) {
                             aria-current={j === k ? 'page' : undefined}
                             title={longDate(x.fecha, { month: 'long', year: 'numeric' })}
                             className={cn(
-                              'block rounded-md py-1 text-center font-mono text-xs no-underline tabular-nums transition-colors hover:bg-muted',
-                              j === k && 'bg-foreground text-background hover:bg-foreground',
+                              buttonVariants({
+                                variant: j === k ? 'default' : 'ghost',
+                                size: 'xs',
+                              }),
+                              'w-full',
                             )}
                           >
                             ’{label(x).slice(2, 4)}
@@ -397,12 +393,7 @@ export async function ElectionHistory({ election }: { election?: string }) {
                         return (
                           <tr key={code}>
                             <th className="pr-3 text-left font-normal whitespace-nowrap">
-                              <Link
-                                href={provinceHref(code)}
-                                className="no-underline hover:underline"
-                              >
-                                {name(code)}
-                              </Link>
+                              <Link href={provinceHref(code)}>{name(code)}</Link>
                             </th>
                             {E.map((x, j) => {
                               const w = winners[i]?.[j];

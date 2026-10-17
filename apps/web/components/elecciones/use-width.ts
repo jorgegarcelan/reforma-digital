@@ -9,10 +9,16 @@ export function useWidth(ref: RefObject<HTMLElement | null>, fallback: number) {
     const element = ref.current;
     if (!element) return;
     const observer = new ResizeObserver(([entry]) => {
-      if (entry) setWidth(Math.max(300, Math.round(entry.contentRect.width)));
+      if (entry) setWidth(Math.max(200, Math.round(entry.contentRect.width)));
     });
     observer.observe(element);
     return () => observer.disconnect();
   }, [ref]);
   return width;
+}
+
+// Para los gráficos con un `viewBox` fijo: cuántas unidades del dibujo mide un píxel de pantalla.
+// Un texto con `fontSize: 12 * k` mide 12 px se vea como se vea.
+export function useScale(ref: RefObject<HTMLElement | null>, units: number) {
+  return units / useWidth(ref, units);
 }

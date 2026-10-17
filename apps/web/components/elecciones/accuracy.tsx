@@ -1,7 +1,7 @@
 import { getHistory, read } from '../../lib/congreso/data';
 import { accuracySchema, projectionSchema } from '../../lib/congreso/schema';
 import { AccuracyPicker, type AccuracyElection } from './accuracy-picker';
-import { Cell, Grid, Heading, ReportIntro } from './report';
+import { Cell, Grid, ReportIntro, SectionHeading } from './report';
 
 const decimal = (n: number) =>
   n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -64,19 +64,19 @@ export async function Accuracy() {
         </p>
       </ReportIntro>
       <section className="grid gap-6">
-        <Heading title="¿Aciertan las encuestas?">
+        <SectionHeading title="¿Aciertan las encuestas?">
           En las cinco últimas generales, la media de las encuestas de las tres semanas anteriores
           se equivocó, de media, en {decimal(average)} puntos por partido. Pero no siempre con los
           mismos ni hacia el mismo lado.
-        </Heading>
+        </SectionHeading>
         <AccuracyPicker elections={elections} />
       </section>
 
       <section className="mt-16 grid gap-6">
-        <Heading title="Hacia dónde fallan">
+        <SectionHeading title="Hacia dónde fallan">
           Puntos de más (sobrestimado) o de menos (infravalorado) que la media de las encuestas le
           dio a cada partido.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell>
             <div className="overflow-x-auto">
@@ -136,10 +136,10 @@ export async function Accuracy() {
       </section>
 
       <section className="mt-16 grid gap-6">
-        <Heading title="Las encuestadoras">
+        <SectionHeading title="Las encuestadoras">
           El error medio de la última encuesta de cada empresa (en puntos por partido), en las
           generales en que publicó. Arriba, las que estuvieron en más elecciones y más acertaron.
-        </Heading>
+        </SectionHeading>
         <Grid>
           <Cell>
             <div className="overflow-x-auto">
@@ -197,10 +197,10 @@ export async function Accuracy() {
 
       {scenarios.length > 0 && (
         <section className="mt-16 grid gap-6">
-          <Heading title="Si fallan como entonces">
+          <SectionHeading title="Si fallan como entonces">
             La proyección de hoy, corrigiendo la media con el error que tuvo cada vez en el PP, el
             PSOE, Vox y la izquierda de Sumar y Podemos.
-          </Heading>
+          </SectionHeading>
           <Grid>
             <Cell>
               <div className="overflow-x-auto">

@@ -19,7 +19,7 @@ import {
   TableRow,
 } from '@reforma-digital/design/ui/table';
 import { thousands } from '../../lib/elecciones/format';
-import { Heading } from './report';
+import { SectionHeading } from './report';
 
 type Poll = {
   firm: string;
@@ -72,7 +72,7 @@ export function PollTable({
   return (
     <>
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <Heading title="Todas las encuestas" />
+        <SectionHeading title="Todas las encuestas" />
         <Select
           value={firm}
           items={items}

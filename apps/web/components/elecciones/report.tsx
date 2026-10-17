@@ -217,6 +217,18 @@ export function Heading({ title, children }: { title: string; children?: ReactNo
   );
 }
 
+// Título de una sección de la página (fuera de las tarjetas): de 32 a 36 px, como pide DESIGN.md.
+export function SectionHeading({ title, children }: { title: string; children?: ReactNode }) {
+  return (
+    <div className="grid gap-2">
+      <h2 className="m-0 font-heading text-[32px] leading-tight font-normal lg:text-[36px]">
+        {title}
+      </h2>
+      {children && <p className="m-0 max-w-[65ch] text-muted-foreground">{children}</p>}
+    </div>
+  );
+}
+
 export function Chapter({
   id,
   n,
@@ -310,7 +322,9 @@ export function ReportSection({
   return (
     <section className="my-16">
       <div className="mb-6 flex flex-wrap items-baseline justify-between gap-4">
-        <h2 className="m-0 font-heading text-[28px] leading-tight font-normal">{title}</h2>
+        <h2 className="m-0 font-heading text-[32px] leading-tight font-normal lg:text-[36px]">
+          {title}
+        </h2>
         {action}
       </div>
       {children}

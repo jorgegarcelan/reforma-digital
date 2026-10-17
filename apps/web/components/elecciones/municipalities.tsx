@@ -11,7 +11,7 @@ import { municipalityVotes } from '../../lib/congreso/queries';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { Filters, Pagination } from '../congreso/common';
 import { MunicipalMap, type MapGroup } from './municipal-map';
-import { Cell, Grid, Heading, ReportIntro } from './report';
+import { Cell, Grid, ReportIntro, SectionHeading } from './report';
 
 const nationalists = ['BILDU', 'ERC', 'BNG', 'PNV', 'CIU', 'CC'];
 const percent = (n: number) =>
@@ -55,9 +55,9 @@ export async function Municipalities({ query, page }: { query: string; page: num
         </Cell>
       </Grid>
       <section className="mt-16 grid gap-6">
-        <Heading title="Busca tu municipio">
+        <SectionHeading title="Busca tu municipio">
           El voto del 23 de julio de 2023 en cada municipio, por grupos de partidos.
-        </Heading>
+        </SectionHeading>
         <Filters action={electionsHref('mapa')} query={query} />
         <div className="overflow-x-auto rounded-2xl ring-1 ring-border">
           <Table>

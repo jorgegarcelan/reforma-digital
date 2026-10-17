@@ -94,7 +94,7 @@ export function Apportionment({
               Por su población
             </span>
           </p>
-          <span className="font-mono text-xs text-muted-foreground max-sm:hidden">
+          <span className="font-mono text-sm text-muted-foreground max-sm:hidden">
             habitantes por escaño
           </span>
         </div>
@@ -107,9 +107,7 @@ export function Apportionment({
                 key={c}
                 className="grid grid-cols-[minmax(0,7.5rem)_minmax(0,1fr)_2rem_5.5rem] items-center gap-3 text-sm max-sm:grid-cols-[minmax(0,6rem)_minmax(0,1fr)_2rem]"
               >
-                <Link href={provinces[c]?.href ?? '#'} className="no-underline hover:underline">
-                  {name(c)}
-                </Link>
+                <Link href={provinces[c]?.href ?? '#'}>{name(c)}</Link>
                 <span
                   className="flex flex-wrap gap-0.5"
                   role="img"
@@ -124,7 +122,7 @@ export function Apportionment({
                   ))}
                 </span>
                 <span className="text-right font-mono tabular-nums">{n}</span>
-                <span className="text-right font-mono text-xs text-muted-foreground tabular-nums max-sm:hidden">
+                <span className="text-right font-mono text-sm text-muted-foreground tabular-nums max-sm:hidden">
                   {thousands((population[c] ?? 0) / Math.max(1, n))}
                 </span>
               </li>

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { cn } from '@reforma-digital/design/lib/utils';
 import { Button } from '@reforma-digital/design/ui/button';
 import { clusters, seatRadius, sunflower } from '../../lib/elecciones/seats';
 import { Label } from './report';
@@ -82,10 +81,8 @@ export function Reparto({
             key={c}
             className="flex items-baseline justify-between gap-3 border-t border-border py-1.5 text-sm first:border-t-0"
           >
-            <Link href={provinces[c]?.href ?? '#'} className="no-underline hover:underline">
-              {name(c)}
-            </Link>
-            <span className="font-mono text-xs whitespace-nowrap text-muted-foreground tabular-nums">
+            <Link href={provinces[c]?.href ?? '#'}>{name(c)}</Link>
+            <span className="font-mono text-sm whitespace-nowrap text-muted-foreground tabular-nums">
               {from} → {to} ({to > from ? '+' : '−'}
               {Math.abs(to - from)})
             </span>
@@ -109,24 +106,21 @@ export function Reparto({
             setPlaying(true);
           }}
         >
-          {playing ? '❚❚ Pausa' : '▶ Reproducir'}
+          {playing ? 'Pausa' : 'Reproducir'}
         </Button>
         {elections.map((x, i) => (
-          <button
+          <Button
             key={x.id}
-            type="button"
+            size="sm"
+            variant={i === k ? 'default' : 'ghost'}
             aria-pressed={i === k}
             onClick={() => {
               setPlaying(false);
               setK(i);
             }}
-            className={cn(
-              'min-h-9 rounded-full px-2.5 font-mono text-xs tabular-nums transition-colors',
-              i === k ? 'bg-foreground text-background' : 'hover:bg-muted',
-            )}
           >
             {x.short}
-          </button>
+          </Button>
         ))}
       </div>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
@@ -155,7 +149,7 @@ export function Reparto({
                     key={`${c}-${j}`}
                     r={seatRadius}
                     fill={colors[j] ?? '#9AA0A6'}
-                    className="cursor-pointer stroke-background transition-[transform,opacity,fill] duration-700 ease-(--ease-brand) motion-reduce:transition-none"
+                    className="cursor-pointer stroke-background transition-[transform,opacity] duration-700 ease-(--ease-brand) motion-reduce:transition-none"
                     strokeWidth={0.8}
                     style={{ transform: `translate(${x}px, ${y}px)`, opacity: j < seats ? 1 : 0 }}
                     data-tip={name(c)}
