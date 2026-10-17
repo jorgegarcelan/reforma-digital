@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { Expiring } from '../elecciones/expiring';
 import { LegislatureFigures } from '../elecciones/legislature';
+import { Repeat } from '../elecciones/repeat';
 import { ReportIntro, ReportSection, ReportStats } from '../elecciones/report';
 import { getElections, read, congressUrl, getGeography } from '../../lib/congreso/data';
 import { municipalityVotes } from '../../lib/congreso/queries';
@@ -205,15 +206,5 @@ export async function ElectionContext({
       </>
     );
   }
-  return (
-    <>
-      <ReportIntro title="Quién vuelve a presentarse" />
-      <Empty>
-        {source.hay.candidaturas
-          ? 'Las listas están disponibles en los conjuntos públicos de la convocatoria.'
-          : `Todavía no se han incorporado candidaturas para la convocatoria del ${date(election.votacion)}.`}
-      </Empty>
-      <Source url="https://www.boe.es/">Publicaciones oficiales en el BOE</Source>
-    </>
-  );
+  return <Repeat />;
 }

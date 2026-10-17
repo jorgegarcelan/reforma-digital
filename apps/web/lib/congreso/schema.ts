@@ -579,6 +579,11 @@ export const balanceSchema = z.object({
     }),
   ),
   hay: z.object({ candidaturas: z.boolean(), resultados: z.boolean() }),
+  // Quién dejó el escaño y quién entró por la lista: [sale, entra, fecha, provincia, formación].
+  relevos: z.object({
+    personas: count,
+    salidas: z.array(z.tuple([z.string(), z.string(), date, z.string(), z.string()])),
+  }),
 });
 
 export const metricsSchema = z.object({
