@@ -497,12 +497,26 @@ export const projectionSchema = z.object({
 });
 
 export const marketsSchema = z.object({
+  actualizado: date,
+  veda: z.tuple([date, z.string()]),
   mercados: z.array(
     z.object({
       slug: z.string(),
       pregunta: z.string(),
+      // Quién gana, quién preside o cuándo deja de presidir Sánchez.
+      tipo: z.enum(['ganador', 'presidente', 'fuera']),
       url: z.url({ protocol: /^https$/ }),
-      opciones: z.array(z.object({ nombre: z.string(), p: z.number() })),
+      volumen: z.number(),
+      inicio: date,
+      opciones: z.array(
+        z.object({
+          nombre: z.string(),
+          p: z.number(),
+          vol: z.number(),
+          // El precio de cada día; solo en las seis opciones principales.
+          hist: z.array(z.tuple([date, z.number()])).optional(),
+        }),
+      ),
     }),
   ),
 });
