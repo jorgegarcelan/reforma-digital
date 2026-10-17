@@ -11,6 +11,7 @@ import { Card, CardContent } from '@reforma-digital/design/ui/card';
 import { balanceSchema, metricsSchema, ageSchema } from '../../lib/congreso/schema';
 import Link from 'next/link';
 import { electionsHref } from '../../lib/elecciones/pages';
+import { Expiring } from '../elecciones/expiring';
 import { ReportIntro, ReportSection, ReportStats } from '../elecciones/report';
 import { getElections, read, congressUrl, getGeography } from '../../lib/congreso/data';
 import { municipalityVotes } from '../../lib/congreso/queries';
@@ -27,91 +28,7 @@ export async function ElectionContext({
 }) {
   const election = await getElections();
   const source = await read('elecciones/elecciones.json', balanceSchema);
-  if (detail === 'caducan') {
-    const laws = source.caducan.lista.filter((law) =>
-      law[1].toLowerCase().includes(query.toLowerCase()),
-    );
-    return (
-      <>
-        <ReportIntro title="Lo que queda a medio camino">
-          <p>
-            Iniciativas que la disolución deja pendientes, según el registro de la convocatoria.
-          </p>
-        </ReportIntro>
-        <ReportStats
-          items={[
-            [source.caducan.total, 'Iniciativas'],
-            [source.caducan.proyectos, 'Proyectos de ley'],
-            [source.caducan.proposiciones, 'Proposiciones de ley'],
-          ]}
-        />
-        <Filters action={electionsHref('caducan')} query={query} />
-        <div
-          className={
-            'cg-grid grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] gap-5 [@media(max-width:_800px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))] [@media(max-width:_560px)]:[grid-template-columns:1fr]'
-          }
-        >
-          {laws
-            .slice((page - 1) * 24, page * 24)
-            .map(([exp, title, type, , authors, presented, , extensions, days, commission]) => (
-              <Card
-                key={exp}
-                render={
-                  <article
-                    className={
-                      'cg-card [overflow-wrap:anywhere] [&_h2]:[font-size:28px] [&_h3]:text-lg [&_h3]:[line-height:1.3] [&_h3]:[margin:12px_0] [&_p]:[color:var(--text-secondary)] [&_p]:[margin:12px_0] [&_.cg-stats]:gap-5 [&_.cg-stats_dd]:[font-size:28px] [&_.cg-stats_dt]:[max-width:14ch]'
-                    }
-                  />
-                }
-              >
-                <CardContent>
-                  <span
-                    className={
-                      't-etiqueta [font-family:var(--font-brand-mono)] text-xs font-medium [line-height:1.3] [letter-spacing:0.08em] uppercase'
-                    }
-                  >
-                    {type} · {authors.join(', ')}
-                  </span>
-                  <h3>{title}</h3>
-                  <p>
-                    Presentada el {date(presented)} · {days} días · {extensions} ampliaciones
-                  </p>
-                  <p>{commission}</p>
-                  <Source url={congressUrl(exp, 'XV')}>Expediente</Source>
-                </CardContent>
-              </Card>
-            ))}
-        </div>
-        <Pagination page={page} total={laws.length} params={{ q: query }} />
-        <ReportSection title="Decretos pendientes de convalidar">
-          <div
-            className={
-              'cg-grid grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] gap-5 [@media(max-width:_800px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))] [@media(max-width:_560px)]:[grid-template-columns:1fr]'
-            }
-          >
-            {source.convalidar.map((d) => (
-              <Card
-                key={d.numero}
-                render={
-                  <article
-                    className={
-                      'cg-card [overflow-wrap:anywhere] [&_h2]:[font-size:28px] [&_h3]:text-lg [&_h3]:[line-height:1.3] [&_h3]:[margin:12px_0] [&_p]:[color:var(--text-secondary)] [&_p]:[margin:12px_0] [&_.cg-stats]:gap-5 [&_.cg-stats_dd]:[font-size:28px] [&_.cg-stats_dt]:[max-width:14ch]'
-                    }
-                  />
-                }
-              >
-                <CardContent>
-                  <h3>{d.titulo}</h3>
-                  <p>Plazo aproximado: {date(d.limite_aprox)}</p>
-                  <Source url={d.pdf}>Texto oficial</Source>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </ReportSection>
-      </>
-    );
-  }
+  if (detail === 'caducan') return <Expiring />;
   if (detail === 'legislatura') {
     const b = source.balance;
     return (

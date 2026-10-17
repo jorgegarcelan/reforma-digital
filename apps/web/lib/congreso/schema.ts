@@ -452,6 +452,29 @@ export const accuracySchema = z.object({
   ),
 });
 
+// El viaje de cada proyecto y proposición de ley de la legislatura: las fechas de cada etapa
+// (vacías si no llegó), cómo acabó y cuándo.
+const optionalDate = z.union([z.iso.date(), z.literal('')]);
+export const journeysSchema = z.object({
+  inicio: z.iso.date(),
+  disolucion: z.iso.date(),
+  leyes: z.array(
+    z.tuple([
+      z.string(),
+      z.string(),
+      z.string(),
+      z.string(),
+      z.array(z.string()),
+      z.string(),
+      z.iso.date(),
+      z.array(optionalDate),
+      z.string(),
+      optionalDate,
+      z.number(),
+    ]),
+  ),
+});
+
 export const mapSchema = z.object({
   ancho: z.number(),
   alto: z.number(),
@@ -590,3 +613,4 @@ datasetSchemas.set('elecciones/elecciones.json', electionsSchema.and(balanceSche
 datasetSchemas.set('elecciones/historico.json', historySchema.and(metricsSchema));
 datasetSchemas.set('elecciones/municipios-202307.json', municipalityVotesSchema);
 datasetSchemas.set('elecciones/voto-edad.json', ageSchema);
+datasetSchemas.set('elecciones/viajes.json', journeysSchema);

@@ -21,6 +21,7 @@ import {
   marketsSchema,
   projectionSchema,
 } from '../../lib/congreso/schema';
+import { origins } from '../../lib/elecciones/laws';
 import { electionPages, electionsHref, type ElectionPage } from '../../lib/elecciones/pages';
 import { clusters, sunflower } from '../../lib/elecciones/seats';
 import { href } from '../congreso/common';
@@ -32,12 +33,6 @@ import { Tips } from './tips';
 
 // Orden de los grupos en el hemiciclo, de izquierda a derecha.
 const hemicycleOrder = ['SUMAR', 'BILDU', 'ERC', 'PSOE', 'MIXTO', 'PNV', 'JUNTS', 'PP', 'VOX'];
-const origins = [
-  ['GRUPOS', 'Grupos', '#2A7DB5'],
-  ['GOB', 'Gobierno', '#7152A8'],
-  ['SEN', 'Senado', '#C9962A'],
-  ['CCAA', 'CCAA', '#83AE6E'],
-] as const;
 const majority = 176;
 
 const madrid = (options: Intl.DateTimeFormatOptions) =>
