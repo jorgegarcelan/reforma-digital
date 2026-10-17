@@ -364,6 +364,13 @@ const binColor = (b: number) =>
         : 'var(--brand)'
       : `color-mix(in oklab, ${b > 0 ? colors.law : 'var(--brand)'} 45%, var(--background))`;
 
+// El rango entre el empate y el tirador: en el centro, los empates; hacia un lado, las que se
+// decidieron por esa diferencia o menos.
+const rangeLabel = (edge: number) =>
+  edge === 0
+    ? 'Empates'
+    : `${edge > 0 ? 'Aprobadas' : 'Rechazadas'} por ${Math.abs(edge) * 10} votos o menos, y empates`;
+
 function Margins({ votes, voteHref }: { votes: Vote[]; voteHref: string }) {
   const { byBin, low, high, top, close } = useMemo(() => {
     const byBin = new Map<number, Vote[]>();
@@ -380,10 +387,12 @@ function Margins({ votes, voteHref }: { votes: Vote[]; voteHref: string }) {
       close: votes.filter((v) => Math.abs(v[3] - v[4]) <= 10).length,
     };
   }, [votes]);
-  const [picked, setPicked] = useState<number | null>(byBin.has(0) ? 0 : null);
+  const [edge, setEdge] = useState(0);
+  const svg = useRef<SVGSVGElement>(null);
+  const dragging = useRef(false);
 
   const H = 260;
-  const m = { l: 40, r: 8, t: 24, b: 30 };
+  const m = { l: 40, r: 8, t: 30, b: 30 };
   const bw = (W - m.l - m.r) / (high - low + 1);
   const x = (b: number) => m.l + (b - low) * bw;
   const y = (n: number) => m.t + (1 - n / top) * (H - m.t - m.b);
@@ -391,23 +400,48 @@ function Margins({ votes, voteHref }: { votes: Vote[]; voteHref: string }) {
     (t, i, all) => t >= low && t <= high && all.indexOf(t) === i,
   );
   const ties = byBin.get(0)?.length ?? 0;
-  const shown =
-    picked === null ? [] : [...(byBin.get(picked) ?? [])].sort((a, b) => b[1].localeCompare(a[1]));
+  const from = Math.min(0, edge);
+  const to = Math.max(0, edge);
+  const inside = (b: number) => b >= from && b <= to;
+  // Las más ajustadas primero y, entre iguales, las más recientes.
+  const shown = votes
+    .filter((v) => inside(bin(v[3] - v[4])))
+    .sort((a, b) => Math.abs(a[3] - a[4]) - Math.abs(b[3] - b[4]) || b[1].localeCompare(a[1]));
+
+  // De la posición del puntero a la barra que tiene debajo.
+  const moveTo = (clientX: number) => {
+    const matrix = svg.current?.getScreenCTM();
+    if (!matrix) return;
+    const px = (clientX - matrix.e) / matrix.a;
+    setEdge(Math.max(low, Math.min(high, Math.floor((px - m.l) / bw) + low)));
+  };
+  const handleX = x(edge) + bw / 2;
 
   return (
     <div className="grid gap-4">
       <p className="m-0 max-w-[75ch] text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
         De {thousands(votes.length)} votaciones con voto nominal, <b>{thousands(close)}</b> se
         decidieron por 10 votos o menos y <b>{ties}</b> acabaron en empate (en el Congreso, un
-        empate repetido tres veces tumba la propuesta). Pulsa una barra para ver esas votaciones.
+        empate repetido tres veces tumba la propuesta). Arrastra la raya hacia un lado para ver las
+        que se decidieron por esa diferencia o menos.
       </p>
       <div className="overflow-x-auto">
         <Tips className="min-w-[640px]">
           <svg
+            ref={svg}
             viewBox={`0 0 ${W} ${H}`}
-            role="img"
+            role="group"
             aria-label="Votaciones según la diferencia entre votos a favor y en contra"
-            className="block h-auto w-full overflow-visible"
+            className="block h-auto w-full touch-none overflow-visible select-none"
+            onPointerDown={(event) => {
+              dragging.current = true;
+              event.currentTarget.setPointerCapture(event.pointerId);
+              moveTo(event.clientX);
+            }}
+            onPointerMove={(event) => dragging.current && moveTo(event.clientX)}
+            onPointerUp={() => {
+              dragging.current = false;
+            }}
           >
             <g className="fill-muted-foreground font-mono text-[10.5px]">
               {[0, 0.5, 1].map((f) => (
@@ -424,6 +458,13 @@ function Margins({ votes, voteHref }: { votes: Vote[]; voteHref: string }) {
                 diferencia de votos (sí − no)
               </text>
             </g>
+            <rect
+              x={x(from)}
+              y={m.t - 6}
+              width={x(to) + bw - x(from)}
+              height={H - m.b - m.t + 6}
+              className="fill-foreground/5"
+            />
             {[...byBin].map(([b, list]) => (
               <rect
                 key={b}
@@ -433,62 +474,108 @@ function Margins({ votes, voteHref }: { votes: Vote[]; voteHref: string }) {
                 height={H - m.b - y(list.length)}
                 rx={1.5}
                 fill={binColor(b)}
-                className={cn(
-                  'cursor-pointer hover:stroke-foreground hover:[stroke-width:1.5]',
-                  picked === b && 'stroke-foreground [stroke-width:1.5]',
-                )}
+                className="cursor-pointer transition-opacity duration-150"
+                style={{ opacity: inside(b) ? 1 : 0.35 }}
                 data-tip={binLabel(b)}
-                data-tip-text={`${thousands(list.length)} ${list.length === 1 ? 'votación' : 'votaciones'}. Pulsa para verlas`}
+                data-tip-text={`${thousands(list.length)} ${list.length === 1 ? 'votación' : 'votaciones'}`}
                 data-tip-color={binColor(b)}
-                onClick={() => setPicked(picked === b ? null : b)}
               />
             ))}
             <line
               x1={x(0) + bw / 2}
               x2={x(0) + bw / 2}
-              y1={m.t - 10}
+              y1={m.t - 6}
               y2={H - m.b}
               className="stroke-border"
             />
-            <g className="fill-foreground text-[11px] font-medium">
-              <text x={x(0) + bw / 2 - 6} y={m.t - 12} textAnchor="end">
+            <g className="fill-muted-foreground text-[11px] font-medium">
+              <text x={x(0) + bw / 2 - 6} y={m.t - 18} textAnchor="end">
                 ← rechazadas
               </text>
-              <text x={x(0) + bw / 2 + 6} y={m.t - 12}>
+              <text x={x(0) + bw / 2 + 6} y={m.t - 18}>
                 aprobadas →
               </text>
+            </g>
+            {/* El tirador: se arrastra con el ratón o el dedo y se mueve con las flechas. */}
+            <g
+              role="slider"
+              tabIndex={0}
+              aria-label="Diferencia de votos"
+              aria-valuemin={low * 10}
+              aria-valuemax={high * 10}
+              aria-valuenow={edge * 10}
+              aria-valuetext={`${rangeLabel(edge)}: ${shown.length} votaciones`}
+              className="cursor-ew-resize outline-none [&:focus-visible_rect]:stroke-ring [&:focus-visible_rect]:[stroke-width:3]"
+              onKeyDown={(event) => {
+                const step = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 }[event.key];
+                if (step === undefined && event.key !== 'Home') return;
+                event.preventDefault();
+                setEdge((current) =>
+                  event.key === 'Home' ? 0 : Math.max(low, Math.min(high, current + (step ?? 0))),
+                );
+              }}
+            >
+              <line
+                x1={handleX}
+                x2={handleX}
+                y1={m.t - 6}
+                y2={H - m.b}
+                className="stroke-foreground"
+                strokeWidth={2}
+              />
+              <rect
+                x={handleX - 7}
+                y={(m.t + H - m.b) / 2 - 14}
+                width={14}
+                height={28}
+                rx={7}
+                className="fill-background stroke-foreground"
+                strokeWidth={1.5}
+              />
+              <path
+                d={`M${handleX - 2} ${(m.t + H - m.b) / 2 - 6}v12M${handleX + 2} ${(m.t + H - m.b) / 2 - 6}v12`}
+                className="stroke-foreground"
+                strokeWidth={1}
+              />
             </g>
           </svg>
         </Tips>
       </div>
-      {picked !== null && (
-        <div className="grid gap-2 border-t border-border pt-4" aria-live="polite">
+      <div className="grid gap-2 border-t border-border pt-4" aria-live="polite">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h3 className="m-0 text-base font-medium">
-            {binLabel(picked)} · {thousands(shown.length)}
+            {rangeLabel(edge)} · {thousands(shown.length)}
           </h3>
-          <ul className="m-0 grid max-h-96 list-none overflow-auto p-0">
-            {shown.slice(0, 200).map(([id, date, title, yes, no]) => (
-              <li key={id} className="border-t border-border first:border-t-0">
-                <Link
-                  href={`${voteHref}/${id}`}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 rounded-md px-2 py-2 text-sm no-underline hover:bg-muted"
-                >
-                  <span className="leading-snug">{title}</span>
-                  <span className="font-mono text-xs whitespace-nowrap text-muted-foreground">
-                    <b className="font-medium text-foreground">
-                      {yes}–{no}
-                    </b>{' '}
-                    · {shortDate.format(asDate(date))}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-          {shown.length > 200 && (
-            <p className="m-0 text-sm text-muted-foreground">Se muestran las 200 más recientes.</p>
+          {edge !== 0 && (
+            <Button variant="ghost" size="sm" onClick={() => setEdge(0)}>
+              Volver a los empates
+            </Button>
           )}
         </div>
-      )}
+        <ul className="m-0 grid max-h-96 list-none overflow-auto p-0">
+          {shown.slice(0, 200).map(([id, date, title, yes, no]) => (
+            <li key={id} className="border-t border-border first:border-t-0">
+              <Link
+                href={`${voteHref}/${id}`}
+                className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 rounded-md px-2 py-2 text-sm no-underline hover:bg-muted"
+              >
+                <span className="leading-snug">{title}</span>
+                <span className="font-mono text-xs whitespace-nowrap text-muted-foreground">
+                  <b className="font-medium text-foreground">
+                    {yes}–{no}
+                  </b>{' '}
+                  · {shortDate.format(asDate(date))}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        {shown.length > 200 && (
+          <p className="m-0 text-sm text-muted-foreground">
+            Se muestran las 200 más ajustadas de {thousands(shown.length)}.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
