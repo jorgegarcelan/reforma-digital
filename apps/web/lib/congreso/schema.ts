@@ -475,6 +475,15 @@ export const journeysSchema = z.object({
   ),
 });
 
+// La legislatura día a día (votaciones, leyes, decretos-leyes y preguntas de cada día) y cada
+// votación nominal con su resultado: [id, fecha, título, sí, no].
+export const legislatureSchema = z.object({
+  desde: date,
+  hasta: date,
+  dias: z.record(z.iso.date(), z.tuple([count, count, count, count])),
+  votos: z.array(z.tuple([z.string(), z.iso.date(), z.string(), count, count])),
+});
+
 export const mapSchema = z.object({
   ancho: z.number(),
   alto: z.number(),
@@ -614,3 +623,4 @@ datasetSchemas.set('elecciones/historico.json', historySchema.and(metricsSchema)
 datasetSchemas.set('elecciones/municipios-202307.json', municipalityVotesSchema);
 datasetSchemas.set('elecciones/voto-edad.json', ageSchema);
 datasetSchemas.set('elecciones/viajes.json', journeysSchema);
+datasetSchemas.set('elecciones/legislatura.json', legislatureSchema);

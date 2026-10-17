@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@reforma-digital/design/lib/utils';
 import { Button } from '@reforma-digital/design/ui/button';
 import { stages } from '../../lib/elecciones/laws';
+import { useFirstSight } from './first-sight';
 import { Tips } from './tips';
+import { thousands } from '../../lib/elecciones/format';
 
 // El viaje de cada ley de la legislatura (de `elecciones/viajes.json`), preparado en el servidor.
 export type Journey = {
@@ -33,30 +35,7 @@ const dateFormat = new Intl.DateTimeFormat('es-ES', {
   timeZone: 'UTC',
 });
 const shortDate = (iso: string) => dateFormat.format(new Date(`${iso}T00:00:00Z`));
-const thousands = (n: number) => n.toLocaleString('es-ES');
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-// Ejecuta `run` la primera vez que el elemento se ve en buena parte (para las animaciones de entrada).
-function useFirstSight(run: () => void, threshold: number) {
-  const ref = useRef<HTMLDivElement>(null);
-  const latest = useRef(run);
-  latest.current = run;
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((e) => e.intersectionRatio >= threshold)) return;
-        observer.disconnect();
-        latest.current();
-      },
-      { threshold: [threshold] },
-    );
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [threshold]);
-  return ref;
-}
-
 export function Journeys({
   laws,
   start,

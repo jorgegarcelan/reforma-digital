@@ -30,6 +30,7 @@ import { Icon } from '../brand/icon';
 import { Bars, CardCta, Cell, Chapter, Grid, Label, Legend, PageCard, Stat } from './report';
 import { SeatsMap, type Seat } from './seats-map';
 import { Tips } from './tips';
+import { thousands } from '../../lib/elecciones/format';
 
 // Orden de los grupos en el hemiciclo, de izquierda a derecha.
 const hemicycleOrder = ['SUMAR', 'BILDU', 'ERC', 'PSOE', 'MIXTO', 'PNV', 'JUNTS', 'PP', 'VOX'];
@@ -44,9 +45,6 @@ const format = (iso: string, options: Intl.DateTimeFormatOptions) =>
   );
 const shortDate = (iso: string) => format(iso, { day: 'numeric', month: 'short' });
 const longDate = (iso: string) => format(iso, { day: 'numeric', month: 'long' });
-// es-ES no agrupa los números de cuatro cifras («1340»); aquí siempre llevan punto de miles.
-const thousands = (value: number) =>
-  String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 const decimal = (value: number) => value.toLocaleString('es-ES', { maximumFractionDigits: 1 });
 const percent = (value: number) =>
   `${(value * 100).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;

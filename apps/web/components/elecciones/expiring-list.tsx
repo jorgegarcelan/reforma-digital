@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@reforma-digital/design/ui/select';
 import { stage } from '../../lib/elecciones/laws';
+import { thousands } from '../../lib/elecciones/format';
 
 export type ExpiringLaw = {
   exp: string;
@@ -156,7 +157,7 @@ export function ExpiringList({
                 {l.presenterName}
               </span>
               <span className="w-20 text-right font-mono tabular-nums">
-                {l.days.toLocaleString('es-ES')} días
+                {thousands(l.days)} días
               </span>
             </span>
           </li>

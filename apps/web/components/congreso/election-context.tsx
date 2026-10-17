@@ -12,6 +12,7 @@ import { balanceSchema, metricsSchema, ageSchema } from '../../lib/congreso/sche
 import Link from 'next/link';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { Expiring } from '../elecciones/expiring';
+import { LegislatureFigures } from '../elecciones/legislature';
 import { ReportIntro, ReportSection, ReportStats } from '../elecciones/report';
 import { getElections, read, congressUrl, getGeography } from '../../lib/congreso/data';
 import { municipalityVotes } from '../../lib/congreso/queries';
@@ -29,35 +30,7 @@ export async function ElectionContext({
   const election = await getElections();
   const source = await read('elecciones/elecciones.json', balanceSchema);
   if (detail === 'caducan') return <Expiring />;
-  if (detail === 'legislatura') {
-    const b = source.balance;
-    return (
-      <>
-        <ReportIntro title="La legislatura en cifras">
-          <p>
-            {date(b.desde)} → {date(b.hasta)}
-          </p>
-        </ReportIntro>
-        <ReportStats
-          items={[
-            [b.plenos, 'Plenos'],
-            [b.sesiones, 'Sesiones'],
-            [b.votaciones, 'Votaciones'],
-            [b.intervenciones, 'Intervenciones analizadas'],
-            [b.leyes, 'Leyes'],
-            [b.leyes_organicas, 'Leyes orgánicas'],
-            [b.decretos_ley, 'Decretos-ley'],
-            [b.preguntas, 'Preguntas escritas'],
-            [b.sin_respuesta, 'Preguntas sin respuesta'],
-          ]}
-        />
-        <p>
-          Los recuentos describen los registros disponibles; no miden por sí solos la calidad del
-          trabajo parlamentario.
-        </p>
-      </>
-    );
-  }
+  if (detail === 'legislatura') return <LegislatureFigures />;
   if (detail === 'metricas') {
     const history = await read('elecciones/historico.json', metricsSchema);
     const labels: Record<string, string> = {

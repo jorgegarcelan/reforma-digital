@@ -207,6 +207,16 @@ export function CardCta({ children }: { children: ReactNode }) {
   );
 }
 
+// Título de un bloque dentro de una tarjeta y, si lo hay, lo que hay que saber para leerlo.
+export function Heading({ title, children }: { title: string; children?: ReactNode }) {
+  return (
+    <div className="grid gap-2">
+      <h2 className="m-0 font-heading text-[28px] leading-tight font-normal">{title}</h2>
+      {children && <p className="m-0 max-w-[65ch] text-muted-foreground">{children}</p>}
+    </div>
+  );
+}
+
 export function Chapter({
   id,
   n,

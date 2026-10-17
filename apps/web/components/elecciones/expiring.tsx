@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import type { ReactNode } from 'react';
 import { getIndex, read } from '../../lib/congreso/data';
 import { balanceSchema, journeysSchema } from '../../lib/congreso/schema';
 import {
@@ -15,18 +14,10 @@ import { Icon } from '../brand/icon';
 import { date, href } from '../congreso/common';
 import { ExpiringList, type ExpiringLaw } from './expiring-list';
 import { Journeys, type Journey } from './journeys';
-import { Cell, Grid, Legend, ReportIntro, ReportSection, ReportStats } from './report';
+import { Cell, Grid, Legend, ReportIntro, ReportSection, ReportStats, Heading } from './report';
+import { thousands } from '../../lib/elecciones/format';
 
 const frozenFrom = 10;
-
-function Heading({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="grid gap-2">
-      <h2 className="m-0 font-heading text-[28px] leading-tight font-normal">{title}</h2>
-      <p className="m-0 max-w-[65ch] text-muted-foreground">{children}</p>
-    </div>
-  );
-}
 
 // «Lo que caduca»: las leyes que la disolución deja a medio camino, el camino de cada ley de la
 // legislatura y de dónde vinieron. Estructura de Escaño Abierto.
@@ -55,7 +46,6 @@ export async function Expiring() {
       };
     },
   );
-  const thousands = (n: number) => n.toLocaleString('es-ES');
 
   // El viaje de cada ley de la legislatura: el punto lleva el color de su origen.
   const all: Journey[] = journeys.leyes.map(
