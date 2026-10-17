@@ -81,7 +81,12 @@ export default async function Page({ params, searchParams }: Props) {
             )
           }
         >
-          <Suspense key={`${detail}/${JSON.stringify(query.data)}`} fallback={<DataLoading />}>
+          {/* Cambiar de elección en «El precio de un escaño» no vuelve a la carga: la página se
+              queda a la vista hasta que llega la siguiente (y «Reproducir» sigue en marcha). */}
+          <Suspense
+            key={`${detail}/${query.data.q}/${query.data.pagina}`}
+            fallback={<DataLoading />}
+          >
             <Elections
               detail={detail}
               query={query.data.q}

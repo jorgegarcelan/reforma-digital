@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { cn } from '@reforma-digital/design/lib/utils';
 import { getHistory, getIndex, read } from '../../lib/congreso/data';
 import { historicalProvinceSchema, mapSchema } from '../../lib/congreso/schema';
@@ -7,7 +6,9 @@ import { electionsHref } from '../../lib/elecciones/pages';
 import { CouldBe, type LastSeat } from './could-be';
 import { Cell, Grid, Heading, ReportIntro, Stat } from './report';
 import { Tips } from './tips';
-import { YourVote, type PriceProvince } from './your-vote';
+import { Years } from './years';
+import type { PriceProvince } from './simulator';
+import { YourVote } from './your-vote';
 
 const decimal = (n: number, digits = 1) =>
   n.toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -114,22 +115,14 @@ export async function SeatPrice({ election }: { election?: string }) {
           escaño de cada una y un simulador D&apos;Hondt con los votos reales.
         </p>
       </ReportIntro>
-      <nav aria-label="Elección" className="mb-6 flex flex-wrap gap-1.5">
-        {history.elecciones.map((x) => (
-          <Link
-            key={x.id}
-            href={`${electionsHref('escano')}?eleccion=${x.id}`}
-            aria-current={x.id === e.id ? 'page' : undefined}
-            scroll={false}
-            className={cn(
-              'inline-flex min-h-9 items-center rounded-full px-2.5 font-mono text-xs no-underline tabular-nums transition-colors',
-              x.id === e.id ? 'bg-foreground text-background' : 'hover:bg-muted',
-            )}
-          >
-            {label(x)}
-          </Link>
-        ))}
-      </nav>
+      <Years
+        current={e.id}
+        items={history.elecciones.map((x) => ({
+          id: x.id,
+          label: label(x),
+          href: `${electionsHref('escano')}?eleccion=${x.id}`,
+        }))}
+      />
       <Grid>
         <YourVote
           key={e.id}
@@ -208,7 +201,11 @@ export async function SeatPrice({ election }: { election?: string }) {
               key={e.id}
               seats={lastSeats}
               families={families}
-              hemicycle={{ box, points }}
+              hemicycle={{
+                box,
+                points,
+                label: { x: plan.ancho / 2, y: plan.alto * 0.8, size: plan.ancho * 0.075 },
+              }}
               voters={e.votantes}
             />
           }
@@ -375,6 +372,14 @@ function Favours({
         <p className="m-0 text-sm text-muted-foreground">
           Frente a un reparto proporcional, la ley mueve{' '}
           <b className="font-medium text-foreground">{moved}</b> escaños. Cada cuadrado es uno.
+        </p>
+        <p
+          className="m-0 grid grid-cols-[5.5rem_minmax(0,1fr)_minmax(0,1fr)_2.5rem] gap-2 font-mono text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase"
+          aria-hidden="true"
+        >
+          <span />
+          <span className="text-right">Le quita</span>
+          <span>Le da</span>
         </p>
         <Tips>
           <ul className="m-0 grid list-none gap-1 p-0 text-sm">
