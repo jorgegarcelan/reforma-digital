@@ -12,15 +12,15 @@ export type Unit = 'percent' | 'decimal' | 'millions' | 'seats';
 const decimal = (n: number, digits: number) =>
   n.toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const formats: Record<Unit, (v: number) => string> = {
-  percent: (v) => `${decimal(v * 100, 1)} %`,
+  percent: (v) => `${decimal(v * 100, 1)}\u00a0%`,
   decimal: (v) => decimal(v, 1),
-  millions: (v) => `${decimal(v / 1e6, 2)} M`,
+  millions: (v) => `${decimal(v / 1e6, 2)}\u00a0M`,
   seats: (v) => thousands(v),
 };
 const axis: Record<Unit, (v: number) => string> = {
-  percent: (v) => `${Math.round(v * 100)} %`,
+  percent: (v) => `${Math.round(v * 100)}\u00a0%`,
   decimal: (v) => decimal(v, 1),
-  millions: (v) => `${decimal(v / 1e6, 1)} M`,
+  millions: (v) => `${decimal(v / 1e6, 1)}\u00a0M`,
   seats: (v) => thousands(v),
 };
 const H = 200;

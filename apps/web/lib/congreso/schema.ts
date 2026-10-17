@@ -237,12 +237,33 @@ export const pollsSchema = z.object({
   encuestas: z.array(
     z.object({
       empresa: z.string(),
+      medio: z.string(),
       ini: date,
       fin: date,
       n: z.number().nullable(),
+      part: z.number().nullable(),
       v: z.record(z.string(), z.number()),
+      // Horquilla de escaños de cada partido.
+      e: z.record(z.string(), z.tuple([count, count])),
+      // El CIS y los agregadores no entran en la media.
+      cis: z.boolean(),
+      agregador: z.boolean().optional(),
     }),
   ),
+  // La media día a día de cada partido (`m`) y cuánto se separan las encuestas (`s`).
+  media: z.object({
+    dias: z.array(date),
+    partidos: z.record(
+      z.string(),
+      z.object({ m: z.array(z.number().nullable()), s: z.array(z.number().nullable()) }),
+    ),
+  }),
+  resultado2023: z.object({
+    fecha: date,
+    v: z.record(z.string(), z.number()),
+    e: z.record(z.string(), z.tuple([count, count])),
+    part: z.number(),
+  }),
 });
 export const historySchema = z.object({
   familias: z.array(

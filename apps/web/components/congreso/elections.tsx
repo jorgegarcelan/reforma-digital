@@ -38,10 +38,10 @@ import { pollsHidden } from '../../lib/congreso/polls';
 import { Intro, Stats, Source, Filters, Pagination, Empty, date, href, number } from './common';
 import { Coalition } from './coalition';
 import { ElectionContext } from './election-context';
-import { electionsHref } from '../../lib/elecciones/pages';
 import { Bars, ReportIntro, ReportSection, ReportStats } from '../elecciones/report';
 import { The350 } from '../elecciones/the-350';
 import { ElectionHistory } from '../elecciones/history';
+import { Polls } from '../elecciones/polls';
 import { SeatPrice } from '../elecciones/seat-price';
 
 export async function Geography({
@@ -364,71 +364,7 @@ export async function Elections({
         </>
       );
     }
-    const filtered = polls.encuestas.filter((e) =>
-      e.empresa.toLowerCase().includes(query.toLowerCase()),
-    );
-    return (
-      <>
-        <ReportIntro title="Las encuestas">
-          <p>
-            Datos recopilados hasta el {date(polls.actualizado)}. Cada encuesta es una estimación
-            con incertidumbre.
-          </p>
-        </ReportIntro>
-        <Source url={polls.fuente}>Tabla de origen en Wikipedia</Source>
-        <Filters action={electionsHref('encuestas')} query={query} />
-        <div
-          className={
-            'cg-grid grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] gap-5 [@media(max-width:_800px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))] [@media(max-width:_560px)]:[grid-template-columns:1fr]'
-          }
-        >
-          {filtered.slice((page - 1) * 24, page * 24).map((e, i) => (
-            <Card
-              key={i}
-              render={
-                <article
-                  className={
-                    'cg-card [overflow-wrap:anywhere] [&_h2]:[font-size:28px] [&_h3]:text-lg [&_h3]:[line-height:1.3] [&_h3]:[margin:12px_0] [&_p]:[color:var(--text-secondary)] [&_p]:[margin:12px_0] [&_.cg-stats]:gap-5 [&_.cg-stats_dd]:[font-size:28px] [&_.cg-stats_dt]:[max-width:14ch]'
-                  }
-                />
-              }
-            >
-              <CardContent>
-                <h3>{e.empresa}</h3>
-                <p>
-                  {date(e.ini)} → {date(e.fin)} · muestra {e.n ?? 'no publicada'}
-                </p>
-                <dl
-                  className={
-                    'cg-poll [&_>_div]:flex [&_>_div]:gap-3 [&_>_div]:items-center [&_>_div]:text-sm [&_dt]:w-16 [&_dd]:relative [&_dd]:[flex:1] [&_dd]:[text-align:right] [&_dd]:m-0 [&_dd_>_span]:absolute [&_dd_>_span]:[left:0] [&_dd_>_span]:[bottom:3px] [&_dd_>_span]:[top:3px] [&_dd_>_span]:[max-width:75%] [&_dd_>_span]:[border-radius:4px]'
-                  }
-                >
-                  {Object.entries(e.v)
-                    .sort(([, a], [, b]) => b - a)
-                    .slice(0, 6)
-                    .map(([p, n]) => (
-                      <div key={p}>
-                        <dt>{p}</dt>
-                        <dd>
-                          <span
-                            style={{
-                              width: `${n * 2}%`,
-                              background: polls.partidos.find((party) => party.id === p)?.color,
-                            }}
-                            aria-hidden="true"
-                          />
-                          {n} %
-                        </dd>
-                      </div>
-                    ))}
-                </dl>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <Pagination page={page} total={filtered.length} params={{ q: query }} />
-      </>
-    );
+    return <Polls />;
   }
   if (selected === '350') return <The350 />;
   if (selected === 'historico') return <ElectionHistory election={electionId} />;
