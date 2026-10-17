@@ -1,7 +1,8 @@
 import { cn } from '@reforma-digital/design/lib/utils';
 import { getHistory, getIndex, read } from '../../lib/congreso/data';
 import { historicalProvinceSchema, mapSchema } from '../../lib/congreso/schema';
-import { ramp, thousands } from '../../lib/elecciones/format';
+import { electionLabel, ramp, thousands } from '../../lib/elecciones/format';
+import { realHemicycle } from '../../lib/elecciones/hemicycle';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { CouldBe, type LastSeat } from './could-be';
 import { Cell, Grid, Heading, ReportIntro, Stat } from './report';
@@ -12,10 +13,6 @@ import { YourVote } from './your-vote';
 
 const decimal = (n: number, digits = 1) =>
   n.toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits });
-const format = (iso: string, options: Intl.DateTimeFormatOptions) =>
-  new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', ...options }).format(
-    new Date(`${iso}T00:00:00Z`),
-  );
 
 // «El precio de un escaño», para cualquier elección desde 1977 (`?eleccion=AAAAMM`): cuánto vale
 // un voto en cada provincia, a quién favorece la ley, el Congreso que pudo ser y el reparto D'Hondt
@@ -31,9 +28,7 @@ export async function SeatPrice({ election }: { election?: string }) {
   const detail = await read(`elecciones/historico-${e.id}.json`, historicalProvinceSchema);
   const year = e.fecha.slice(0, 4);
   const label = (x: (typeof history.elecciones)[number]) =>
-    history.elecciones.filter((y) => y.fecha.slice(0, 4) === x.fecha.slice(0, 4)).length > 1
-      ? `${x.fecha.slice(0, 4)} ${format(x.fecha, { month: 'short' })}`
-      : x.fecha.slice(0, 4);
+    electionLabel(history.elecciones, x.fecha);
   const familyColor = (id: string) => history.familias.find((f) => f.id === id)?.color ?? '#8A8F98';
   const name = (code: string) => map.provincias[code]?.corto ?? code;
 
@@ -80,32 +75,7 @@ export async function SeatPrice({ election }: { election?: string }) {
     .filter(
       (f) => f.seats || lastSeats.some((s) => s.from.family === f.id || s.to.family === f.id),
     );
-  // El hemiciclo: los escaños del plano del Congreso, ordenados por la familia de quien se sienta
-  // hoy en cada uno y, dentro de ella, de izquierda a derecha. Así, con el resultado de 2023, cada
-  // escaño queda del color de quien lo ocupa.
-  const plan = index.hemiciclo;
-  const plain = (s: string) => s.toUpperCase().replace(/[^A-Z]/g, '');
-  const sitting = Object.fromEntries(
-    (history.elecciones.at(-1)?.partidos ?? []).map(([siglas, , family]) => [
-      plain(siglas),
-      family,
-    ]),
-  );
-  const order = (formation: string) =>
-    history.familias.findIndex(
-      (f) =>
-        f.id === (sitting[plain(formation)] ?? (formation.includes('PSOE') ? 'PSOE' : 'OTROS')),
-    );
-  const angle = (x: number, y: number) => Math.atan2(plan.alto - y, x - plan.ancho / 2);
-  const points = index.diputados
-    .flatMap((d): [number, number, number][] =>
-      d.baja || d.x === null || d.y === null ? [] : [[d.x, d.y, order(d.formacion)]],
-    )
-    .sort(([ax, ay, ak], [bx, by, bk]) => ak - bk || angle(bx, by) - angle(ax, ay))
-    .map(([x, y]): [number, number] => [x, y]);
-  const xs = points.map(([x]) => x);
-  const ys = points.map(([, y]) => y);
-  const box = `${Math.min(...xs) - 7} ${Math.min(...ys) - 7} ${Math.max(...xs) - Math.min(...xs) + 14} ${Math.max(...ys) - Math.min(...ys) + 14}`;
+  const hemicycle = realHemicycle(index, history);
 
   return (
     <>
@@ -201,11 +171,7 @@ export async function SeatPrice({ election }: { election?: string }) {
               key={e.id}
               seats={lastSeats}
               families={families}
-              hemicycle={{
-                box,
-                points,
-                label: { x: plan.ancho / 2, y: plan.alto * 0.8, size: plan.ancho * 0.075 },
-              }}
+              hemicycle={hemicycle}
               voters={e.votantes}
             />
           }

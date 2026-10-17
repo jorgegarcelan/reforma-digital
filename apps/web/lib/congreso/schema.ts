@@ -255,6 +255,10 @@ export const historySchema = z.object({
       censo: count,
       votantes: count,
       validos: count,
+      // La legislatura que salió de la elección, quién la presidió y cuándo acabó.
+      legislatura: z.string(),
+      presidentes: z.array(z.string()),
+      hasta: date,
       fam: z.record(z.string(), z.tuple([count, count])),
       partidos: z.array(z.tuple([z.string(), z.string(), z.string(), count, count])),
       prov: z.record(

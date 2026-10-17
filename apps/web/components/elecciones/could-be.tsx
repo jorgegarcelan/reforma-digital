@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type PointerEvent, type RefObject } from 'react';
+import { useEffect, useId, useRef, useState, type PointerEvent } from 'react';
 import { cn } from '@reforma-digital/design/lib/utils';
 import { Button } from '@reforma-digital/design/ui/button';
 import { thousands } from '../../lib/elecciones/format';
 import { useFirstSight } from './first-sight';
 import { Cell, Heading, Label, Stat } from './report';
 import { Tips } from './tips';
+import { useWidth } from './use-width';
 
 export type LastSeat = {
   code: string;
@@ -41,20 +42,6 @@ const presets = [
 ] as const;
 const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-// El ancho real del gráfico, para dibujarlo a su tamaño: así los textos miden lo que dicen.
-function useWidth(ref: RefObject<HTMLElement | null>, fallback: number) {
-  const [width, setWidth] = useState(fallback);
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const observer = new ResizeObserver(([entry]) => {
-      if (entry) setWidth(Math.max(300, Math.round(entry.contentRect.width)));
-    });
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [ref]);
-  return width;
-}
 const rounded = (v: number) => {
   const r = 10 ** (Math.floor(Math.log10(v)) - 1);
   return Math.round(v / r) * r;

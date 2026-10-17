@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@reforma-digital/design/ui/select';
 import { dhondt, type Quotient } from '../../lib/elecciones/dhondt';
-import { thousands } from '../../lib/elecciones/format';
+import { ink, thousands } from '../../lib/elecciones/format';
 import { useFirstSight } from './first-sight';
 import { Cell, Label } from './report';
 import { Tips } from './tips';
@@ -38,11 +38,6 @@ const advance = (s: Step, total: number): Step => {
 };
 
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-// Texto oscuro o claro según lo luminoso que sea el color de fondo.
-const ink = (hex: string) => {
-  const [r = 0, g = 0, b = 0] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.55 ? '#1A1A1A' : '#FFFFFF';
-};
 const plus = (n: number) => `${n > 0 ? '+' : '−'}${thousands(Math.abs(n))}`;
 
 // «Juega con los votos»: el reparto D'Hondt de la provincia con sus votos reales, ronda a ronda;
