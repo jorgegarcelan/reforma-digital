@@ -586,3 +586,9 @@ export function ProvinceSelect({
     </Select>
   );
 }
+
+// El simulador con una sola provincia, sin mapa: el ejemplo cuando no hay resultados.
+export function ExampleSimulator({ province }: { province: PriceProvince }) {
+  const map = useRef<HTMLDivElement>(null);
+  return <Simulator province={province} provinces={[province]} onProvince={() => {}} map={map} />;
+}

@@ -64,6 +64,14 @@ export default async function Page({ params, searchParams }: Props) {
   const query = querySchema.safeParse(await searchParams);
   if (!query.success) notFound();
   const { page, detail } = match;
+  const elections = detail && (
+    <Elections
+      detail={detail}
+      query={query.data.q}
+      page={query.data.pagina}
+      electionId={query.data.eleccion}
+    />
+  );
   return (
     <main
       id="main"
@@ -81,19 +89,20 @@ export default async function Page({ params, searchParams }: Props) {
             )
           }
         >
-          {/* Cambiar de elección en «El precio de un escaño» no vuelve a la carga: la página se
-              queda a la vista hasta que llega la siguiente (y «Reproducir» sigue en marcha). */}
-          <Suspense
-            key={`${detail}/${query.data.q}/${query.data.pagina}`}
-            fallback={<DataLoading />}
-          >
-            <Elections
-              detail={detail}
-              query={query.data.q}
-              page={query.data.pagina}
-              electionId={query.data.eleccion}
-            />
-          </Suspense>
+          {detail === 'escano' ? (
+            // «El precio de un escaño» funciona aunque no haya datos (con un ejemplo del reparto):
+            // no se queda en la pantalla de carga.
+            elections
+          ) : (
+            // Cambiar de elección («Elecciones desde 1977») no vuelve a la carga: la página se queda
+            // a la vista hasta que llega la siguiente (y «Reproducir» sigue en marcha).
+            <Suspense
+              key={`${detail}/${query.data.q}/${query.data.pagina}`}
+              fallback={<DataLoading />}
+            >
+              {elections}
+            </Suspense>
+          )}
         </ElectionsFrame>
       ) : (
         <Suspense fallback={<DataLoading />}>

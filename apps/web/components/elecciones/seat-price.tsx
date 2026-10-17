@@ -8,8 +8,22 @@ import { CouldBe, type LastSeat } from './could-be';
 import { Cell, Grid, Heading, ReportIntro, Stat } from './report';
 import { Tips } from './tips';
 import { Years } from './years';
-import type { PriceProvince } from './simulator';
+import { ExampleSimulator, type PriceProvince } from './simulator';
 import { YourVote } from './your-vote';
+
+// Los datos de la elección elegida; el índice del Congreso, solo para el hemiciclo, al final: si
+// falta lo demás, ni se pide.
+async function load(election?: string) {
+  const [history, map] = await Promise.all([
+    getHistory(),
+    read('elecciones/geo-provincias.json', mapSchema),
+  ]);
+  const e = history.elecciones.find((x) => x.id === election) ?? history.elecciones.at(-1);
+  if (!e) throw new Error('El histórico de elecciones está vacío');
+  const detail = await read(`elecciones/historico-${e.id}.json`, historicalProvinceSchema);
+  const index = await getIndex();
+  return { history, map, e, detail, index };
+}
 
 const decimal = (n: number, digits = 1) =>
   n.toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits });
@@ -17,16 +31,18 @@ const decimal = (n: number, digits = 1) =>
 // «El precio de un escaño», para cualquier elección desde 1977 (`?eleccion=AAAAMM`): cuánto vale
 // un voto en cada provincia, a quién favorece la ley, el Congreso que pudo ser y el reparto D'Hondt
 // de cada provincia con sus votos reales. Estructura de Escaño Abierto.
+// Sin datos, la página sigue sirviendo: explica el reparto con un ejemplo.
 export async function SeatPrice({ election }: { election?: string }) {
-  const [history, map, index] = await Promise.all([
-    getHistory(),
-    read('elecciones/geo-provincias.json', mapSchema),
-    getIndex(),
-  ]);
-  const e = history.elecciones.find((x) => x.id === election) ?? history.elecciones.at(-1);
-  if (!e) throw new Error('El histórico de elecciones está vacío');
-  const detail = await read(`elecciones/historico-${e.id}.json`, historicalProvinceSchema);
-  const year = e.fecha.slice(0, 4);
+  const data = await load(election).catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : 'Error';
+    console.error(
+      'seat_price_unavailable',
+      message.replace(/[a-z][a-z0-9+.-]*:\/\/\S+/gi, '[url]').slice(0, 300),
+    );
+    return null;
+  });
+  if (!data) return <SeatPriceExample />;
+  const { history, map, e, detail, index } = data;
   const label = (x: (typeof history.elecciones)[number]) =>
     electionLabel(history.elecciones, x.fecha);
   const familyColor = (id: string) => history.familias.find((f) => f.id === id)?.color ?? '#8A8F98';
@@ -394,5 +410,43 @@ function Favours({
         </Tips>
       </div>
     </Cell>
+  );
+}
+
+// Cuando no se pueden leer los resultados: el reparto D'Hondt de una provincia inventada, con el
+// mismo simulador que las de verdad.
+function SeatPriceExample() {
+  return (
+    <>
+      <ReportIntro title="El precio de un escaño">
+        <p>
+          Cuántos votos cuesta un diputado en cada provincia, a quién favorece la ley, el último
+          escaño de cada una y un simulador D&apos;Hondt con los votos reales.
+        </p>
+      </ReportIntro>
+      <section className="grid gap-6">
+        <Heading title="Cómo se reparte un escaño">
+          Los resultados de cada provincia no están disponibles ahora mismo. Mientras tanto, la
+          regla con una provincia de ejemplo: cambia los votos y mira cómo se reparten sus escaños.
+        </Heading>
+        <Grid>
+          <ExampleSimulator
+            province={{
+              code: 'ejemplo',
+              name: 'Una provincia de ejemplo',
+              seats: 10,
+              valid: 100_000,
+              lost: 0,
+              parties: [
+                ['Candidatura A', '#2C7BC4', 50_000],
+                ['Candidatura B', '#D8342B', 30_000],
+                ['Candidatura C', '#5BA83A', 15_000],
+                ['Candidatura D', '#C92F72', 5_000],
+              ],
+            }}
+          />
+        </Grid>
+      </section>
+    </>
   );
 }
