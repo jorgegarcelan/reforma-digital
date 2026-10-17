@@ -627,7 +627,12 @@ export const historicalProvinceSchema = z.object({
 });
 
 export const municipalitiesSchema = z.object({
+  // El padrón de hoy y el de referencia para medir cuánto ha crecido o se ha vaciado cada uno.
   anio: z.number(),
+  anio0: z.number(),
+  orden: z.array(z.string()),
+  // [nombre, x, y, km², población, población en `anio0`, renta, edad media, % con 65 o más,
+  // familia más votada el 23J (índice en `orden` de los resultados)].
   m: z.record(
     z.string(),
     z.tuple([
@@ -728,7 +733,11 @@ export const ageSchema = z.object({
   fuente: z.string(),
   url: z.url({ protocol: /^https$/ }),
   edades: z.array(z.string()),
+  // Entrevistados de cada edad; el voto escalado al resultado del 23J y lo que dijeron.
+  n: z.array(count),
   ajustado: z.array(z.record(z.string(), z.number())),
+  crudo: z.array(z.record(z.string(), z.number())),
+  no_voto: z.array(z.number()),
 });
 
 datasetSchemas.set('temas.json', topicSchema);
