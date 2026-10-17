@@ -27,6 +27,11 @@ export type Departure = {
   where: string;
 };
 
+const monthName = new Intl.DateTimeFormat('es-ES', {
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
 const months = [
   'ene',
   'feb',
@@ -126,33 +131,41 @@ export function Relevos({
           Salidas por mes. Pulsa uno para verlas en el hemiciclo y en la lista.
         </Heading>
         <div className="grid gap-1.5">
-          <div role="group" aria-label="Salidas por mes" className="flex h-20 items-end gap-px">
-            {span.map((m) => {
-              const n = counts.get(m) ?? 0;
-              const label = `${months[Number(m.slice(5)) - 1]} ${m.slice(0, 4)}: ${n} ${n === 1 ? 'salida' : 'salidas'}`;
-              return (
-                <button
-                  key={m}
-                  type="button"
-                  disabled={!n}
-                  aria-pressed={month === m}
-                  aria-label={label}
-                  title={label}
-                  onClick={() => setMonth(month === m ? null : m)}
-                  className="group flex h-full flex-1 items-end disabled:cursor-default"
-                >
-                  <i
-                    className={cn(
-                      'block w-full rounded-t-[2px] bg-brand transition-opacity',
-                      month && month !== m && 'opacity-30',
-                      'group-hover:group-enabled:opacity-100',
-                    )}
-                    style={{ height: `${(n / most) * 100}%` }}
-                  />
-                </button>
-              );
-            })}
-          </div>
+          <Tips>
+            <div role="group" aria-label="Salidas por mes" className="flex h-20 items-end gap-px">
+              {span.map((m) => {
+                const gone = departures.filter((d) => d.date.startsWith(m));
+                const n = gone.length;
+                const label = `${months[Number(m.slice(5)) - 1]} ${m.slice(0, 4)}: ${n} ${n === 1 ? 'salida' : 'salidas'}`;
+                const names = gone.slice(0, 3).map((d) => d.out.name);
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    disabled={!n}
+                    aria-pressed={month === m}
+                    aria-label={label}
+                    onClick={() => setMonth(month === m ? null : m)}
+                    className="group flex h-full flex-1 items-end disabled:cursor-default"
+                    {...(n && {
+                      'data-tip': monthName.format(new Date(`${m}-01T00:00:00Z`)),
+                      'data-tip-text': `${n} ${n === 1 ? 'salida' : 'salidas'}: ${names.join(', ')}${n > names.length ? ` y ${n - names.length} más` : ''}`,
+                      'data-tip-color': 'var(--brand)',
+                    })}
+                  >
+                    <i
+                      className={cn(
+                        'block w-full rounded-t-[2px] bg-brand transition-opacity',
+                        month && month !== m && 'opacity-30',
+                        'group-enabled:group-hover:opacity-100 group-enabled:group-hover:outline-2 group-enabled:group-hover:outline-foreground',
+                      )}
+                      style={{ height: `${(n / most) * 100}%` }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          </Tips>
           <p
             aria-hidden="true"
             className="relative m-0 h-4 font-mono text-xs text-muted-foreground"
