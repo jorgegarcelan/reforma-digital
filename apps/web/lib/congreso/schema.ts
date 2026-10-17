@@ -272,7 +272,14 @@ export const historySchema = z.object({
           fam: z.record(z.string(), z.tuple([count, count])),
         }),
       ),
-      metricas: z.object({ nep_votos: z.number() }),
+      // Índices de la elección; la volatilidad no existe para la primera.
+      metricas: z.object({
+        nep_votos: z.number(),
+        nep_escanos: z.number(),
+        gallagher: z.number(),
+        pedersen: z.number().optional(),
+        sin_escano: count,
+      }),
     }),
   ),
 });

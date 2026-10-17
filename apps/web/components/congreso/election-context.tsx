@@ -11,6 +11,7 @@ import { Card, CardContent } from '@reforma-digital/design/ui/card';
 import { balanceSchema, metricsSchema, ageSchema } from '../../lib/congreso/schema';
 import Link from 'next/link';
 import { electionsHref } from '../../lib/elecciones/pages';
+import { Metrics } from '../elecciones/metrics';
 import { Expiring } from '../elecciones/expiring';
 import { LegislatureFigures } from '../elecciones/legislature';
 import { Repeat } from '../elecciones/repeat';
@@ -32,60 +33,7 @@ export async function ElectionContext({
   const source = await read('elecciones/elecciones.json', balanceSchema);
   if (detail === 'caducan') return <Expiring />;
   if (detail === 'legislatura') return <LegislatureFigures />;
-  if (detail === 'metricas') {
-    const history = await read('elecciones/historico.json', metricsSchema);
-    const labels: Record<string, string> = {
-      participacion: 'Participación',
-      nep: 'Número efectivo de partidos',
-      gallagher: 'Desproporcionalidad (Gallagher)',
-      volatilidad: 'Volatilidad',
-      bipartidismo: 'Bipartidismo',
-      sin_escano: 'Votos sin escaño',
-    };
-    return (
-      <>
-        <ReportIntro title="Elecciones, comparadas">
-          <p>Participación y métricas calculadas a partir de los resultados oficiales.</p>
-        </ReportIntro>
-        <div
-          className={
-            'cg-grid grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] gap-5 [@media(max-width:_800px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))] [@media(max-width:_560px)]:[grid-template-columns:1fr]'
-          }
-        >
-          {history.elecciones
-            .slice()
-            .reverse()
-            .map((e) => (
-              <Card
-                key={e.id}
-                render={
-                  <article
-                    className={
-                      'cg-card [overflow-wrap:anywhere] [&_h2]:[font-size:28px] [&_h3]:text-lg [&_h3]:[line-height:1.3] [&_h3]:[margin:12px_0] [&_p]:[color:var(--text-secondary)] [&_p]:[margin:12px_0] [&_.cg-stats]:gap-5 [&_.cg-stats_dd]:[font-size:28px] [&_.cg-stats_dt]:[max-width:14ch]'
-                    }
-                  />
-                }
-              >
-                <CardContent>
-                  <h2>
-                    <Link href={electionsHref(e.id)}>{date(e.fecha)}</Link>
-                  </h2>
-                  <ReportStats
-                    items={[
-                      [`${((e.votantes / e.censo) * 100).toFixed(1)} %`, 'Participación'],
-                      ...Object.entries(e.metricas).map(([k, n]): [number | string, string] => [
-                        n === null ? '—' : number(n),
-                        labels[k] || k.replaceAll('_', ' '),
-                      ]),
-                    ]}
-                  />
-                </CardContent>
-              </Card>
-            ))}
-        </div>
-      </>
-    );
-  }
+  if (detail === 'metricas') return <Metrics />;
   if (detail === 'mapa') {
     const votes = await municipalityVotes(query, page);
     return (
