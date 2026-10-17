@@ -16,7 +16,7 @@ import {
 } from '@reforma-digital/design/ui/collapsible';
 
 import { Icon } from '../brand/icon';
-import { accuracySchema, mapSchema, historicalProvinceSchema } from '../../lib/congreso/schema';
+import { mapSchema, historicalProvinceSchema } from '../../lib/congreso/schema';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import {
@@ -34,6 +34,7 @@ import { ElectionContext } from './election-context';
 import { Bars, ReportIntro, ReportSection, ReportStats } from '../elecciones/report';
 import { The350 } from '../elecciones/the-350';
 import { ElectionHistory } from '../elecciones/history';
+import { Accuracy } from '../elecciones/accuracy';
 import { Markets } from '../elecciones/markets';
 import { Polls } from '../elecciones/polls';
 import { Projection } from '../elecciones/projection';
@@ -219,61 +220,7 @@ export async function Elections({
       );
     if (selected === 'proyeccion') return <Projection />;
     if (selected === 'mercados') return <Markets />;
-    if (selected === 'acierto') {
-      const data = await read('encuestas/aciertos.json', accuracySchema);
-      return (
-        <>
-          <ReportIntro title="Cuánto acertaron las encuestas" />
-          <div
-            className={
-              'cg-grid grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] gap-5 [@media(max-width:_800px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))] [@media(max-width:_560px)]:[grid-template-columns:1fr]'
-            }
-          >
-            {data.elecciones.map((e) => (
-              <Card
-                key={e.id}
-                render={
-                  <article
-                    className={
-                      'cg-card [overflow-wrap:anywhere] [&_h2]:[font-size:28px] [&_h3]:text-lg [&_h3]:[line-height:1.3] [&_h3]:[margin:12px_0] [&_p]:[color:var(--text-secondary)] [&_p]:[margin:12px_0] [&_.cg-stats]:gap-5 [&_.cg-stats_dd]:[font-size:28px] [&_.cg-stats_dt]:[max-width:14ch]'
-                    }
-                  />
-                }
-              >
-                <CardContent>
-                  <h2>{e.nombre}</h2>
-                  <p>Error absoluto medio: {e.media_mae} puntos</p>
-                  <div
-                    className={
-                      'cg-table overflow-x-auto [&_table]:[border-collapse:collapse] [&_table]:w-full [&_table]:text-left [&_th]:p-3 [&_th]:[border-bottom:1px_solid_var(--border)] [&_th]:[vertical-align:top] [&_td]:p-3 [&_td]:[border-bottom:1px_solid_var(--border)] [&_td]:[vertical-align:top] [&_th]:text-sm'
-                    }
-                  >
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Partido</TableHead>
-                          <TableHead>Media</TableHead>
-                          <TableHead>Resultado</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {Object.entries(e.resultado).map(([p, n]) => (
-                          <TableRow key={p}>
-                            <TableHead>{p}</TableHead>
-                            <TableCell>{e.media[p]} %</TableCell>
-                            <TableCell>{n} %</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </>
-      );
-    }
+    if (selected === 'acierto') return <Accuracy />;
     return <Polls />;
   }
   if (selected === '350') return <The350 />;

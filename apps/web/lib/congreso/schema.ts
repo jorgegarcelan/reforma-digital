@@ -527,10 +527,39 @@ export const accuracySchema = z.object({
       id: z.string(),
       nombre: z.string(),
       fecha: z.iso.date(),
+      // Error medio en puntos por partido y cuánto se pasó (+) o se quedó corta (−) la media
+      // con cada uno.
       media_mae: z.number(),
+      media_dif: z.record(z.string(), z.number()),
+      partidos: z.array(z.string()),
+      rotulos: z.record(z.string(), z.string()),
       resultado: z.record(z.string(), z.number()),
       media: z.record(z.string(), z.number()),
+      escanos: z.record(z.string(), count),
+      encuestas: z.array(
+        z.object({
+          empresa: z.string(),
+          medio: z.string(),
+          fin: date,
+          v: z.record(z.string(), z.number()),
+          cis: z.boolean(),
+          agregador: z.boolean(),
+        }),
+      ),
     }),
+  ),
+  ranking: z.array(
+    z.object({
+      empresa: z.string(),
+      n: count,
+      mae: z.number(),
+      elecciones: z.array(z.object({ id: z.string(), mae: z.number() })),
+    }),
+  ),
+  // La proyección de hoy corregida con el error de cada elección.
+  escenarios: z.record(
+    z.string(),
+    z.object({ escanos: z.record(z.string(), count), ppvox: count }),
   ),
 });
 
