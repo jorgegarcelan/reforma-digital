@@ -51,6 +51,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 const querySchema = z.object({
   q: z.string().max(200).default(''),
   pagina: z.coerce.number().int().min(1).max(100000).default(1),
+  // La elección de «El precio de un escaño» (AAAAMM); sin ella, la última.
+  eleccion: z
+    .string()
+    .regex(/^\d{6}$/)
+    .optional(),
 });
 
 export default async function Page({ params, searchParams }: Props) {
@@ -76,14 +81,14 @@ export default async function Page({ params, searchParams }: Props) {
             )
           }
         >
-          {detail === 'escano' ? (
-            // El simulador D'Hondt no necesita datos: se muestra aunque no estén disponibles.
-            <Elections detail={detail} query={query.data.q} page={query.data.pagina} />
-          ) : (
-            <Suspense key={`${detail}/${JSON.stringify(query.data)}`} fallback={<DataLoading />}>
-              <Elections detail={detail} query={query.data.q} page={query.data.pagina} />
-            </Suspense>
-          )}
+          <Suspense key={`${detail}/${JSON.stringify(query.data)}`} fallback={<DataLoading />}>
+            <Elections
+              detail={detail}
+              query={query.data.q}
+              page={query.data.pagina}
+              electionId={query.data.eleccion}
+            />
+          </Suspense>
         </ElectionsFrame>
       ) : (
         <Suspense fallback={<DataLoading />}>

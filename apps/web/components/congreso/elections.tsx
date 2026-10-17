@@ -37,20 +37,22 @@ import { municipalities } from '../../lib/congreso/queries';
 import { pollsHidden } from '../../lib/congreso/polls';
 import { Intro, Stats, Source, Filters, Pagination, Empty, date, href, number } from './common';
 import { Coalition } from './coalition';
-import { Dhondt } from './dhondt';
 import { ElectionContext } from './election-context';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { Bars, ReportIntro, ReportSection, ReportStats } from '../elecciones/report';
 import { The350 } from '../elecciones/the-350';
+import { SeatPrice } from '../elecciones/seat-price';
 
 export async function Geography({
   detail,
   query,
   page,
+  election,
 }: {
   detail?: string;
   query: string;
   page: number;
+  election?: string;
 }) {
   const geography = await getGeography();
   const map = await read('elecciones/geo-provincias.json', mapSchema);
@@ -198,21 +200,14 @@ export async function Elections({
   detail,
   query,
   page,
+  electionId,
 }: {
   detail?: string;
   query: string;
   page: number;
+  electionId?: string;
 }) {
-  if (detail === 'escano')
-    return (
-      <>
-        <ReportIntro title="Cómo se reparte un escaño" />
-        <Dhondt />
-        <Source url="https://www.boe.es/buscar/act.php?id=BOE-A-1985-11672">
-          Ley Orgánica del Régimen Electoral General
-        </Source>
-      </>
-    );
+  if (detail === 'escano') return <SeatPrice election={electionId} />;
   const election = await getElections();
   const selected = detail ?? '';
   if (['caducan', 'legislatura', 'repite', 'metricas', 'mapa', 'voto'].includes(selected))
