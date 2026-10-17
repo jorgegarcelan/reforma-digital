@@ -259,7 +259,14 @@ export const historySchema = z.object({
       partidos: z.array(z.tuple([z.string(), z.string(), z.string(), count, count])),
       prov: z.record(
         z.string(),
-        z.object({ e: count, censo: count, votantes: count, validos: count }),
+        z.object({
+          e: count,
+          censo: count,
+          votantes: count,
+          validos: count,
+          // Votos y escaños de cada familia política en la provincia.
+          fam: z.record(z.string(), z.tuple([count, count])),
+        }),
       ),
       metricas: z.object({ nep_votos: z.number() }),
     }),
@@ -579,6 +586,8 @@ export const balanceSchema = z.object({
     }),
   ),
   hay: z.object({ candidaturas: z.boolean(), resultados: z.boolean() }),
+  // Población de cada provincia en el padrón que fija el reparto de escaños.
+  padron: z.object({ anio: count, pob: z.record(z.string(), count) }),
   // Quién dejó el escaño y quién entró por la lista: [sale, entra, fecha, provincia, formación].
   relevos: z.object({
     personas: count,

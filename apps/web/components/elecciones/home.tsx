@@ -23,17 +23,14 @@ import {
 } from '../../lib/congreso/schema';
 import { origins } from '../../lib/elecciones/laws';
 import { electionPages, electionsHref, type ElectionPage } from '../../lib/elecciones/pages';
-import { clusters, sunflower } from '../../lib/elecciones/seats';
 import { href } from '../congreso/common';
 import { ProvincePicker, type ProvinceSummary } from './province-picker';
 import { Icon } from '../brand/icon';
 import { Bars, CardCta, Cell, Chapter, Grid, Label, Legend, PageCard, Stat } from './report';
-import { SeatsMap, type Seat } from './seats-map';
+import { hemicycleOrder, SeatsCard } from './seats-card';
 import { Tips } from './tips';
 import { thousands } from '../../lib/elecciones/format';
 
-// Orden de los grupos en el hemiciclo, de izquierda a derecha.
-const hemicycleOrder = ['SUMAR', 'BILDU', 'ERC', 'PSOE', 'MIXTO', 'PNV', 'JUNTS', 'PP', 'VOX'];
 const majority = 176;
 
 const madrid = (options: Intl.DateTimeFormatOptions) =>
@@ -317,9 +314,6 @@ export async function ElectionsHome() {
 
   const families = Object.fromEntries(history.familias.map((f) => [f.id, f]));
   const active = index.diputados.filter((d) => !d.baja);
-  const byCircumscription = Object.fromEntries(
-    Object.entries(map.provincias).map(([id, p]) => [p.circ, id]),
-  );
   const groupColor = (group: string) => index.grupos[group]?.color ?? '#888888';
   const order = (group: string) => hemicycleOrder.indexOf(group);
 
@@ -379,17 +373,6 @@ export async function ElectionsHome() {
       ];
     });
 
-  // Los 350: en su provincia y en su escaño del hemiciclo.
-  const counts: Record<string, number> = {};
-  for (const d of active) {
-    const id = byCircumscription[d.provincia];
-    if (id) counts[id] = (counts[id] ?? 0) + 1;
-  }
-  const centres = clusters(
-    counts,
-    Object.fromEntries(Object.entries(map.provincias).map(([id, p]) => [id, p.c])),
-  );
-  const plan = index.hemiciclo;
   // Los escaños con sitio en el hemiciclo y el recuadro que ocupan, para el dibujo pequeño.
   const placed = active.flatMap((d) =>
     d.x === null || d.y === null ? [] : [{ ...d, x: d.x, y: d.y }],
@@ -397,47 +380,6 @@ export async function ElectionsHome() {
   const left = Math.min(...placed.map((d) => d.x)) - 6;
   const upper = Math.min(...placed.map((d) => d.y)) - 6;
   const seatsBox = `${left} ${upper} ${Math.max(...placed.map((d) => d.x)) + 6 - left} ${Math.max(...placed.map((d) => d.y)) + 6 - upper}`;
-  const k = Math.min((map.ancho * 0.86) / plan.ancho, (map.alto * 0.8) / plan.alto);
-  const ox = (map.ancho - plan.ancho * k) / 2;
-  const oy = (map.alto - plan.alto * k) / 2 + 20;
-  const points = Object.entries(counts).flatMap(([id, n]) => {
-    const centre = centres[id];
-    if (!centre) return [];
-    const spiral = sunflower(n);
-    return active
-      .filter((d) => byCircumscription[d.provincia] === id)
-      .sort((a, b) => order(a.grupo) - order(b.grupo) || a.nombre.localeCompare(b.nombre, 'es'))
-      .map((d, j) => {
-        const ax = centre.x + (spiral[j]?.x ?? 0);
-        const ay = centre.y + (spiral[j]?.y ?? 0);
-        return {
-          ax,
-          ay,
-          bx: d.x === null ? ax : ox + d.x * k,
-          by: d.y === null ? ay : oy + d.y * k,
-          color: groupColor(d.grupo),
-          name: deputyName(d.nombre),
-          detail: [index.grupos[d.grupo]?.nombre ?? d.grupo, d.formacion, d.provincia]
-            .filter(Boolean)
-            .join(' · '),
-          href: href(`diputado/${slug(d.nombre)}`),
-        };
-      });
-  });
-  const xs = points.map((p) => p.ax);
-  const west = Math.min(...xs);
-  const span = Math.max(...xs) - west || 1;
-  // Los del oeste salen antes; un pequeño desfase determinista evita que se muevan en bloque.
-  const seats: Seat[] = points.map((p, i) => ({
-    ...p,
-    delay: Math.round((((p.ax - west) / span) * 0.45 + ((i * 37) % 100) / 1250) * 1700),
-  }));
-  // El dibujo, recortado a lo que ocupan los escaños en las dos vistas; 30 unidades de margen
-  // dejan entrar la costa que queda por encima y por debajo de los puntos.
-  const seatYs = seats.flatMap((s) => [s.ay, s.by]);
-  const drawingTop = Math.max(0, Math.min(...seatYs) - 30);
-  const drawingHeight = Math.min(map.alto, Math.max(...seatYs) + 30) - drawingTop;
-  const legend = hemicycleOrder.filter((g) => active.some((d) => d.grupo === g));
   const changes = election.escanos_cambian.filter(([id]) => map.provincias[id]);
   const changesText = new Intl.ListFormat('es', { type: 'conjunction' }).format(
     changes.map(([id, before, after]) => {
@@ -703,35 +645,21 @@ export async function ElectionsHome() {
         }
       >
         {/* Como las demás tarjetas, toda la tarjeta lleva a «Los 350»; las pestañas y los escaños quedan encima del enlace. */}
-        <Cell span={7} className="relative transition-colors hover:bg-muted/60">
-          <SeatsMap
-            width={map.ancho}
-            top={drawingTop}
-            height={drawingHeight}
-            provinces={Object.entries(map.provincias).map(([id, p]) => ({
-              id,
-              name: p.circ,
-              d: p.d,
-            }))}
-            canarias={map.canarias}
-            seats={seats}
-            hemicycleRadius={5.3 * k * 0.96}
-            note={`Diputados de la ${index.meta.legislatura} legislatura, elegidos en ${format(last.fecha, { month: 'long', year: 'numeric' })}.`}
-          />
-          <Legend
-            small
-            items={legend.map((g) => ({
-              label: `${index.grupos[g]?.nombre ?? g} ${active.filter((d) => d.grupo === g).length}`,
-              color: groupColor(g),
-            }))}
-          />
-          <Link
-            href={electionsHref('350')}
-            className="mt-auto self-end no-underline outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-3 focus-visible:after:ring-ring/50"
-          >
-            <CardCta>{electionPages['350'].cta}</CardCta>
-          </Link>
-        </Cell>
+        <SeatsCard
+          index={index}
+          map={map}
+          span={7}
+          className="relative transition-colors hover:bg-muted/60"
+          note={`Diputados de la ${index.meta.legislatura} legislatura, elegidos en ${format(last.fecha, { month: 'long', year: 'numeric' })}.`}
+          footer={
+            <Link
+              href={electionsHref('350')}
+              className="mt-auto self-end no-underline outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-3 focus-visible:after:ring-ring/50"
+            >
+              <CardCta>{electionPages['350'].cta}</CardCta>
+            </Link>
+          }
+        />
         <div className="col-span-12 grid grid-cols-12 grid-rows-[auto_auto_auto_1fr] gap-4 md:col-span-5">
           {card(
             'escano',

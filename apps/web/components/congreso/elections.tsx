@@ -41,6 +41,7 @@ import { Dhondt } from './dhondt';
 import { ElectionContext } from './election-context';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { Bars, ReportIntro, ReportSection, ReportStats } from '../elecciones/report';
+import { The350 } from '../elecciones/the-350';
 
 export async function Geography({
   detail,
@@ -433,30 +434,7 @@ export async function Elections({
       </>
     );
   }
-  if (selected === '350') {
-    const geography = await getGeography();
-    const seats = Object.entries(election.escanos).sort(([, a], [, b]) => b - a);
-    return (
-      <>
-        <ReportIntro title="Cada escaño sale de una provincia">
-          <p>
-            Cada provincia elige al menos dos diputados (Ceuta y Melilla, uno) y el resto se reparte
-            por población.
-          </p>
-        </ReportIntro>
-        <ReportSection title="Escaños por provincia">
-          <Bars
-            rows={seats.map(([id, n]) => ({
-              label: geography.provincias[id]?.n || id,
-              value: n,
-              display: String(n),
-              href: href(`geografia/${id}`),
-            }))}
-          />
-        </ReportSection>
-      </>
-    );
-  }
+  if (selected === '350') return <The350 />;
   if (selected === 'historico' || /^\d{6}$/.test(selected)) {
     const history = await getHistory();
     const data = /^\d{6}$/.test(selected)
