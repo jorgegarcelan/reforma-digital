@@ -717,6 +717,12 @@ export const municipalityVotesSchema = z.object({
 });
 
 export const municipalityNamesSchema = municipalitiesSchema;
+// El contorno de cada municipio en el plano del mapa de España: [nombre, trazado SVG].
+export const geoMunicipalitiesSchema = z.object({
+  ancho: z.number(),
+  alto: z.number(),
+  municipios: z.record(z.string(), z.tuple([z.string(), z.string()])),
+});
 
 export const ageSchema = z.object({
   fuente: z.string(),
@@ -739,6 +745,8 @@ datasetSchemas.set('elecciones/geo-provincias.json', mapSchema);
 datasetSchemas.set('elecciones/elecciones.json', electionsSchema.and(balanceSchema));
 datasetSchemas.set('elecciones/historico.json', historySchema.and(metricsSchema));
 datasetSchemas.set('elecciones/municipios-202307.json', municipalityVotesSchema);
+datasetSchemas.set('elecciones/municipios-201911.json', municipalityVotesSchema);
+datasetSchemas.set('elecciones/geo-municipios.json', geoMunicipalitiesSchema);
 datasetSchemas.set('elecciones/voto-edad.json', ageSchema);
 datasetSchemas.set('elecciones/viajes.json', journeysSchema);
 datasetSchemas.set('elecciones/legislatura.json', legislatureSchema);

@@ -12,12 +12,12 @@ import { balanceSchema, metricsSchema, ageSchema } from '../../lib/congreso/sche
 import Link from 'next/link';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { Metrics } from '../elecciones/metrics';
+import { Municipalities } from '../elecciones/municipalities';
 import { Expiring } from '../elecciones/expiring';
 import { LegislatureFigures } from '../elecciones/legislature';
 import { Repeat } from '../elecciones/repeat';
 import { ReportIntro, ReportSection, ReportStats } from '../elecciones/report';
 import { getElections, read, congressUrl, getGeography } from '../../lib/congreso/data';
-import { municipalityVotes } from '../../lib/congreso/queries';
 import { Source, Empty, Filters, Pagination, date, href, number } from './common';
 
 export async function ElectionContext({
@@ -34,54 +34,7 @@ export async function ElectionContext({
   if (detail === 'caducan') return <Expiring />;
   if (detail === 'legislatura') return <LegislatureFigures />;
   if (detail === 'metricas') return <Metrics />;
-  if (detail === 'mapa') {
-    const votes = await municipalityVotes(query, page);
-    return (
-      <>
-        <ReportIntro title="El voto, municipio a municipio">
-          <p>
-            Resultados de 2023 por familias de candidaturas. Los grupos se explican en el método; no
-            representan partidos idénticos a través del tiempo.
-          </p>
-        </ReportIntro>
-        <Filters action={electionsHref('mapa')} query={query} />
-        <div
-          className={
-            'cg-table overflow-x-auto [&_table]:[border-collapse:collapse] [&_table]:w-full [&_table]:text-left [&_th]:p-3 [&_th]:[border-bottom:1px_solid_var(--border)] [&_th]:[vertical-align:top] [&_td]:p-3 [&_td]:[border-bottom:1px_solid_var(--border)] [&_td]:[vertical-align:top] [&_th]:text-sm'
-          }
-        >
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Municipio</TableHead>
-                <TableHead>Participación</TableHead>
-                {votes.orden.map((p) => (
-                  <TableHead key={p}>{p}</TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {votes.rows.map(([id, name, row]) => (
-                <TableRow key={id}>
-                  <TableHead>{name}</TableHead>
-                  <TableCell>
-                    {row[0] ? `${(((row[1] ?? 0) / row[0]) * 100).toFixed(1)} %` : '—'}
-                  </TableCell>
-                  {votes.orden.map((p, i) => (
-                    <TableCell key={p}>{number(row[i + 2] ?? 0)}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-        <Pagination page={page} total={votes.total} params={{ q: query }} />
-        <Source url="https://infoelectoral.interior.gob.es/es/elecciones-celebradas/area-de-descargas/">
-          Resultados del Ministerio del Interior
-        </Source>
-      </>
-    );
-  }
+  if (detail === 'mapa') return <Municipalities query={query} page={page} />;
   if (detail === 'voto') {
     const age = await read('elecciones/voto-edad.json', ageSchema);
     const geography = await getGeography();
