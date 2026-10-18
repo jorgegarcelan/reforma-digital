@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { cn } from '@reforma-digital/design/lib/utils';
 import { getHistory, getPolls, read, slug } from '../../lib/congreso/data';
 import { mapSchema, projectionSchema } from '../../lib/congreso/schema';
 import { semicircle } from '../../lib/elecciones/hemicycle';
@@ -89,7 +90,16 @@ export async function Projection() {
   const rows = Object.entries(S.partidos)
     .filter(([, p]) => p.p95 > 0)
     .sort(([, a], [, b]) => b.med - a.med || b.media - a.media);
-  const most = Math.ceil(Math.max(...rows.map(([, p]) => p.p95), 10) / 20) * 20;
+  // Escala de raíz cuadrada: separa los partidos pequeños sin aplastar a los grandes.
+  const top =
+    [10, 25, 50, 100, 150, 200, 350].find((t) => t >= Math.max(...rows.map(([, p]) => p.p95))) ??
+    350;
+  const ticks = [0, 1, 5, 10, 25, 50, 100, 150, 200, 350].filter((t) => t <= top);
+  const position = (v: number) => (Math.sqrt(Math.max(0, v)) / Math.sqrt(top)) * 100;
+  // Las columnas de cada fila y del eje: nombre, gráfico y cifras.
+  // En el móvil, nombre y cifras en una línea y el gráfico debajo, a todo el ancho.
+  const row =
+    'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 sm:grid-cols-[minmax(0,10.5rem)_minmax(0,1fr)_7rem]';
   const before = (id: string) => polls.resultado2023.e[id]?.[0] ?? null;
 
   // Provincia a provincia: quién se lleva más escaños (a igualdad, más votos).
@@ -206,12 +216,13 @@ export async function Projection() {
       <section className="mt-16 grid gap-6">
         <SectionHeading title="Escaños por partido">
           La raya es lo más probable; la barra, el margen en 9 de cada 10 simulaciones; el rombo, lo
-          que sacó en 2023.
+          que sacó en 2023. La escala se estira en los números pequeños para que se vean también los
+          partidos con pocos escaños.
         </SectionHeading>
         <Grid>
           <Cell>
             <Tips>
-              <ul className="m-0 grid list-none gap-2 p-0 text-sm">
+              <ul className="m-0 grid list-none p-0 text-sm">
                 {rows.map(([id, p]) => {
                   const b = before(id);
                   return (
@@ -219,9 +230,12 @@ export async function Projection() {
                       key={id}
                       tabIndex={0}
                       data-tip={name(id)}
-                      data-tip-text={`Lo más probable, ${p.med} escaños; entre ${p.p05} y ${p.p95} en 9 de cada 10 simulaciones.${b === null ? '' : ` En 2023 sacó ${b}.`}`}
+                      data-tip-text={`Lo más probable, ${p.med} escaños; entre ${p.p05} y ${p.p95} en 9 de cada 10 simulaciones.${b === null ? ' En 2023 no se presentó.' : ` En 2023 sacó ${b}.`}`}
                       data-tip-color={color(id)}
-                      className="grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)_2.5rem] items-center gap-3 rounded-md px-1.5 py-1 transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+                      className={cn(
+                        row,
+                        'min-h-11 rounded-md px-2 outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50',
+                      )}
                     >
                       <span className="inline-flex items-center gap-2 font-medium">
                         <i
@@ -230,50 +244,76 @@ export async function Projection() {
                         />
                         {name(id)}
                       </span>
-                      <span className="relative h-4">
-                        <i className="absolute inset-x-0 top-1/2 block h-px bg-border" />
+                      <span className="relative self-stretch max-sm:order-last max-sm:col-span-2 max-sm:h-6">
+                        {ticks.map((t) => (
+                          <i
+                            key={t}
+                            className="absolute inset-y-0 block w-px bg-border"
+                            style={{ left: `${position(t)}%` }}
+                          />
+                        ))}
                         <i
-                          className="absolute inset-y-0.5 block rounded-[3px]"
+                          className="absolute top-1/2 block h-3 min-w-1.5 -translate-y-1/2 rounded-full"
                           style={{
-                            left: `${(p.p05 / most) * 100}%`,
-                            width: `${(Math.max(p.p95 - p.p05, 0.6) / most) * 100}%`,
-                            background: `color-mix(in oklab, ${color(id)} 40%, transparent)`,
+                            left: `${position(p.p05)}%`,
+                            width: `${position(p.p95) - position(p.p05)}%`,
+                            background: `color-mix(in oklab, ${color(id)} 35%, transparent)`,
                           }}
                         />
                         <i
-                          className="absolute -inset-y-0.5 block w-[3px] -translate-x-1/2 rounded-full"
-                          style={{ left: `${(p.med / most) * 100}%`, background: color(id) }}
+                          className="absolute top-1/2 block h-5 w-[3px] -translate-1/2 rounded-full"
+                          style={{ left: `${position(p.med)}%`, background: color(id) }}
                         />
                         {b !== null && (
                           <i
                             className="absolute top-1/2 block size-2.5 -translate-1/2 rotate-45 border-2 border-foreground bg-background"
-                            style={{ left: `${(b / most) * 100}%` }}
+                            style={{ left: `${position(b)}%` }}
                           />
                         )}
                       </span>
-                      <b className="text-right font-mono font-medium tabular-nums">{p.med}</b>
+                      <span className="flex items-baseline justify-end gap-2 font-mono tabular-nums">
+                        <b className="font-medium">{p.med}</b>
+                        <span className="text-muted-foreground">
+                          {p.p05 === p.p95 ? '' : `${p.p05}–${p.p95}`}
+                        </span>
+                      </span>
                     </li>
                   );
                 })}
               </ul>
             </Tips>
             <p
-              className="m-0 grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)_2.5rem] gap-3 px-1.5 font-mono text-sm text-muted-foreground"
+              className={cn(row, 'm-0 px-2 font-mono text-xs text-muted-foreground')}
               aria-hidden="true"
             >
-              <span />
-              <span className="relative h-5">
-                {[0, most / 4, most / 2, (most * 3) / 4, most].map((v) => (
+              <span className="max-sm:hidden" />
+              <span className="relative h-4 max-sm:col-span-2">
+                {ticks.map((t) => (
                   <span
-                    key={v}
+                    key={t}
                     className="absolute -translate-x-1/2"
-                    style={{ left: `${(v / most) * 100}%` }}
+                    style={{ left: `${position(t)}%` }}
                   >
-                    {v}
+                    {t}
                   </span>
                 ))}
               </span>
+              <span className="text-right max-sm:hidden">escaños</span>
             </p>
+            <ul className="m-0 flex list-none flex-wrap gap-x-5 gap-y-2 p-0 text-sm text-muted-foreground">
+              <li className="inline-flex items-center gap-2">
+                <i className="block h-4 w-[3px] rounded-full bg-muted-foreground" />
+                Lo más probable
+              </li>
+              <li className="inline-flex items-center gap-2">
+                <i className="block h-3 w-8 rounded-full bg-muted-foreground/35" />
+                En 9 de cada 10 simulaciones
+              </li>
+              <li className="inline-flex items-center gap-2">
+                <i className="block size-2.5 rotate-45 border-2 border-foreground bg-background" />
+                Lo que sacó en 2023
+              </li>
+            </ul>
           </Cell>
         </Grid>
       </section>
