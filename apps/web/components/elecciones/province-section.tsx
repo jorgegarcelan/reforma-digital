@@ -1,0 +1,59 @@
+import type { ReactNode } from 'react';
+import type { ElectionData } from './election-data';
+import { ProvinceMap } from './province-map';
+import { Grid, SectionHeading } from './report';
+
+// «Provincia a provincia»: el mapa de la elección con sus modos y la ficha de cada provincia. El
+// mapa se dibuja aquí; `ProvinceMap` lo pinta según lo que se elija.
+export function ProvinceSection({
+  data,
+  title,
+  children,
+}: {
+  data: ElectionData;
+  title: string;
+  children: ReactNode;
+}) {
+  const { E, k, e, map, codes, label, name, tipFor, byCode } = data;
+  const previous = k > 0 ? E[k - 1] : undefined;
+  return (
+    <section id="provincias" className="mt-16 grid scroll-mt-28 gap-6">
+      <SectionHeading title={title}>{children}</SectionHeading>
+      <Grid>
+        <ProvinceMap
+          key={e.id}
+          year={label(e)}
+          previous={previous ? label(previous) : null}
+          years={E.map(label)}
+          provinces={data.provinces}
+          parties={data.parties}
+          brandColor={data.brandColor}
+          centres={Object.fromEntries(codes.map((c) => [c, map.provincias[c]?.c ?? [0, 0]]))}
+          size={[map.ancho, map.alto]}
+          map={
+            <svg
+              key="mapa"
+              viewBox={`0 0 ${map.ancho} ${map.alto}`}
+              aria-hidden="true"
+              className="block h-auto w-full"
+            >
+              {codes.map((code) => (
+                <path
+                  key={code}
+                  d={map.provincias[code]?.d}
+                  data-province={code}
+                  data-tip={`${name(code)} · ${label(e)}`}
+                  data-tip-text={tipFor(code)}
+                  data-tip-color={byCode[code]?.winner?.color}
+                  className="cursor-pointer fill-muted stroke-background"
+                  strokeWidth={0.8}
+                />
+              ))}
+              <path d={map.canarias} fill="none" className="stroke-border" strokeWidth={0.8} />
+            </svg>
+          }
+        />
+      </Grid>
+    </section>
+  );
+}

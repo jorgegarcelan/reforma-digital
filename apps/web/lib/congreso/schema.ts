@@ -276,6 +276,8 @@ export const historySchema = z.object({
       censo: count,
       votantes: count,
       validos: count,
+      blancos: count,
+      nulos: count,
       // La legislatura que salió de la elección, quién la presidió y cuándo acabó.
       legislatura: z.string(),
       presidentes: z.array(z.string()),

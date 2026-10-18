@@ -36,13 +36,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const match = route(path);
   if (!match) notFound();
   const page = match.page && electionPages[match.page];
+  // La página de una elección (`AAAAMM`): su mes y su año, sin pedir datos.
+  const election =
+    match.detail && /^\d{6}$/.test(match.detail)
+      ? new Intl.DateTimeFormat('es-ES', {
+          timeZone: 'UTC',
+          month: 'long',
+          year: 'numeric',
+        }).format(new Date(`${match.detail.slice(0, 4)}-${match.detail.slice(4)}-01T00:00:00Z`))
+      : null;
   return pageMetadata({
-    title: page
-      ? `${page.title} · Elecciones · Reforma Digital`
-      : 'Elecciones generales del 29N · Reforma Digital',
-    description:
-      page?.text ??
-      'Lo que deja la legislatura, cómo se reparten los 350 escaños, cuarenta y nueve años de elecciones y las encuestas, con datos oficiales.',
+    title: election
+      ? `Generales de ${election} · Elecciones · Reforma Digital`
+      : page
+        ? `${page.title} · Elecciones · Reforma Digital`
+        : 'Elecciones generales del 29N · Reforma Digital',
+    description: election
+      ? `El resultado de las generales de ${election}, la legislatura que salió de ellas, cada provincia y los últimos escaños más ajustados.`
+      : (page?.text ??
+        'Lo que deja la legislatura, cómo se reparten los 350 escaños, cuarenta y nueve años de elecciones y las encuestas, con datos oficiales.'),
     path: electionsHref(path?.join('/')),
     og: 'portada',
   });

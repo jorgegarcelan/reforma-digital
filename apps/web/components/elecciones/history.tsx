@@ -1,15 +1,14 @@
 import Link from 'next/link';
 import { cn } from '@reforma-digital/design/lib/utils';
 import { buttonVariants } from '@reforma-digital/design/ui/button';
-import { getGeography, getHistory, read, slug } from '../../lib/congreso/data';
-import { historicalProvinceSchema, mapSchema } from '../../lib/congreso/schema';
-import { electionLabel, thousands } from '../../lib/elecciones/format';
+import { getGeography } from '../../lib/congreso/data';
+import { thousands } from '../../lib/elecciones/format';
 import { semicircle } from '../../lib/elecciones/hemicycle';
 import { electionsHref } from '../../lib/elecciones/pages';
-import { brand, shortParty } from '../../lib/elecciones/parties';
+import { shortParty } from '../../lib/elecciones/parties';
 import { Icon } from '../brand/icon';
-import { href } from '../congreso/common';
-import { ProvinceMap, type MapProvince, type Winner } from './province-map';
+import { electionData } from './election-data';
+import { ProvinceSection } from './province-section';
 import { ProvinceTable } from './province-table';
 import { Cell, Grid, Label, Legend, ReportIntro, SectionHeading, Stat } from './report';
 import { River, type RiverElection } from './river';
@@ -35,53 +34,10 @@ const milestones: [string, string][] = [
 // hemiciclo, los 350 escaños legislatura a legislatura, las 52 provincias en un mapa, quién ganó
 // cada una en cada elección y la tabla de circunscripciones. Estructura de Escaño Abierto.
 export async function ElectionHistory({ election }: { election?: string }) {
-  const [history, map, geography] = await Promise.all([
-    getHistory(),
-    read('elecciones/geo-provincias.json', mapSchema),
-    getGeography(),
-  ]);
-  const E = history.elecciones;
-  const found = E.findIndex((x) => x.id === election);
-  const k = found >= 0 ? found : E.length - 1;
-  const e = E[k];
-  if (!e) throw new Error('El histórico de elecciones está vacío');
-  // El detalle de cada elección: el ganador de cada provincia es su candidatura más votada (no su
-  // familia: en 2015, Podemos e IU iban por separado).
-  const details = await Promise.all(
-    E.map((x) => read(`elecciones/historico-${x.id}.json`, historicalProvinceSchema)),
-  );
-  const family = Object.fromEntries(history.familias.map((f) => [f.id, f]));
-  const color = (id: string) => family[id]?.color ?? '#8A8F98';
-  const label = (x: (typeof E)[number]) => electionLabel(E, x.fecha);
+  const [data, geography] = await Promise.all([electionData(election), getGeography()]);
+  const { history, E, k, e, color, label, codes, name, provinceHref, winners, topName, provinces } =
+    data;
   const yearHref = (x: (typeof E)[number]) => `${electionsHref('historico')}?eleccion=${x.id}`;
-  const codes = Object.keys(map.provincias).filter((c) => E.at(-1)?.prov[c]);
-  const name = (code: string) => map.provincias[code]?.corto ?? code;
-  const provinceHref = (code: string) => {
-    const circ = map.provincias[code]?.circ;
-    return circ ? href(`provincia/${slug(circ)}`) : electionsHref('historico');
-  };
-  const winner = (j: number, code: string): Winner | null => {
-    const p = details[j]?.prov[code];
-    const top = p && [...p.c].sort((a, b) => b[2] - a[2])[0];
-    if (!p || !top) return null;
-    const short = shortParty(top[0]);
-    return {
-      name: short,
-      brand: brand(short),
-      color: color(top[1]),
-      share: top[2] / p.validos,
-      seats: top[3],
-    };
-  };
-  const winners = codes.map((code) => E.map((_, j) => winner(j, code)));
-  const brandColor = Object.fromEntries(
-    winners.flat().flatMap((w) => (w ? [[w.brand, w.color] as const] : [])),
-  );
-  // La candidatura más votada de una familia en una elección, para darle nombre.
-  const topName = (x: (typeof E)[number], id: string) => {
-    const top = x.partidos.filter(([, , f]) => f === id).sort((a, b) => b[3] - a[3])[0];
-    return id === 'OTROS' || !top ? 'Otros' : shortParty(top[0]);
-  };
 
   // La portada: el hemiciclo y la ficha de la elección.
   const withSeats = e.partidos.filter(([, , , , s]) => s > 0).sort((a, b) => b[4] - a[4]);
@@ -105,57 +61,6 @@ export async function ElectionHistory({ election }: { election?: string }) {
     fam: x.fam,
     names: Object.fromEntries(history.familias.map((f) => [f.id, topName(x, f.id)])),
   }));
-
-  // Las provincias en la elección elegida.
-  const provinces: MapProvince[] = codes.flatMap((code, i) => {
-    const p = e.prov[code];
-    const d = details[k]?.prov[code];
-    if (!p || !d) return [];
-    return [
-      {
-        code,
-        name: name(code),
-        href: provinceHref(code),
-        seats: p.e,
-        turnout: p.votantes / p.censo,
-        price: p.validos / p.e,
-        last: d.ultimo
-          ? {
-              from: shortParty(d.ultimo.gana),
-              to: shortParty(d.ultimo.segundo),
-              missing: d.ultimo.faltan,
-            }
-          : null,
-        winner: winners[i]?.[k] ?? null,
-        before: k > 0 ? (winners[i]?.[k - 1] ?? null) : null,
-        shares: Object.fromEntries(Object.entries(p.fam).map(([f, [v]]) => [f, v / p.validos])),
-        rows: d.c
-          .filter(([, , v, s]) => s > 0 || v >= d.validos * 0.01)
-          .sort((a, b) => b[2] - a[2])
-          .slice(0, 7)
-          .map(([siglas, f, v, s]) => [shortParty(siglas), color(f), v / d.validos, s]),
-        history: winners[i]?.map((w) => w?.brand ?? null) ?? [],
-      },
-    ];
-  });
-  const byCode = Object.fromEntries(provinces.map((p) => [p.code, p]));
-  const tipFor = (code: string) => {
-    const p = byCode[code];
-    if (!p) return undefined;
-    return [
-      p.winner && `Ganó ${p.winner.name} (${percent(p.winner.share)}).`,
-      `${p.seats} ${p.seats === 1 ? 'escaño' : 'escaños'} · participación ${percent(p.turnout)} · ${thousands(p.price)} votos por escaño.`,
-      p.last && `Último escaño por ${thousands(p.last.missing)} votos.`,
-    ]
-      .filter(Boolean)
-      .join(' ');
-  };
-  // «Voto a…»: las familias con más del 1 % de los votos en toda España.
-  const parties = history.familias
-    .filter((f) => (e.fam[f.id]?.[0] ?? 0) >= e.validos * 0.01 && f.id !== 'OTROS')
-    .sort((a, b) => (e.fam[b.id]?.[0] ?? 0) - (e.fam[a.id]?.[0] ?? 0))
-    .slice(0, 9)
-    .map((f) => ({ id: f.id, name: topName(e, f.id), color: f.color }));
 
   // Elección a elección: las provincias de cada comunidad, con su ganador en cada elección.
   const regions = Object.values(geography.ccaa).map((c) => ({
@@ -300,47 +205,10 @@ export async function ElectionHistory({ election }: { election?: string }) {
         </Grid>
       </section>
 
-      <section id="provincias" className="mt-16 grid scroll-mt-28 gap-6">
-        <SectionHeading title="Provincia a provincia">
-          Las {codes.length} circunscripciones en {label(e)}. Pulsa una provincia para ver su
-          resultado.
-        </SectionHeading>
-        <Grid>
-          <ProvinceMap
-            key={e.id}
-            year={label(e)}
-            previous={k > 0 && E[k - 1] ? label(E[k - 1]!) : null}
-            years={E.map(label)}
-            provinces={provinces}
-            parties={parties}
-            brandColor={brandColor}
-            centres={Object.fromEntries(codes.map((c) => [c, map.provincias[c]?.c ?? [0, 0]]))}
-            size={[map.ancho, map.alto]}
-            map={
-              <svg
-                key="mapa"
-                viewBox={`0 0 ${map.ancho} ${map.alto}`}
-                aria-hidden="true"
-                className="block h-auto w-full"
-              >
-                {codes.map((code) => (
-                  <path
-                    key={code}
-                    d={map.provincias[code]?.d}
-                    data-province={code}
-                    data-tip={`${name(code)} · ${label(e)}`}
-                    data-tip-text={tipFor(code)}
-                    data-tip-color={byCode[code]?.winner?.color}
-                    className="cursor-pointer fill-muted stroke-background"
-                    strokeWidth={0.8}
-                  />
-                ))}
-                <path d={map.canarias} fill="none" className="stroke-border" strokeWidth={0.8} />
-              </svg>
-            }
-          />
-        </Grid>
-      </section>
+      <ProvinceSection data={data} title="Provincia a provincia">
+        Las {codes.length} circunscripciones en {label(e)}. Pulsa una provincia para ver su
+        resultado.
+      </ProvinceSection>
 
       <section className="mt-16 grid gap-6">
         <SectionHeading title="Elección a elección">
