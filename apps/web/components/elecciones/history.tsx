@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { cn } from '@reforma-digital/design/lib/utils';
 import { buttonVariants } from '@reforma-digital/design/ui/button';
-import { getGeography, getHistory, getIndex, read, slug } from '../../lib/congreso/data';
+import { getGeography, getHistory, read, slug } from '../../lib/congreso/data';
 import { historicalProvinceSchema, mapSchema } from '../../lib/congreso/schema';
 import { electionLabel, thousands } from '../../lib/elecciones/format';
-import { realHemicycle } from '../../lib/elecciones/hemicycle';
+import { semicircle } from '../../lib/elecciones/hemicycle';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { brand, shortParty } from '../../lib/elecciones/parties';
 import { Icon } from '../brand/icon';
@@ -35,10 +35,9 @@ const milestones: [string, string][] = [
 // hemiciclo, los 350 escaños legislatura a legislatura, las 52 provincias en un mapa, quién ganó
 // cada una en cada elección y la tabla de circunscripciones. Estructura de Escaño Abierto.
 export async function ElectionHistory({ election }: { election?: string }) {
-  const [history, map, index, geography] = await Promise.all([
+  const [history, map, geography] = await Promise.all([
     getHistory(),
     read('elecciones/geo-provincias.json', mapSchema),
-    getIndex(),
     getGeography(),
   ]);
   const E = history.elecciones;
@@ -87,7 +86,7 @@ export async function ElectionHistory({ election }: { election?: string }) {
   // La portada: el hemiciclo y la ficha de la elección.
   const withSeats = e.partidos.filter(([, , , , s]) => s > 0).sort((a, b) => b[4] - a[4]);
   const largest = withSeats[0];
-  const hemicycle = realHemicycle(index, history);
+  const hemicycle = semicircle();
   const seatColors = history.familias.flatMap((f) =>
     Array<string>(e.fam[f.id]?.[1] ?? 0).fill(f.color),
   );

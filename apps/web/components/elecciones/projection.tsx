@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { getHistory, getIndex, getPolls, read, slug } from '../../lib/congreso/data';
+import { getHistory, getPolls, read, slug } from '../../lib/congreso/data';
 import { mapSchema, projectionSchema } from '../../lib/congreso/schema';
-import { realHemicycle } from '../../lib/elecciones/hemicycle';
+import { semicircle } from '../../lib/elecciones/hemicycle';
 import { links } from '../../lib/site';
 import { href } from '../congreso/common';
 import { Majority, ProjectionMap, SeatSeries, SeatSum } from './projection-parts';
@@ -36,11 +36,10 @@ const partners = 'PSOE y sus socios de 2023';
 // «La proyección»: los escaños que salen de la media de las encuestas, lo probable que es cada
 // mayoría, la proyección semana a semana y provincia a provincia. Estructura de Escaño Abierto.
 export async function Projection() {
-  const [polls, projection, map, index, history] = await Promise.all([
+  const [polls, projection, map, history] = await Promise.all([
     getPolls(),
     read('encuestas/proyeccion.json', projectionSchema),
     read('elecciones/geo-provincias.json', mapSchema),
-    getIndex(),
     getHistory(),
   ]);
   const S = projection.simulacion;
@@ -52,7 +51,7 @@ export async function Projection() {
   const seats = Object.entries(projection.central)
     .filter(([, n]) => n > 0)
     .sort(([a, x], [b, y]) => order(a) - order(b) || y - x);
-  const hemicycle = realHemicycle(index, history);
+  const hemicycle = semicircle();
   const seatParty = seats.flatMap(([id, n]) => Array<string>(n).fill(id));
   const bySeats = [...seats].sort(([, a], [, b]) => b - a);
 
@@ -186,15 +185,14 @@ export async function Projection() {
               {questions.map((q) => (
                 <li
                   key={q.title}
-                  className="grid grid-cols-[8.5rem_minmax(0,1fr)] items-baseline gap-4"
+                  className="grid grid-cols-[8.5rem_minmax(0,1fr)] items-center gap-x-4 gap-y-1"
                 >
+                  {/* El título, a la altura de la cifra; la explicación, debajo. */}
                   <b className="font-heading text-[40px] leading-none font-normal whitespace-nowrap tabular-nums">
                     {q.value}
                   </b>
-                  <span className="grid gap-1">
-                    <span className="font-medium">{q.title}</span>
-                    <span className="text-sm text-muted-foreground">{q.text}</span>
-                  </span>
+                  <span className="font-medium">{q.title}</span>
+                  <span className="col-start-2 text-sm text-muted-foreground">{q.text}</span>
                 </li>
               ))}
             </ul>
