@@ -95,7 +95,7 @@ export default async function Page({ params, searchParams }: Props) {
           current={page}
           crumb={
             detail !== page && (
-              <Link href={electionsHref(page)} className="text-muted-foreground">
+              <Link href={electionsHref(page)} className="-my-3.5 py-3.5 text-muted-foreground">
                 {electionPages[page].title}
               </Link>
             )

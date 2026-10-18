@@ -175,7 +175,7 @@ export async function Expiring() {
                 <span className="font-mono text-xs tracking-[0.08em] text-muted-foreground uppercase">
                   {stage[l.stage]}
                 </span>
-                <Link href={l.href} className="leading-snug">
+                <Link href={l.href} className="leading-snug hover:underline underline-offset-4">
                   {l.title}
                 </Link>
                 <span className="flex items-center justify-between gap-4 text-sm text-muted-foreground">
@@ -206,7 +206,7 @@ export async function Expiring() {
                   <span className="text-sm text-muted-foreground">veces</span>
                 </p>
                 <span className="grid gap-1">
-                  <Link href={l.href} className="leading-snug">
+                  <Link href={l.href} className="leading-snug hover:underline underline-offset-4">
                     {l.title}
                   </Link>
                   <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">

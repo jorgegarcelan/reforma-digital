@@ -249,7 +249,7 @@ function Path({
           step={1}
           value={Math.round(t)}
           aria-label="Fecha"
-          className="min-w-40 flex-1 accent-foreground"
+          className="-my-3.5 h-11 min-w-40 flex-1 accent-foreground"
           onChange={(event) => {
             setPlaying(false);
             setNotice(false);
@@ -342,7 +342,7 @@ function Path({
           )}
         >
           <b className="block text-lg font-medium">{shortDate(dissolution)}</b>
-          <small className="text-muted-foreground">
+          <small className="text-sm text-muted-foreground">
             Se disuelven las Cortes: caduca todo lo que no había terminado
           </small>
         </div>
@@ -480,7 +480,7 @@ function Flows({
           col: k + 1,
           n: laws.filter((l) => l.stage >= k).length,
           name: shortStages[k] ?? name,
-          color: k === 5 ? '#3C8C6A' : '#7C8089',
+          color: k === 5 ? '#2E7D5B' : '#7C8089',
           label: name,
           trunk: true,
           has: (l) => l.stage >= k,

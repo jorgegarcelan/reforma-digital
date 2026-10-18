@@ -216,8 +216,8 @@ export function CouldBe({
                     <b className="text-right font-mono font-medium tabular-nums">{g.seats + d}</b>
                     <small
                       className={cn(
-                        'text-right font-mono',
-                        d > 0 ? 'text-[#3C8C6A]' : 'text-brand',
+                        'text-right font-mono text-sm',
+                        d > 0 ? 'text-[#2E7D5B]' : 'text-brand',
                       )}
                     >
                       {d ? `${d > 0 ? '+' : '−'}${Math.abs(d)}` : ''}
@@ -398,7 +398,7 @@ export function CouldBe({
           }}
           aria-label="Votos que se reparten"
           aria-valuetext={`menos de ${thousands(rounded(budget))} votos: ${flipped.length} escaños cambian`}
-          className="w-full accent-foreground"
+          className="-my-3.5 h-11 w-full accent-foreground"
         />
       </div>
       <div className="grid gap-3 border-t border-border pt-6">
@@ -546,7 +546,7 @@ function Flows({
           textAnchor={side === 'left' ? 'end' : 'start'}
           className={cn('fill-foreground text-sm', selected === g && 'font-semibold')}
         >
-          {side === 'right' && <tspan className="fill-[#3C8C6A]">+{c} </tspan>}
+          {side === 'right' && <tspan className="fill-[#2E7D5B]">+{c} </tspan>}
           {group[g]?.name}
           {side === 'left' && <tspan className="fill-brand"> −{c}</tspan>}
         </text>

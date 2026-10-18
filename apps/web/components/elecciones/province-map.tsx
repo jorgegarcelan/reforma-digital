@@ -187,7 +187,7 @@ export function ProvinceMap({
                 </span>
                 <span className="h-2.5">
                   <i
-                    className="block h-full rounded-[2px]"
+                    className="block h-full rounded-xs"
                     style={{ width: `${(n / most) * 100}%`, background: brandColor[b] }}
                   />
                 </span>
@@ -400,7 +400,7 @@ export function ProvinceMap({
                   <span className="font-medium break-words">{n}</span>
                   <span className="h-2.5">
                     <i
-                      className="block h-full rounded-[2px]"
+                      className="block h-full rounded-xs"
                       style={{
                         width: `${(share / (chosen.rows[0]?.[2] || 1)) * 100}%`,
                         background: c,
@@ -434,7 +434,7 @@ export function ProvinceMap({
                     key={years[j]}
                     title={`${years[j]}: ${b ?? '—'}`}
                     className={cn(
-                      'h-5 rounded-[2px]',
+                      'h-5 rounded-xs',
                       years[j] === year && 'outline-2 outline-offset-1 outline-foreground',
                     )}
                     style={{ background: b ? brandColor[b] : 'var(--muted)' }}

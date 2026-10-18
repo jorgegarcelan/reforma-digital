@@ -8,7 +8,7 @@ import {
   municipalitiesSchema,
   municipalityVotesSchema,
 } from '../../lib/congreso/schema';
-import { thousands } from '../../lib/elecciones/format';
+import { ink, thousands } from '../../lib/elecciones/format';
 import {
   axes,
   blocs,
@@ -42,7 +42,7 @@ const tones: Record<Axis, string> = {
   ciudad: '#4F7AA6',
   vacia: '#B4613A',
   edad: '#8A5AA8',
-  dinero: '#3C8C6A',
+  dinero: '#2E7D5B',
 };
 const Num = ({ children }: { children: ReactNode }) => (
   <b className="font-medium text-foreground tabular-nums">{children}</b>
@@ -165,7 +165,7 @@ export async function GeographyVote() {
               className="grid cursor-pointer grid-cols-[0.75rem_minmax(0,1fr)] gap-x-3 gap-y-1 rounded-lg p-2 transition-colors outline-none hover:bg-muted focus-visible:bg-muted data-[on]:bg-muted"
             >
               <i
-                className="mt-1.5 block size-3 rounded-[3px]"
+                className="mt-1.5 block size-3 rounded-xs"
                 style={{ background: tone(axis, b.tone) }}
               />
               <span className="grid gap-1">
@@ -399,14 +399,18 @@ export async function GeographyVote() {
                   className="grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-3"
                 >
                   <span className="font-mono text-muted-foreground">{ageLabel(e)}</span>
-                  <span className="flex h-6 overflow-hidden rounded-[3px]">
+                  <span className="flex h-6 overflow-hidden rounded-xs">
                     {ageParties.map(([k]) => {
                       const v = A[j]?.[k] ?? 0;
                       return (
                         <i
                           key={k}
-                          className="flex items-center justify-center font-mono text-xs not-italic text-white"
-                          style={{ width: `${v}%`, background: blocColor(k) }}
+                          className="flex items-center justify-center font-mono text-xs not-italic"
+                          style={{
+                            width: `${v}%`,
+                            background: blocColor(k),
+                            color: ink(blocColor(k)),
+                          }}
                         >
                           {v >= 9 ? Math.round(v) : ''}
                         </i>
@@ -453,7 +457,10 @@ export async function GeographyVote() {
             El recuerdo de voto del CIS se queda corto con el PP y Vox y largo con Sumar: cada
             partido se ha escalado para que el total cuadre con el resultado del 23J, sin tocar la
             diferencia entre edades. Al pasar por cada fila, lo que dijeron sin ajustar.{' '}
-            <Link href={age.url}>La tabla del CIS</Link>.
+            <Link href={age.url} className="underline underline-offset-4">
+              La tabla del CIS
+            </Link>
+            .
           </p>
         </>
       ),
@@ -512,13 +519,13 @@ export async function GeographyVote() {
               <h4 className="m-0 text-base font-medium">
                 {s.title}
                 {s.approx && (
-                  <small className="ml-2 font-normal text-muted-foreground">
+                  <small className="ml-2 text-sm font-normal text-(--text-secondary)">
                     · límites aproximados: provincias enteras
                   </small>
                 )}
               </h4>
               <p className="m-0 text-sm">{spainText(s.key, s.r)}</p>
-              <p className="m-0 text-sm text-muted-foreground">
+              <p className="m-0 text-sm text-(--text-secondary)">
                 El 23J: PP {sh(s.r, 'PP')}, PSOE {sh(s.r, 'PSOE')}, Vox {sh(s.r, 'VOX')}, Sumar{' '}
                 {sh(s.r, 'IZQ')}, otros {sh(s.r, 'OTROS')}.
                 {s.r.growth !== null && ` Población desde ${M.anio0}: ${signed(s.r.growth)}.`}
@@ -600,10 +607,15 @@ export async function GeographyVote() {
             ficha geográfica.
           </p>
           <p className="grid gap-1">
-            <Link href={`${electionsHref('historico')}#provincias`}>
+            <Link
+              href={`${electionsHref('historico')}#provincias`}
+              className="underline underline-offset-4"
+            >
               Las 52 circunscripciones →
             </Link>
-            <Link href={href('geografia')}>La geografía de España, sin votos →</Link>
+            <Link href={href('geografia')} className="underline underline-offset-4">
+              La geografía de España, sin votos →
+            </Link>
           </p>
         </>
       ),

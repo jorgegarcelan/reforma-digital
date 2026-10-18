@@ -86,11 +86,11 @@ export function Apportionment({
         <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
           <p className="m-0 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
-              <i className="block size-2.5 rounded-[2px]" style={{ background: minimumColor }} />
+              <i className="block size-2.5 rounded-xs" style={{ background: minimumColor }} />
               El mínimo por ley
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <i className="block size-2.5 rounded-[2px]" style={{ background: populationColor }} />
+              <i className="block size-2.5 rounded-xs" style={{ background: populationColor }} />
               Por su población
             </span>
           </p>
@@ -107,7 +107,12 @@ export function Apportionment({
                 key={c}
                 className="grid grid-cols-[minmax(0,7.5rem)_minmax(0,1fr)_2rem_5.5rem] items-center gap-3 text-sm max-sm:grid-cols-[minmax(0,6rem)_minmax(0,1fr)_2rem]"
               >
-                <Link href={provinces[c]?.href ?? '#'}>{name(c)}</Link>
+                <Link
+                  href={provinces[c]?.href ?? '#'}
+                  className="hover:underline underline-offset-4"
+                >
+                  {name(c)}
+                </Link>
                 <span
                   className="flex flex-wrap gap-0.5"
                   role="img"
@@ -116,7 +121,7 @@ export function Apportionment({
                   {Array.from({ length: n }, (_, j) => (
                     <i
                       key={j}
-                      className="block size-2.5 rounded-[2px]"
+                      className="block size-2.5 rounded-xs"
                       style={{ background: j < base ? minimumColor : populationColor }}
                     />
                   ))}

@@ -9,7 +9,7 @@ const signed = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : '±'}${decimal(Ma
 // Rojo si la media se pasó; azul si se quedó corta; más intenso cuanto más, hasta 5 puntos.
 const heat = (d: number) =>
   `color-mix(in oklab, ${d > 0 ? 'var(--brand)' : '#2C7BC4'} ${Math.round(Math.min(1, Math.abs(d) / 5) * 70)}%, var(--background))`;
-const grade = (mae: number) => (mae < 1.5 ? '#3C8C6A' : mae < 2.5 ? '#B98A16' : 'var(--brand)');
+const grade = (mae: number) => (mae < 1.5 ? '#2E7D5B' : mae < 2.5 ? '#B98A16' : 'var(--brand)');
 const lineages = ['PP', 'PSOE', 'VOX', 'IZQ', 'CS'];
 
 // «Cuánto acertaron»: las encuestas de las cinco últimas generales frente al resultado, hacia
@@ -126,9 +126,9 @@ export async function Accuracy() {
               </table>
             </div>
             <p className="m-0 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-              <i className="block size-3 rounded-[3px]" style={{ background: heat(4) }} />
+              <i className="block size-3 rounded-xs" style={{ background: heat(4) }} />
               la media le dio más de lo que votó la gente
-              <i className="ml-3 block size-3 rounded-[3px]" style={{ background: heat(-4) }} />
+              <i className="ml-3 block size-3 rounded-xs" style={{ background: heat(-4) }} />
               menos
             </p>
           </Cell>
@@ -236,7 +236,7 @@ export async function Accuracy() {
                               <span
                                 className={
                                   d > 0
-                                    ? 'text-[#3C8C6A]'
+                                    ? 'text-[#2E7D5B]'
                                     : d < 0
                                       ? 'text-brand'
                                       : 'text-muted-foreground'

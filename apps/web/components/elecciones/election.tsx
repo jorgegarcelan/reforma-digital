@@ -335,7 +335,7 @@ export async function Election({ id }: { id: string }) {
                     <span
                       className={cn(
                         'text-right font-mono tabular-nums',
-                        d > 0 ? 'text-[#3C8C6A]' : d < 0 ? 'text-brand' : 'text-muted-foreground',
+                        d > 0 ? 'text-[#2E7D5B]' : d < 0 ? 'text-brand' : 'text-muted-foreground',
                       )}
                     >
                       {signed(d)}
@@ -420,7 +420,10 @@ export async function Election({ id }: { id: string }) {
           <SectionHeading title="Los últimos escaños más ajustados">
             El último diputado que repartió la ley D&apos;Hondt en cada provincia y los votos que le
             faltaron a la siguiente candidatura.{' '}
-            <Link href={`${electionsHref('escano')}?eleccion=${e.id}`}>
+            <Link
+              href={`${electionsHref('escano')}?eleccion=${e.id}`}
+              className="underline underline-offset-4"
+            >
               Más en «El precio de un escaño»
             </Link>
             .
@@ -433,7 +436,10 @@ export async function Election({ id }: { id: string }) {
                     key={c.code}
                     className="grid gap-x-4 gap-y-1 border-b border-border py-3 last:border-0 sm:grid-cols-[minmax(0,10rem)_minmax(0,1fr)_auto] sm:items-baseline"
                   >
-                    <Link href={provinceHref(c.code)} className="font-medium">
+                    <Link
+                      href={provinceHref(c.code)}
+                      className="font-medium hover:underline underline-offset-4"
+                    >
                       {name(c.code)}
                     </Link>
                     <span className="text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">

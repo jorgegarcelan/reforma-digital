@@ -45,7 +45,7 @@ const monthNames = [
 // Un color de datos sobre el fondo apagado: t = 0, apenas se ve; t = 1, el color entero.
 const ramp = (hex: string, t: number) =>
   `color-mix(in oklab, ${hex} ${Math.round(32 + 68 * Math.max(0, Math.min(1, t)))}%, var(--muted))`;
-const colors = { votes: '#4F7AA6', law: '#3C8C6A', decree: '#7152A8', questions: '#C9873E' };
+const colors = { votes: '#4F7AA6', law: '#2E7D5B', decree: '#7152A8', questions: '#C9873E' };
 
 export function Figures({
   from,
@@ -323,11 +323,11 @@ function Calendar({
         {mode === 'laws' ? (
           <>
             <span className="inline-flex items-center gap-1.5">
-              <i className="block size-2.5 rounded-[3px]" style={{ background: colors.law }} />
+              <i className="block size-2.5 rounded-xs" style={{ background: colors.law }} />
               Se publica una ley
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <i className="block size-2.5 rounded-[3px]" style={{ background: colors.decree }} />
+              <i className="block size-2.5 rounded-xs" style={{ background: colors.decree }} />
               Se publica un decreto-ley
             </span>
           </>

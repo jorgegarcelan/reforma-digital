@@ -66,7 +66,7 @@ export async function Repeat() {
       key,
       x: Number(x),
       y: Number(y),
-      color: group?.color ?? '#888888',
+      color: group?.color ?? '#8A8F98',
       changed: chain.length > 1,
       title: `${current?.provincia ?? ''} · ${group?.nombre ?? current?.grupo ?? ''}`,
       chain: chain
@@ -84,7 +84,7 @@ export async function Repeat() {
     return {
       name: deputyName(name),
       href: d ? href(`diputado/${slug(name)}`) : null,
-      color: (d && groupOf(d.grupo)?.color) ?? '#888888',
+      color: (d && groupOf(d.grupo)?.color) ?? '#8A8F98',
     };
   };
   const departures: Departure[] = source.relevos.salidas.map(

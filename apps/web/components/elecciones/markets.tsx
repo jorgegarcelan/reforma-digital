@@ -160,9 +160,9 @@ export async function Markets() {
                       className="grid grid-cols-[minmax(0,9rem)_minmax(0,1fr)_3.5rem] items-center gap-3"
                     >
                       <span className="font-medium break-words">{r.name}</span>
-                      <span className="h-3 rounded-[2px] bg-muted">
+                      <span className="h-3 rounded-xs bg-muted">
                         <i
-                          className="block h-full rounded-[2px]"
+                          className="block h-full rounded-xs"
                           style={{ width: `${r.p * 100}%`, background: r.color }}
                         />
                       </span>
@@ -172,7 +172,9 @@ export async function Markets() {
                 </ul>
                 <p className="m-0 text-sm text-muted-foreground">
                   {dollars(m.volumen)} apostados desde el {date(m.inicio)} ·{' '}
-                  <Link href={m.url}>el mercado en Polymarket</Link>
+                  <Link href={m.url} className="underline underline-offset-4">
+                    el mercado en Polymarket
+                  </Link>
                 </p>
               </Cell>
               <Cell span={7}>
@@ -196,7 +198,10 @@ export async function Markets() {
       <section className="mt-16 grid gap-6">
         <SectionHeading title="Las apuestas y la proyección">
           Lo que dice el mercado al lado de lo que sale de nuestra{' '}
-          <Link href={electionsHref('proyeccion')}>proyección</Link> con la media de las encuestas.
+          <Link href={electionsHref('proyeccion')} className="underline underline-offset-4">
+            proyección
+          </Link>{' '}
+          con la media de las encuestas.
         </SectionHeading>
         <Grid>
           <Cell>

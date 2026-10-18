@@ -16,10 +16,15 @@ export const shortDate = (iso: string) => short.format(new Date(`${iso}T00:00:00
 export const ramp = (mode: 'price' | 'lost', t: number) =>
   `color-mix(in oklab, ${mode === 'price' ? 'var(--foreground)' : 'var(--brand)'} ${Math.round(12 + 78 * Math.max(0, Math.min(1, t)))}%, var(--muted))`;
 
-// Texto oscuro o claro según lo luminoso que sea el color de fondo (en `#rrggbb`).
+// Texto oscuro o claro sobre un color de fondo (en `#rrggbb`): el de más contraste según WCAG.
 export const ink = (hex: string) => {
-  const [r = 0, g = 0, b = 0] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.55 ? '#1A1A1A' : '#FFFFFF';
+  const [r = 0, g = 0, b = 0] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  // #1A1A1A tiene una luminancia de 0,0103.
+  return (l + 0.05) / 0.0603 > 1.05 / (l + 0.05) ? '#1A1A1A' : '#FFFFFF';
 };
 
 // El año de una elección y, si ese año hubo dos (2019), también el mes.

@@ -42,7 +42,7 @@ export function SeatsCard({
   const byCircumscription = Object.fromEntries(
     Object.entries(map.provincias).map(([id, p]) => [p.circ, id]),
   );
-  const groupColor = (group: string) => index.grupos[group]?.color ?? '#888888';
+  const groupColor = (group: string) => index.grupos[group]?.color ?? '#8A8F98';
   const order = (group: string) => hemicycleOrder.indexOf(group);
   const counts: Record<string, number> = {};
   for (const d of active) {

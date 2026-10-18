@@ -81,7 +81,9 @@ export function Reparto({
             key={c}
             className="flex items-baseline justify-between gap-3 border-t border-border py-1.5 text-sm first:border-t-0"
           >
-            <Link href={provinces[c]?.href ?? '#'}>{name(c)}</Link>
+            <Link href={provinces[c]?.href ?? '#'} className="hover:underline underline-offset-4">
+              {name(c)}
+            </Link>
             <span className="font-mono text-sm whitespace-nowrap text-muted-foreground tabular-nums">
               {from} → {to} ({to > from ? '+' : '−'}
               {Math.abs(to - from)})
@@ -148,7 +150,7 @@ export function Reparto({
                   <circle
                     key={`${c}-${j}`}
                     r={seatRadius}
-                    fill={colors[j] ?? '#9AA0A6'}
+                    fill={colors[j] ?? '#8A8F98'}
                     className="cursor-pointer stroke-background transition-[transform,opacity] duration-700 ease-(--ease-brand) motion-reduce:transition-none"
                     strokeWidth={0.8}
                     style={{ transform: `translate(${x}px, ${y}px)`, opacity: j < seats ? 1 : 0 }}

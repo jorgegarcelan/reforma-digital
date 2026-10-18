@@ -315,7 +315,7 @@ export function Simulator({
                     <span className="flex items-center gap-2">
                       <span className="relative h-3 flex-1">
                         <i
-                          className="absolute inset-0 block origin-left rounded-[2px] transition-transform duration-500 motion-reduce:transition-none"
+                          className="absolute inset-0 block origin-left rounded-xs transition-transform duration-500 motion-reduce:transition-none"
                           style={{
                             transform: `scaleX(${width(passes ? v / d : v) / 100})`,
                             background: passes ? color[name] : 'var(--muted)',
@@ -345,7 +345,7 @@ export function Simulator({
                     {Array.from({ length: Math.min(seats, 12) }, (_, j) => (
                       <i
                         key={j}
-                        className="block size-2 shrink-0 rounded-[2px]"
+                        className="block size-2 shrink-0 rounded-xs"
                         style={{ background: color[name] }}
                       />
                     ))}
@@ -410,7 +410,7 @@ export function Simulator({
             {changes.map(([name, d]) => (
               <span
                 key={name}
-                className={cn('font-medium', d > 0 ? 'text-[#3C8C6A]' : 'text-brand')}
+                className={cn('font-medium', d > 0 ? 'text-[#2E7D5B]' : 'text-brand')}
               >
                 {name} {d > 0 ? '+' : '−'}
                 {Math.abs(d)}
@@ -452,13 +452,13 @@ export function Simulator({
                   value={v}
                   aria-label={`Votos de ${name}`}
                   onChange={(event) => edit({ ...votes, [name]: Number(event.target.value) })}
-                  className="w-full"
+                  className="-my-3.5 h-11 w-full"
                   style={{ accentColor: color[name] }}
                 />
                 <span className="text-right font-mono tabular-nums max-sm:text-left">
                   {thousands(v)}
                   {dv !== 0 && (
-                    <small className={cn('ml-1', dv > 0 ? 'text-[#3C8C6A]' : 'text-brand')}>
+                    <small className={cn('ml-1 text-sm', dv > 0 ? 'text-[#2E7D5B]' : 'text-brand')}>
                       {plus(dv)}
                     </small>
                   )}
@@ -524,7 +524,7 @@ export function Simulator({
                         <td
                           key={d}
                           className={cn(
-                            'rounded-[3px] px-2 py-1.5 text-right',
+                            'rounded-xs px-2 py-1.5 text-right',
                             !taken && 'bg-muted/50',
                             is(last, name, d) && 'outline-2 -outline-offset-2 outline-foreground',
                             is(out, name, d) &&
@@ -567,7 +567,7 @@ export function ProvinceSelect({
     .map((p) => ({ value: p.code, label: p.name }));
   return (
     <Select value={value} onValueChange={onChange} items={items}>
-      <SelectTrigger aria-label="Provincia" className="w-full max-w-xs">
+      <SelectTrigger aria-label="Provincia" className="w-full max-w-xs font-sans">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

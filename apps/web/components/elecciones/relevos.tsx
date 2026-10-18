@@ -54,7 +54,13 @@ function Name({ person }: { person: Person }) {
       {person.name}
     </>
   );
-  return person.href ? <Link href={person.href}>{content}</Link> : <span>{content}</span>;
+  return person.href ? (
+    <Link href={person.href} className="hover:underline underline-offset-4">
+      {content}
+    </Link>
+  ) : (
+    <span>{content}</span>
+  );
 }
 
 // Los escaños que cambiaron de manos y cuándo: pulsar un mes los marca en el hemiciclo y en la lista.

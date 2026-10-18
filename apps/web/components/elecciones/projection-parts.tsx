@@ -393,7 +393,7 @@ export function ProjectionMap({
                       {Array.from({ length: n }, (_, i) => (
                         <i
                           key={i}
-                          className="block size-3 rounded-[2px]"
+                          className="block size-3 rounded-xs"
                           style={{ background: color(id) }}
                         />
                       ))}

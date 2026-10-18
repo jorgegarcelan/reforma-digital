@@ -63,7 +63,7 @@ export function ElectionsFrame({
         aria-label="Estás en"
         className="flex flex-wrap items-center gap-2 font-mono text-xs tracking-wider text-muted-foreground uppercase"
       >
-        <Link href={electionsHref()} className="text-muted-foreground">
+        <Link href={electionsHref()} className="-my-3.5 py-3.5 text-muted-foreground">
           Elecciones 29N
         </Link>
         {group && <span aria-hidden="true">/</span>}

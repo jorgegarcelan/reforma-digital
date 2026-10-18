@@ -427,7 +427,10 @@ export async function Projection() {
             <p className="m-0 max-w-[65ch] text-sm text-muted-foreground">
               No es un pronóstico: es lo que saldría si se votara hoy como dicen las encuestas, con
               su margen de error.{' '}
-              <Link href={`${links.repo}/blob/main/apps/ingestion/escano/proyeccion.py`}>
+              <Link
+                href={`${links.repo}/blob/main/apps/ingestion/escano/proyeccion.py`}
+                className="underline underline-offset-4"
+              >
                 El código de la proyección
               </Link>
               .

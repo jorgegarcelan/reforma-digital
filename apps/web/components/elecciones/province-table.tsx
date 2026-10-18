@@ -149,7 +149,9 @@ export function ProvinceTable({
             {shown.map((r) => (
               <TableRow key={r.code}>
                 <TableCell>
-                  <Link href={r.href}>{r.name}</Link>
+                  <Link href={r.href} className="hover:underline underline-offset-4">
+                    {r.name}
+                  </Link>
                 </TableCell>
                 <TableCell className="text-right">
                   <span className="inline-flex items-center gap-2">

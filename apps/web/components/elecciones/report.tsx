@@ -95,7 +95,13 @@ export function Bars({
               : 'grid-cols-[minmax(0,12rem)_minmax(0,1fr)_5rem] max-sm:grid-cols-[minmax(0,7.5rem)_minmax(0,1fr)_4.5rem]',
           )}
         >
-          {row.href ? <Link href={row.href}>{row.label}</Link> : <span>{row.label}</span>}
+          {row.href ? (
+            <Link href={row.href} className="hover:underline underline-offset-4">
+              {row.label}
+            </Link>
+          ) : (
+            <span>{row.label}</span>
+          )}
           <span className="relative h-4 rounded-full bg-muted">
             <i
               className="block h-full rounded-full"
@@ -298,7 +304,7 @@ export function ReportStats({ items }: { items: [number | string, string][] }) {
           key={label}
           className="flex-col-reverse justify-end gap-2 bg-muted p-6 ring-0 max-sm:p-5"
         >
-          <dt className="text-base leading-snug text-muted-foreground">{label}</dt>
+          <dt className="text-base leading-snug text-(--text-secondary)">{label}</dt>
           <dd className="m-0 font-heading text-[40px] leading-none tracking-tight tabular-nums">
             {typeof value === 'number'
               ? String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.')

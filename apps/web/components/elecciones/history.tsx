@@ -147,9 +147,9 @@ export async function ElectionHistory({ election }: { election?: string }) {
                 className="grid grid-cols-[minmax(0,5.5rem)_minmax(0,1fr)_2.5rem_3.5rem] items-center gap-2"
               >
                 <span className="font-medium break-words">{shortParty(s)}</span>
-                <span className="relative h-3 rounded-[2px] bg-muted">
+                <span className="relative h-3 rounded-xs bg-muted">
                   <i
-                    className="absolute inset-y-0 left-0 block rounded-[2px]"
+                    className="absolute inset-y-0 left-0 block rounded-xs"
                     style={{ width: `${(n / 350) * 100}%`, background: color(f) }}
                   />
                   <i
@@ -260,7 +260,12 @@ export async function ElectionHistory({ election }: { election?: string }) {
                         return (
                           <tr key={code}>
                             <th className="pr-3 text-left font-normal whitespace-nowrap">
-                              <Link href={provinceHref(code)}>{name(code)}</Link>
+                              <Link
+                                href={provinceHref(code)}
+                                className="hover:underline underline-offset-4"
+                              >
+                                {name(code)}
+                              </Link>
                             </th>
                             {E.map((x, j) => {
                               const w = winners[i]?.[j];
@@ -269,7 +274,7 @@ export async function ElectionHistory({ election }: { election?: string }) {
                                 <td
                                   key={x.id}
                                   className={cn(
-                                    'h-5 min-w-6 rounded-[2px] p-0',
+                                    'h-5 min-w-6 rounded-xs p-0',
                                     j === k && 'outline-1 outline-foreground',
                                   )}
                                   style={{ background: w?.color ?? 'transparent' }}
