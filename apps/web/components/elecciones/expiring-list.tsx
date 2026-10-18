@@ -151,7 +151,7 @@ export function ExpiringList({
             <Link href={l.href} className="leading-snug hover:underline underline-offset-4">
               {l.title}
             </Link>
-            <span className="flex items-center gap-4 text-sm whitespace-nowrap text-muted-foreground max-sm:col-start-2">
+            <span className="flex items-center gap-x-4 gap-y-1 text-sm whitespace-nowrap text-muted-foreground max-sm:col-start-2 max-sm:flex-wrap">
               <span className="inline-flex items-center gap-1.5">
                 <i className="block size-2 rounded-full" style={{ background: l.color }} />
                 {l.presenterName}

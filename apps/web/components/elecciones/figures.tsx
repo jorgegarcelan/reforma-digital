@@ -215,7 +215,7 @@ function Calendar({
   const k = useScale(chart, W);
 
   return (
-    <div ref={box} className="grid gap-5">
+    <div ref={box} className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <dl className="m-0 grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-x-6 gap-y-4 border-y border-border py-5">
         {counters.map(([value, label, alert]) => (
           <div key={label} className="flex flex-col-reverse justify-end gap-1">
@@ -235,19 +235,21 @@ function Calendar({
         <Button variant="sunset" onClick={play}>
           {playing ? 'Pausa' : cursor >= list.length - 1 ? 'Reproducir la legislatura' : 'Seguir'}
         </Button>
-        <Tabs value={mode} onValueChange={(value) => isMode(value) && setMode(value)}>
-          <TabsList aria-label="Qué se pinta">
-            <TabsTrigger value="votes" className="px-3">
-              Votaciones
-            </TabsTrigger>
-            <TabsTrigger value="laws" className="px-3">
-              Leyes y decretos-leyes
-            </TabsTrigger>
-            <TabsTrigger value="questions" className="px-3">
-              Preguntas registradas
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <Tabs value={mode} onValueChange={(value) => isMode(value) && setMode(value)}>
+            <TabsList aria-label="Qué se pinta">
+              <TabsTrigger value="votes" className="px-3">
+                Votaciones
+              </TabsTrigger>
+              <TabsTrigger value="laws" className="px-3">
+                Leyes y decretos-leyes
+              </TabsTrigger>
+              <TabsTrigger value="questions" className="px-3">
+                Preguntas registradas
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
         <span className="font-mono text-sm font-medium text-muted-foreground tabular-nums">
           {shortDate.format(asDate(list[cursor] ?? to))}
         </span>

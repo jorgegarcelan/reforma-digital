@@ -515,7 +515,7 @@ function Flows({
         tabIndex={0}
         aria-pressed={selected === g}
         aria-label={`${group[g]?.name}: solo sus escaños`}
-        className="cursor-pointer outline-none"
+        className="cursor-pointer outline-none [&:focus-visible_rect]:stroke-ring [&:focus-visible_rect]:[stroke-width:3]"
         onClick={() => onSelect(selected === g ? null : g)}
         onKeyDown={(event) => {
           if (event.key !== 'Enter' && event.key !== ' ') return;
