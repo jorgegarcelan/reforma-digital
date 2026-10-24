@@ -6,8 +6,9 @@ import {
   TableHeader,
   TableRow,
 } from '@reforma-digital/design/ui/table';
-import { getHistory } from '../../lib/congreso/data';
+import { getHistory, read } from '../../lib/congreso/data';
 import { municipalityVotes } from '../../lib/congreso/queries';
+import { mapSchema } from '../../lib/congreso/schema';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { Filters, Pagination } from '../congreso/common';
 import { MunicipalMap, type MapGroup } from './municipal-map';
@@ -20,7 +21,14 @@ const percent = (n: number) =>
 // «Municipio a municipio»: el voto de 2019 y 2023 en los 8.131 municipios y cuánto cambió entre las
 // dos, con un buscador como alternativa al mapa. Estructura de Escaño Abierto.
 export async function Municipalities({ query, page }: { query: string; page: number }) {
-  const [history, votes] = await Promise.all([getHistory(), municipalityVotes(query, page)]);
+  const [history, votes, map] = await Promise.all([
+    getHistory(),
+    municipalityVotes(query, page),
+    read('elecciones/geo-provincias.json', mapSchema),
+  ]);
+  const provinces = Object.entries(map.provincias)
+    .map(([code, p]) => ({ code, name: p.corto }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'es'));
   const recent = history.elecciones.filter((e) => e.id === '201911' || e.id === '202307');
   const voted = (families: string[]) =>
     recent.some((e) => families.some((f) => (e.fam[f]?.[0] ?? 0) > 0));
@@ -51,7 +59,7 @@ export async function Municipalities({ query, page }: { query: string; page: num
       </ReportIntro>
       <Grid>
         <Cell>
-          <MunicipalMap groups={present} />
+          <MunicipalMap groups={present} provinces={provinces} />
         </Cell>
       </Grid>
       <section className="mt-16 grid gap-6">
