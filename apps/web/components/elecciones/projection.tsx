@@ -82,7 +82,7 @@ export async function Projection() {
     again && {
       value: chance(again.p176),
       title: 'Los socios de la investidura de 2023 repiten mayoría',
-      text: `PSOE, Sumar, Podemos, ERC, Junts, Bildu, PNV, BNG y CC: ${again.med} escaños (entre ${again.p05} y ${again.p95}).`,
+      text: `PSOE, Frente Amplio, Podemos, ERC, Junts, Bildu, PNV, BNG y CC: ${again.med} escaños (entre ${again.p05} y ${again.p95}).`,
     },
   ].filter((q) => !!q);
 
