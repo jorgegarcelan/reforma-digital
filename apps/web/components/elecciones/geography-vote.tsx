@@ -8,7 +8,7 @@ import {
   municipalitiesSchema,
   municipalityVotesSchema,
 } from '../../lib/congreso/schema';
-import { ink, thousands } from '../../lib/elecciones/format';
+import { decimal, ink, percent, thousands } from '../../lib/elecciones/format';
 import {
   axes,
   blocs,
@@ -27,13 +27,10 @@ import { ReportIntro } from './report';
 import { Tips } from './tips';
 import { VoteStory, type Step } from './vote-story';
 
-const decimal = (n: number, digits: number) =>
-  n.toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits });
-const pct = (n: number, digits = 0) => `${decimal(n * 100, digits)} %`;
 const millions = (n: number) => `${decimal(n / 1e6, 2)} millones`;
 const people = (n: number) =>
   n >= 1e6 ? `${millions(n)} de habitantes` : `${thousands(n)} habitantes`;
-const signed = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${pct(Math.abs(n))}`;
+const signed = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${percent(Math.abs(n), 0)}`;
 const others = '#8A8F98';
 // Los botones de elegir: el estado lo marca `VoteStory` con `aria-pressed`.
 const pressed = 'aria-pressed:bg-foreground aria-pressed:text-background';
@@ -68,7 +65,7 @@ export async function GeographyVote() {
   const all = summarize(D);
   const total = all.pob;
   const area = all.km2;
-  const sh = (r: Summary, k: Bloc) => pct(share(r, k));
+  const sh = (r: Summary, k: Bloc) => percent(share(r, k), 0);
   const region = Object.fromEntries(
     Object.entries(geography.ccaa).flatMap(([id, c]) => c.provincias.map((p) => [p, id])),
   );
@@ -131,7 +128,7 @@ export async function GeographyVote() {
     <span
       className="flex h-2.5 overflow-hidden rounded-full"
       role="img"
-      aria-label={blocs.map(([k, t]) => `${t} ${pct(share(r, k))}`).join(', ')}
+      aria-label={blocs.map(([k, t]) => `${t} ${percent(share(r, k), 0)}`).join(', ')}
     >
       {blocs.map(([k]) =>
         r[k] ? (
@@ -172,7 +169,7 @@ export async function GeographyVote() {
                 <span className="flex flex-wrap items-baseline justify-between gap-x-3">
                   <b className="font-medium">{b.title}</b>
                   <span className="text-sm text-muted-foreground">
-                    {thousands(r.n)} municipios · {pct(r.pob / total)} de la gente
+                    {thousands(r.n)} municipios · {percent(r.pob / total, 0)} de la gente
                   </span>
                 </span>
                 <span className="text-sm text-muted-foreground">
@@ -202,13 +199,13 @@ export async function GeographyVote() {
   const spainList = spains((p) => region[p]).map((s) => ({ ...s, r: summarize(D.filter(s.test)) }));
   const spainText = (key: string, r: Summary) =>
     ({
-      laponia: `Los ${thousands(r.n)} municipios con menos de 8 habitantes por km², el umbral con el que la UE define las zonas muy escasamente pobladas, como la Laponia. Ocupan el ${pct(r.km2 / area)} de España y tienen ${people(r.pob)}. Su corazón es la Serranía Celtibérica, entre Soria, Teruel, Cuenca y Guadalajara.`,
-      castillas: `Castilla y León y Castilla-La Mancha: el ${pct(r.km2 / area)} del territorio, el ${pct(r.pob / total)} de la población y ${thousands(r.n)} municipios, más de la mitad de los de España.`,
+      laponia: `Los ${thousands(r.n)} municipios con menos de 8 habitantes por km², el umbral con el que la UE define las zonas muy escasamente pobladas, como la Laponia. Ocupan el ${percent(r.km2 / area, 0)} de España y tienen ${people(r.pob)}. Su corazón es la Serranía Celtibérica, entre Soria, Teruel, Cuenca y Guadalajara.`,
+      castillas: `Castilla y León y Castilla-La Mancha: el ${percent(r.km2 / area, 0)} del territorio, el ${percent(r.pob / total, 0)} de la población y ${thousands(r.n)} municipios, más de la mitad de los de España.`,
       verde: `Galicia, Asturias, Cantabria y el País Vasco: la cornisa atlántica y cantábrica, con ${people(r.pob)}.`,
-      medi: `Las provincias de la costa mediterránea, de Girona a Almería: ${people(r.pob)}, el ${pct(r.pob / total)} de España, en el ${pct(r.km2 / area)} de su territorio.`,
-      corona: `Los ${thousands(r.n)} municipios de la Comunidad de Madrid sin la capital, con ${people(r.pob)}${r.growth !== null ? `: han crecido un ${pct(r.growth)} desde ${M.anio0}` : ''}.`,
-      islas: `Baleares y Canarias: ${people(r.pob)}${r.growth !== null ? `, un ${pct(r.growth)} más que en ${M.anio0}` : ''}.`,
-      grandes: `Los ${r.n} municipios de más de 250.000 habitantes. En ellos vive el ${pct(r.pob / total)} de la población.`,
+      medi: `Las provincias de la costa mediterránea, de Girona a Almería: ${people(r.pob)}, el ${percent(r.pob / total, 0)} de España, en el ${percent(r.km2 / area, 0)} de su territorio.`,
+      corona: `Los ${thousands(r.n)} municipios de la Comunidad de Madrid sin la capital, con ${people(r.pob)}${r.growth !== null ? `: han crecido un ${percent(r.growth, 0)} desde ${M.anio0}` : ''}.`,
+      islas: `Baleares y Canarias: ${people(r.pob)}${r.growth !== null ? `, un ${percent(r.growth, 0)} más que en ${M.anio0}` : ''}.`,
+      grandes: `Los ${r.n} municipios de más de 250.000 habitantes. En ellos vive el ${percent(r.pob / total, 0)} de la población.`,
     })[key] ?? '';
 
   // Cada edad, según el CIS.
@@ -294,10 +291,10 @@ export async function GeographyVote() {
           </p>
           <p>
             Pero la mitad de la población vive en solo <Num>{thousands(half)}</Num> municipios, el{' '}
-            {pct(half / N, 1)}. Si cada punto pesa lo que pesa su gente, el mapa cambia: unos pocos
-            círculos enormes en un mar de pueblos pequeños, y hay colores que casi desaparecen.{' '}
-            {winnerName(smallWinner)} ganó en {thousands(smallList.length)} municipios, pero en
-            ellos vive el {pct(popOf(smallList) / total, 1)} de la gente.
+            {percent(half / N, 1)}. Si cada punto pesa lo que pesa su gente, el mapa cambia: unos
+            pocos círculos enormes en un mar de pueblos pequeños, y hay colores que casi
+            desaparecen. {winnerName(smallWinner)} ganó en {thousands(smallList.length)} municipios,
+            pero en ellos vive el {percent(popOf(smallList) / total, 1)} de la gente.
           </p>
           <div className="flex flex-wrap gap-1.5" role="group" aria-label="Tamaño de los puntos">
             <Button variant="outline" size="sm" data-size="mun" className={pressed}>
@@ -319,8 +316,8 @@ export async function GeographyVote() {
         <>
           <p>
             Los <Num>{thousands(cG.n)}</Num> municipios de más de cien mil habitantes reúnen al{' '}
-            {pct(cG.pob / total)} de la población; los {thousands(cRu.n)} de menos de mil, al{' '}
-            {pct(cRu.pob / total, 1)}. El 23J el PP sacó el {sh(cRu, 'PP')} de los votos en la
+            {percent(cG.pob / total, 0)} de la población; los {thousands(cRu.n)} de menos de mil, al{' '}
+            {percent(cRu.pob / total, 1)}. El 23J el PP sacó el {sh(cRu, 'PP')} de los votos en la
             España rural y el {sh(cG, 'PP')} en las grandes ciudades; Sumar, el {sh(cRu, 'IZQ')} y
             el {sh(cG, 'IZQ')}.
           </p>
@@ -337,10 +334,10 @@ export async function GeographyVote() {
         <>
           <p>
             <Num>{thousands(vVa.n)}</Num> municipios han perdido más de una cuarta parte de sus
-            vecinos desde {M.anio0}. Ocupan el <Num>{pct(vVa.km2 / area)}</Num> del territorio y hoy
-            vive en ellos el {pct(vVa.pob / total, 1)} de la población. En el otro extremo,{' '}
-            {thousands(vCm.n)} municipios han crecido más de un 25 %, sobre todo en la costa, en las
-            islas y alrededor de las grandes ciudades.
+            vecinos desde {M.anio0}. Ocupan el <Num>{percent(vVa.km2 / area, 0)}</Num> del
+            territorio y hoy vive en ellos el {percent(vVa.pob / total, 1)} de la población. En el
+            otro extremo, {thousands(vCm.n)} municipios han crecido más de un 25 %, sobre todo en la
+            costa, en las islas y alrededor de las grandes ciudades.
           </p>
           {groups('vacia')}
         </>
@@ -562,15 +559,16 @@ export async function GeographyVote() {
         <>
           <p>
             Entre noviembre de 2019 y julio de 2023, el bloque de PP, Vox y Cs pasó del{' '}
-            {pct(B19.right, 1)} al <Num>{pct(B23.right, 1)}</Num> de los votos, y el de PSOE y Sumar
-            (Unidas Podemos en 2019), del {pct(B19.left, 1)} al <Num>{pct(B23.left, 1)}</Num>.
+            {percent(B19.right, 1)} al <Num>{percent(B23.right, 1)}</Num> de los votos, y el de PSOE
+            y Sumar (Unidas Podemos en 2019), del {percent(B19.left, 1)} al{' '}
+            <Num>{percent(B23.left, 1)}</Num>.
           </p>
           <p>
-            El <Num>{pct(toRight / (withSwing.length || 1))}</Num> de los municipios se movió hacia
-            la derecha. Cada flecha apunta a la derecha si ganó terreno el bloque de PP, Vox y Cs, y
-            a la izquierda si lo ganó el de PSOE y Sumar; cuanto más larga, mayor el giro, y cuanto
-            más gruesa, más votantes. Los partidos nacionalistas y regionalistas no cuentan en
-            ninguno de los dos bloques.
+            El <Num>{percent(toRight / (withSwing.length || 1), 0)}</Num> de los municipios se movió
+            hacia la derecha. Cada flecha apunta a la derecha si ganó terreno el bloque de PP, Vox y
+            Cs, y a la izquierda si lo ganó el de PSOE y Sumar; cuanto más larga, mayor el giro, y
+            cuanto más gruesa, más votantes. Los partidos nacionalistas y regionalistas no cuentan
+            en ninguno de los dos bloques.
           </p>
         </>
       ),

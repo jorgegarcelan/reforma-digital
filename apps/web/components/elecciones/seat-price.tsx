@@ -1,7 +1,7 @@
 import { cn } from '@reforma-digital/design/lib/utils';
 import { getHistory, getIndex, read } from '../../lib/congreso/data';
 import { historicalProvinceSchema, mapSchema } from '../../lib/congreso/schema';
-import { electionLabel, ramp, thousands } from '../../lib/elecciones/format';
+import { decimal, electionLabel, ramp, thousands } from '../../lib/elecciones/format';
 import { realHemicycle } from '../../lib/elecciones/hemicycle';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { CouldBe, type LastSeat } from './could-be';
@@ -24,9 +24,6 @@ async function load(election?: string) {
   const index = await getIndex();
   return { history, map, e, detail, index };
 }
-
-const decimal = (n: number, digits = 1) =>
-  n.toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
 // «El precio de un escaño», para cualquier elección desde 1977 (`?eleccion=AAAAMM`): cuánto vale
 // un voto en cada provincia, a quién favorece la ley, el Congreso que pudo ser y el reparto D'Hondt

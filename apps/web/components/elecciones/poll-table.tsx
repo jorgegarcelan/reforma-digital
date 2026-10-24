@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '@reforma-digital/design/ui/table';
-import { thousands } from '../../lib/elecciones/format';
+import { decimal, shortDate, thousands } from '../../lib/elecciones/format';
 import { SectionHeading } from './report';
 
 type Poll = {
@@ -35,19 +35,10 @@ type Poll = {
 
 const all = 'todas';
 const short = new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short' });
-const withYear = new Intl.DateTimeFormat('es-ES', {
-  timeZone: 'UTC',
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-});
 const field = (start: string, end: string) => {
   const a = new Date(`${start}T00:00:00Z`);
-  const b = new Date(`${end}T00:00:00Z`);
-  return start === end ? withYear.format(b) : `${short.format(a)}–${withYear.format(b)}`;
+  return start === end ? shortDate(end) : `${short.format(a)}–${shortDate(end)}`;
 };
-const decimal = (n: number) =>
-  n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 // «Todas las encuestas»: de la más reciente a la más antigua, con su horquilla de escaños; se
 // filtran por empresa y se ven de 25 en 25.

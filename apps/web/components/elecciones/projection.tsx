@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { cn } from '@reforma-digital/design/lib/utils';
 import { getHistory, getPolls, read, slug } from '../../lib/congreso/data';
 import { mapSchema, projectionSchema } from '../../lib/congreso/schema';
+import { chance, longDate as date } from '../../lib/elecciones/format';
 import { semicircle } from '../../lib/elecciones/hemicycle';
 import { links } from '../../lib/site';
 import { href } from '../congreso/common';
@@ -9,15 +10,6 @@ import { Majority, ProjectionMap, SeatSeries, SeatSum } from './projection-parts
 import { Cell, Grid, Label, Legend, ReportIntro, SectionHeading } from './report';
 import { Tips } from './tips';
 
-const longDate = new Intl.DateTimeFormat('es-ES', {
-  timeZone: 'UTC',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
-const date = (iso: string) => longDate.format(new Date(`${iso}T00:00:00Z`));
-const chance = (p: number) =>
-  p >= 0.995 ? '> 99 %' : p <= 0.005 ? '< 1 %' : `${Math.round(p * 100)} %`;
 // La familia de cada partido de las encuestas, para sentarlo en el hemiciclo en su sitio.
 const families: Record<string, string> = {
   SUMAR: 'IZQ',

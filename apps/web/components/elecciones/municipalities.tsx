@@ -9,14 +9,14 @@ import {
 import { getHistory, read } from '../../lib/congreso/data';
 import { municipalityVotes } from '../../lib/congreso/queries';
 import { mapSchema } from '../../lib/congreso/schema';
+import { percent } from '../../lib/elecciones/format';
+import { turnout, voteShare } from '../../lib/elecciones/geography';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { Filters, Pagination } from '../congreso/common';
 import { MunicipalMap, type MapGroup } from './municipal-map';
 import { Cell, Grid, ReportIntro, SectionHeading } from './report';
 
 const nationalists = ['BILDU', 'ERC', 'BNG', 'PNV', 'CIU', 'CC'];
-const percent = (n: number) =>
-  `${(n * 100).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
 
 // «Municipio a municipio»: el voto de 2019 y 2023 en los 8.131 municipios y cuánto cambió entre las
 // dos, con un buscador como alternativa al mapa. Estructura de Escaño Abierto.
@@ -84,27 +84,19 @@ export async function Municipalities({ query, page }: { query: string; page: num
               </TableRow>
             </TableHeader>
             <TableBody>
-              {votes.rows.map(([code, name, row]) => {
-                const total = row.slice(2).reduce((t, v) => t + v, 0) || 1;
-                return (
-                  <TableRow key={code}>
-                    <TableCell className="font-medium">{name}</TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">
-                      {percent((row[1] ?? 0) / (row[0] || 1))}
+              {votes.rows.map(([code, name, row]) => (
+                <TableRow key={code}>
+                  <TableCell className="font-medium">{name}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">
+                    {percent(turnout(row) ?? 0)}
+                  </TableCell>
+                  {shown.map((g) => (
+                    <TableCell key={g.id} className="text-right font-mono tabular-nums">
+                      {percent(voteShare(row, votes.orden, g.families) ?? 0)}
                     </TableCell>
-                    {shown.map((g) => (
-                      <TableCell key={g.id} className="text-right font-mono tabular-nums">
-                        {percent(
-                          g.families.reduce(
-                            (t, f) => t + (row[2 + votes.orden.indexOf(f)] ?? 0),
-                            0,
-                          ) / total,
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                );
-              })}
+                  ))}
+                </TableRow>
+              ))}
               {!votes.rows.length && (
                 <TableRow>
                   <TableCell colSpan={shown.length + 2} className="text-muted-foreground">

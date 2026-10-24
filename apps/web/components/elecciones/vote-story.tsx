@@ -10,7 +10,7 @@ import {
   municipalitiesSchema,
   municipalityVotesSchema,
 } from '../../lib/congreso/schema';
-import { thousands } from '../../lib/elecciones/format';
+import { percent, thousands } from '../../lib/elecciones/format';
 import {
   axes,
   municipalities,
@@ -21,6 +21,7 @@ import {
 } from '../../lib/elecciones/geography';
 import { Label, Legend } from './report';
 import { Icon } from '../brand/icon';
+import { load } from './load';
 import { useWidth } from './use-width';
 
 export type Step = { id: string; short: string; kicker: string; title: string; body: ReactNode };
@@ -49,13 +50,6 @@ const rgb = (hex: string): [number, number, number] => [
   parseInt(hex.slice(5, 7), 16),
 ];
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-const pct = (n: number, digits = 0) =>
-  `${(n * 100).toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits })} %`;
-const load = async <T,>(path: string, schema: z.ZodType<T>) => {
-  const response = await fetch(`/api/congreso/datasets/${path}`);
-  if (!response.ok) throw new Error(`No se ha podido cargar ${path}`);
-  return schema.parse(await response.json());
-};
 // El radio de un municipio según su gente, en el mapa a 600 px de ancho.
 const byPeople = (pob: number) => Math.max(0.5, Math.sqrt(pob) * 0.025);
 
@@ -338,7 +332,8 @@ const toneColor = (tones: Record<Axis, string>, axis: Axis, t: number) =>
     ? `color-mix(in oklab, ${t < 0 ? tones.vacia : '#3D7CB0'} ${Math.round(Math.abs(t) ** 0.8 * 90 + 10)}%, var(--muted))`
     : `color-mix(in oklab, ${tones[axis]} ${Math.round(10 + 90 * t)}%, var(--muted))`;
 
-type Look = { r: number; c: [number, number, number]; a: number; arrow: number };
+// `arrow`: la flecha del giro (solo en ese paso).
+type Look = { r: number; c: [number, number, number]; a: number; arrow?: boolean };
 
 // El mapa de puntos en un lienzo: cada municipio pasa de su aspecto de antes al del paso nuevo.
 function DotMap({
@@ -365,7 +360,6 @@ function DotMap({
   const box = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const width = useWidth(box, 600);
-  const now = useRef<Look[]>([]);
   const [tip, setTip] = useState<{ x: number; y: number; i: number } | null>(null);
   const { dots, map } = data;
   const height = (width * map.alto) / map.ancho;
@@ -382,31 +376,30 @@ function DotMap({
       const people = byPeople(d.pob);
       if (step === 'engana')
         return size === 'mun'
-          ? { r: 1.8, c: winner(d), a: 0.85, arrow: 0 }
-          : { r: people, c: winner(d), a: 0.65, arrow: 0 };
+          ? { r: 1.8, c: winner(d), a: 0.85 }
+          : { r: people, c: winner(d), a: 0.65 };
       if (axis) {
         const b = data.bucketOf[axis][i] ?? -1;
         const tone = data.buckets[axis][b]?.tone ?? 0;
         const hex = axis === 'vacia' ? (tone < 0 ? tones.vacia : '#3D7CB0') : tones[axis];
         if (lit >= 0)
           return b === lit
-            ? { r: Math.max(1.9, people), c: rgb(hex), a: 0.95, arrow: 0 }
-            : { r: 1.1, c: rgb(grey), a: 0.12, arrow: 0 };
+            ? { r: Math.max(1.9, people), c: rgb(hex), a: 0.95 }
+            : { r: 1.1, c: rgb(grey), a: 0.12 };
         return b < 0
-          ? { r: Math.max(1.5, people), c: rgb(grey), a: 0.25, arrow: 0 }
+          ? { r: Math.max(1.5, people), c: rgb(grey), a: 0.25 }
           : {
               r: Math.max(1.5, people),
               c: rgb(hex),
               a: 0.25 + 0.6 * Math.abs(tone) ** 0.8,
-              arrow: 0,
             };
       }
       if (step === 'espanas')
         return data.inSpain[spain]?.[i]
-          ? { r: Math.max(1.3, people), c: winner(d), a: 0.8, arrow: 0 }
-          : { r: 1.1, c: rgb(grey), a: 0.1, arrow: 0 };
-      if (step === 'giro') return { r: 1.1, c: rgb(grey), a: 0.14, arrow: 1 };
-      return { r: people, c: winner(d), a: 0.7, arrow: 0 };
+          ? { r: Math.max(1.3, people), c: winner(d), a: 0.8 }
+          : { r: 1.1, c: rgb(grey), a: 0.1 };
+      if (step === 'giro') return { r: 1.1, c: rgb(grey), a: 0.14, arrow: true };
+      return { r: people, c: winner(d), a: 0.7 };
     });
   }, [dots, data, step, bucket, spain, size, order, colors, tones]);
 
@@ -423,50 +416,46 @@ function DotMap({
     const line = getComputedStyle(el).color;
     const right = rgb(swingColors.right);
     const left = rgb(swingColors.left);
-    const draw = (looks: Look[]) => {
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, width, height);
-      ctx.save();
-      ctx.scale(k, k);
-      ctx.strokeStyle = line;
-      ctx.lineWidth = 0.6 / k;
-      for (const p of outlines) ctx.stroke(p);
-      ctx.stroke(new Path2D(map.canarias));
-      ctx.restore();
-      looks.forEach((l, i) => {
-        const d = dots[i];
-        if (!d) return;
-        const x = d.x * k;
-        const y = d.y * k;
-        ctx.globalAlpha = l.a;
-        ctx.fillStyle = `rgb(${l.c[0]} ${l.c[1]} ${l.c[2]})`;
-        ctx.beginPath();
-        ctx.arc(x, y, Math.max(0.4, l.r * scale), 0, Math.PI * 2);
-        ctx.fill();
-        if (l.arrow > 0.01 && d.swing !== null && d.vote) {
-          const len = Math.max(-26, Math.min(26, d.swing * 0.9)) * scale * l.arrow;
-          if (Math.abs(len) < 0.5) return;
-          const c = len > 0 ? right : left;
-          ctx.globalAlpha = 0.75 * l.arrow;
-          ctx.strokeStyle = ctx.fillStyle = `rgb(${c[0]} ${c[1]} ${c[2]})`;
-          ctx.lineWidth = Math.min(4, 0.35 + Math.sqrt(d.vote.voters) / 110) * scale;
-          ctx.beginPath();
-          ctx.moveTo(x, y);
-          ctx.lineTo(x + len, y);
-          ctx.stroke();
-          const head = Math.min(4, Math.abs(len) / 2) * Math.sign(len);
-          ctx.beginPath();
-          ctx.moveTo(x + len, y);
-          ctx.lineTo(x + len - head, y - Math.abs(head) * 0.6);
-          ctx.lineTo(x + len - head, y + Math.abs(head) * 0.6);
-          ctx.fill();
-        }
-      });
-      ctx.globalAlpha = 1;
-    };
     // Cada paso se dibuja tal cual: sin animar tamaños ni colores (DESIGN.md, §8.4).
-    now.current = target;
-    draw(target);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+    ctx.save();
+    ctx.scale(k, k);
+    ctx.strokeStyle = line;
+    ctx.lineWidth = 0.6 / k;
+    for (const p of outlines) ctx.stroke(p);
+    ctx.stroke(new Path2D(map.canarias));
+    ctx.restore();
+    target.forEach((l, i) => {
+      const d = dots[i];
+      if (!d) return;
+      const x = d.x * k;
+      const y = d.y * k;
+      ctx.globalAlpha = l.a;
+      ctx.fillStyle = `rgb(${l.c[0]} ${l.c[1]} ${l.c[2]})`;
+      ctx.beginPath();
+      ctx.arc(x, y, Math.max(0.4, l.r * scale), 0, Math.PI * 2);
+      ctx.fill();
+      if (l.arrow && d.swing !== null && d.vote) {
+        const len = Math.max(-26, Math.min(26, d.swing * 0.9)) * scale;
+        if (Math.abs(len) < 0.5) return;
+        const c = len > 0 ? right : left;
+        ctx.globalAlpha = 0.75;
+        ctx.strokeStyle = ctx.fillStyle = `rgb(${c[0]} ${c[1]} ${c[2]})`;
+        ctx.lineWidth = Math.min(4, 0.35 + Math.sqrt(d.vote.voters) / 110) * scale;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + len, y);
+        ctx.stroke();
+        const head = Math.min(4, Math.abs(len) / 2) * Math.sign(len);
+        ctx.beginPath();
+        ctx.moveTo(x + len, y);
+        ctx.lineTo(x + len - head, y - Math.abs(head) * 0.6);
+        ctx.lineTo(x + len - head, y + Math.abs(head) * 0.6);
+        ctx.fill();
+      }
+    });
+    ctx.globalAlpha = 1;
   }, [target, width, height, k, scale, dots, outlines, map, swingColors]);
 
   // El municipio más cercano al puntero, para el detalle.
@@ -478,7 +467,7 @@ function DotMap({
     let best = -1;
     let dist = 12;
     dots.forEach((d, i) => {
-      const look = now.current[i];
+      const look = target[i];
       if (!look || look.a < 0.2) return;
       const dd = Math.hypot(d.x * k - x, d.y * k - y) - look.r * scale;
       if (dd < dist) {
@@ -491,7 +480,7 @@ function DotMap({
   const d = tip ? dots[tip.i] : undefined;
   const growth = d && d.pob0 ? d.pob / d.pob0 - 1 : null;
   const share = (key: 'PP' | 'PSOE' | 'VOX' | 'IZQ') =>
-    d?.vote && d.vote.valid ? pct(d.vote[key] / d.vote.valid) : '–';
+    d?.vote && d.vote.valid ? percent(d.vote[key] / d.vote.valid, 0) : '–';
 
   return (
     <div ref={box} className="relative">
@@ -516,7 +505,7 @@ function DotMap({
           <p className="m-0 text-muted-foreground">
             {thousands(d.pob)} habitantes
             {growth !== null &&
-              ` (${growth >= 0 ? '+' : '−'}${pct(Math.abs(growth))} desde ${data.since})`}
+              ` (${growth >= 0 ? '+' : '−'}${percent(Math.abs(growth), 0)} desde ${data.since})`}
             {d.may65 !== null && ` · ${d.may65.toLocaleString('es-ES')} % con 65 años o más`}
             {d.renta !== null && ` · ${thousands(d.renta)} € por persona`}
           </p>

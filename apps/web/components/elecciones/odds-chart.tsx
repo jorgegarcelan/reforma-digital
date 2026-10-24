@@ -3,15 +3,9 @@
 import { useMemo, useRef, useState } from 'react';
 import { Tips } from './tips';
 import { useWidth } from './use-width';
+import { longDate, toDay } from '../../lib/elecciones/format';
 
-const toDay = (iso: string) => Date.parse(`${iso}T00:00:00Z`) / 864e5;
 const month = new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', month: 'short' });
-const long = new Intl.DateTimeFormat('es-ES', {
-  timeZone: 'UTC',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
 const H = 260;
 
 // La probabilidad de cada opción día a día (0-100 %), con la disolución marcada.
@@ -131,7 +125,7 @@ export function OddsChart({
               width={Math.max(1, right - left)}
               height={H - m.t - m.b}
               fill="transparent"
-              data-tip={long.format(new Date(`${d}T00:00:00Z`))}
+              data-tip={longDate(d)}
               data-tip-text={series
                 .map((s) => {
                   const p = s.history.find(([day]) => day === d)?.[1] ?? near(s, d)[1];

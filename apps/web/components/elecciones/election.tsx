@@ -10,26 +10,18 @@ import {
   TableHeader,
   TableRow,
 } from '@reforma-digital/design/ui/table';
-import { thousands } from '../../lib/elecciones/format';
-import { semicircle } from '../../lib/elecciones/hemicycle';
+import { decimal, formatDate, percent, thousands } from '../../lib/elecciones/format';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { shortParty } from '../../lib/elecciones/parties';
 import { Icon } from '../brand/icon';
 import { href } from '../congreso/common';
 import { electionData } from './election-data';
-import { ProvinceSection } from './province-section';
+import { Hemicycle, ProvinceSection } from './province-section';
 import { Cell, Grid, Heading, Label, Legend, ReportIntro, SectionHeading, Stat } from './report';
 import { Tips } from './tips';
 
-const decimal = (n: number, digits = 1) =>
-  n.toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits });
-const percent = (n: number, digits = 1) => `${decimal(n * 100, digits)} %`;
 const millions = (n: number) => `${decimal(n / 1e6, 2)} M`;
 const signed = (n: number) => (n > 0 ? `+${n}` : n < 0 ? `−${Math.abs(n)}` : '=');
-const longDate = (iso: string, options: Intl.DateTimeFormatOptions) =>
-  new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', ...options }).format(
-    new Date(`${iso}T00:00:00Z`),
-  );
 // Lo que duró una legislatura, en años y meses.
 const duration = (from: string, to: string) => {
   const [y1 = 0, m1 = 0, d1 = 0] = from.split('-').map(Number);
@@ -52,19 +44,9 @@ export async function Election({ id }: { id: string }) {
   const previous = E[k - 1];
   const next = E[k + 1];
   const isLast = !next;
-  const legislature =
-    e.legislatura === 'Constituyente' ? 'Cortes constituyentes' : `${e.legislatura} legislatura`;
   const turnout = e.votantes / e.censo;
   const turnoutBefore = previous ? previous.votantes / previous.censo : null;
-  const withSeats = e.partidos.filter(([, , , , s]) => s > 0).sort((a, b) => b[4] - a[4]);
-  const largest = withSeats[0];
-  const majority = !!largest && largest[4] >= 176;
-
-  // El hemiciclo: cada familia, una cuña.
-  const hemicycle = semicircle();
-  const seatColors = history.familias.flatMap((f) =>
-    Array<string>(e.fam[f.id]?.[1] ?? 0).fill(f.color),
-  );
+  const { withSeats, largest, majority, legislature, president } = data;
 
   // Resultados: candidaturas con escaño o con el 0,5 %, y su cambio con las mismas siglas.
   const rows = e.partidos.filter(([, , , v, s]) => s > 0 || v >= e.validos * 0.005);
@@ -126,7 +108,7 @@ export async function Election({ id }: { id: string }) {
       <div className="mb-3">
         <Label>Elecciones generales · {legislature}</Label>
       </div>
-      <ReportIntro title={longDate(e.fecha, { day: 'numeric', month: 'long', year: 'numeric' })}>
+      <ReportIntro title={formatDate(e.fecha, { day: 'numeric', month: 'long', year: 'numeric' })}>
         <p>
           {largest &&
             (majority
@@ -157,45 +139,19 @@ export async function Election({ id }: { id: string }) {
           <Heading title="El hemiciclo">
             Un punto por escaño, de izquierda a derecha según la familia de cada candidatura.
           </Heading>
-          <svg
-            viewBox={hemicycle.box}
-            role="img"
-            aria-label={`Hemiciclo: ${withSeats.map(([s, , , , n]) => `${shortParty(s)} ${n}`).join(', ')}`}
-            className="block h-auto w-full"
-          >
-            {hemicycle.points.map(([x, y], i) => (
-              <circle key={i} cx={x} cy={y} r={5.3} fill={seatColors[i] ?? 'var(--muted)'} />
-            ))}
-          </svg>
-          <Legend
-            small
-            items={[
-              ...withSeats.slice(0, 10).map(([s, , f, , n]) => ({
-                label: `${shortParty(s)} ${n}`,
-                color: color(f),
-              })),
-              ...(withSeats.length > 10
-                ? [{ label: `y ${withSeats.length - 10} más`, color: 'transparent' }]
-                : []),
-            ]}
-          />
+          <Hemicycle data={data} limit={10} small />
         </Cell>
         <Cell span={5} className="content-start">
           <Heading title="La legislatura" />
           <dl className="m-0 grid gap-4">
             {[
               ['Legislatura', legislature],
-              [
-                'Presidencia del Gobierno',
-                e.presidentes.length
-                  ? e.presidentes.join(' · ')
-                  : 'Ninguna investidura: se repitieron las elecciones',
-              ],
+              ['Presidencia del Gobierno', president],
               [
                 'Duración',
                 isLast
-                  ? `${duration(e.fecha, e.hasta)}, hasta la disolución del ${longDate(e.hasta, { day: 'numeric', month: 'long', year: 'numeric' })}`
-                  : `${duration(e.fecha, e.hasta)}, hasta las elecciones del ${longDate(e.hasta, { day: 'numeric', month: 'long', year: 'numeric' })}`,
+                  ? `${duration(e.fecha, e.hasta)}, hasta la disolución del ${formatDate(e.hasta, { day: 'numeric', month: 'long', year: 'numeric' })}`
+                  : `${duration(e.fecha, e.hasta)}, hasta las elecciones del ${formatDate(e.hasta, { day: 'numeric', month: 'long', year: 'numeric' })}`,
               ],
             ].map(([term, detail]) => (
               <div key={term} className="grid gap-1">

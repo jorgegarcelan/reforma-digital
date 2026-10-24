@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@reforma-digital/design/lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '@reforma-digital/design/ui/tabs';
-import { ink } from '../../lib/elecciones/format';
+import { decimal, ink, time } from '../../lib/elecciones/format';
 import { useFirstSight } from './first-sight';
 import { Legend } from './report';
 import { Tips } from './tips';
@@ -22,13 +22,6 @@ export type RiverElection = {
   fam: Record<string, [number, number]>;
   names: Record<string, string>;
 };
-
-const time = (iso: string) => {
-  const [y = 0, m = 1, d = 1] = iso.split('-').map(Number);
-  return y + (m - 1) / 12 + (d - 1) / 365;
-};
-const decimal = (n: number) =>
-  n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 // «Los 350 escaños, legislatura a legislatura»: cada legislatura, una columna tan ancha como duró,
 // con las familias apiladas (escaños o votos). Pulsar una la elige para toda la página.

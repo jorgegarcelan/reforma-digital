@@ -1,7 +1,63 @@
 import type { ReactNode } from 'react';
+import { semicircle } from '../../lib/elecciones/hemicycle';
+import { shortParty } from '../../lib/elecciones/parties';
 import type { ElectionData } from './election-data';
 import { ProvinceMap } from './province-map';
-import { Grid, SectionHeading } from './report';
+import { Grid, Legend, SectionHeading } from './report';
+
+// El hemiciclo de la elección, una cuña por familia, con las `limit` candidaturas con más escaños en
+// la leyenda. `caption` se escribe en el centro.
+export function Hemicycle({
+  data,
+  limit,
+  caption,
+  small,
+}: {
+  data: ElectionData;
+  limit: number;
+  caption?: string;
+  small?: boolean;
+}) {
+  const { withSeats, seatColors, color } = data;
+  const hemicycle = semicircle();
+  return (
+    <>
+      <svg
+        viewBox={hemicycle.box}
+        role="img"
+        aria-label={`Hemiciclo${caption ? ` de ${caption}` : ''}: ${withSeats.map(([s, , , , n]) => `${shortParty(s)} ${n}`).join(', ')}`}
+        className="block h-auto w-full"
+      >
+        {hemicycle.points.map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r={5.3} fill={seatColors[i] ?? 'var(--muted)'} />
+        ))}
+        {caption && (
+          <text
+            x={hemicycle.label.x}
+            y={hemicycle.label.y}
+            textAnchor="middle"
+            className="fill-foreground font-heading"
+            style={{ fontSize: hemicycle.label.size }}
+          >
+            {caption}
+          </text>
+        )}
+      </svg>
+      <Legend
+        small={small}
+        items={[
+          ...withSeats.slice(0, limit).map(([s, , f, , n]) => ({
+            label: `${shortParty(s)} ${n}`,
+            color: color(f),
+          })),
+          ...(withSeats.length > limit
+            ? [{ label: `y ${withSeats.length - limit} más`, color: 'transparent' }]
+            : []),
+        ]}
+      />
+    </>
+  );
+}
 
 // «Provincia a provincia»: el mapa de la elección con sus modos y la ficha de cada provincia. El
 // mapa se dibuja aquí; `ProvinceMap` lo pinta según lo que se elija.

@@ -1,11 +1,10 @@
 import { deputyName, getElections, getIndex, read, slug } from '../../lib/congreso/data';
 import { balanceSchema } from '../../lib/congreso/schema';
-import { shortDate, thousands } from '../../lib/elecciones/format';
+import { shortDate, thousands, toDay } from '../../lib/elecciones/format';
 import { Empty, href } from '../congreso/common';
 import { Relevos, type Departure, type RelevoSeat } from './relevos';
 import { Cell, Grid, ReportIntro, SectionHeading } from './report';
 
-const day = (iso: string) => Date.parse(`${iso}T00:00:00Z`) / 864e5;
 const longDate = new Intl.DateTimeFormat('es-ES', {
   day: 'numeric',
   month: 'long',
@@ -29,7 +28,7 @@ export async function Repeat() {
   }).format(new Date());
   const lists = election.calendario.find((m) => m.hito.startsWith('Listas presentadas'));
   const proclaimed = election.calendario.find((m) => m.hito.startsWith('Proclamación'));
-  const left = lists ? day(lists.fecha) - day(today) : 0;
+  const left = lists ? toDay(lists.fecha) - toDay(today) : 0;
 
   // Cada escaño con la cadena de quienes lo ocuparon: se siguen los relevos hasta quien lo ocupa hoy.
   const byName = new Map(index.diputados.map((d) => [d.nombre, d]));

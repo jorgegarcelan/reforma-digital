@@ -7,6 +7,7 @@ import { Elections } from '../../../../components/congreso/elections';
 import { DataLoading } from '../../../../components/congreso/loading';
 import { ElectionsHome } from '../../../../components/elecciones/home';
 import { ElectionsFrame } from '../../../../components/elecciones/nav';
+import { formatDate } from '../../../../lib/elecciones/format';
 import {
   electionPages,
   electionsHref,
@@ -39,11 +40,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // La página de una elección (`AAAAMM`): su mes y su año, sin pedir datos.
   const election =
     match.detail && /^\d{6}$/.test(match.detail)
-      ? new Intl.DateTimeFormat('es-ES', {
-          timeZone: 'UTC',
+      ? formatDate(`${match.detail.slice(0, 4)}-${match.detail.slice(4)}-01`, {
           month: 'long',
           year: 'numeric',
-        }).format(new Date(`${match.detail.slice(0, 4)}-${match.detail.slice(4)}-01T00:00:00Z`))
+        })
       : null;
   return pageMetadata({
     title: election

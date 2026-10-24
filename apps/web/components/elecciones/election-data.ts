@@ -1,13 +1,10 @@
 import { getHistory, read, slug } from '../../lib/congreso/data';
 import { historicalProvinceSchema, mapSchema } from '../../lib/congreso/schema';
-import { electionLabel, thousands } from '../../lib/elecciones/format';
+import { electionLabel, percent, thousands } from '../../lib/elecciones/format';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { brand, shortParty } from '../../lib/elecciones/parties';
 import { href } from '../congreso/common';
 import type { MapProvince, Winner } from './province-map';
-
-const percent = (n: number) =>
-  `${(n * 100).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}\u00a0%`;
 
 // Lo que comparten «Elecciones desde 1977» y la página de cada elección: la elección elegida, el
 // ganador de cada provincia en cada elección y las provincias de la elegida para el mapa. Si `id`
@@ -22,6 +19,20 @@ export async function electionData(id?: string) {
   const k = found >= 0 ? found : E.length - 1;
   const e = E[k];
   if (!e) throw new Error('El histórico de elecciones está vacío');
+  // La elección elegida: sus candidaturas con escaño (de más a menos), si hubo mayoría absoluta,
+  // la legislatura que salió de ella y quién la presidió.
+  const withSeats = e.partidos.filter(([, , , , s]) => s > 0).sort((a, b) => b[4] - a[4]);
+  const largest = withSeats[0];
+  const majority = !!largest && largest[4] >= 176;
+  const legislature =
+    e.legislatura === 'Constituyente' ? 'Cortes constituyentes' : `${e.legislatura} legislatura`;
+  const president = e.presidentes.length
+    ? e.presidentes.join(' · ')
+    : 'Ninguna investidura: se repitieron las elecciones';
+  // El color de cada escaño del hemiciclo, familia a familia.
+  const seatColors = history.familias.flatMap((f) =>
+    Array<string>(e.fam[f.id]?.[1] ?? 0).fill(f.color),
+  );
   // El detalle de cada elección: el ganador de cada provincia es su candidatura más votada (no su
   // familia: en 2015, Podemos e IU iban por separado).
   const details = await Promise.all(
@@ -116,6 +127,12 @@ export async function electionData(id?: string) {
     E,
     k,
     e,
+    withSeats,
+    largest,
+    majority,
+    legislature,
+    president,
+    seatColors,
     details,
     color,
     label,

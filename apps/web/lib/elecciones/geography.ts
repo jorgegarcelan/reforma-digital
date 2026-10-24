@@ -63,6 +63,14 @@ function group(row: number[], order: string[]): Grouped {
   return g;
 }
 
+// Una fila de votos de un municipio es [censo, votantes, votos de cada familia en `orden`…]. La
+// parte de unas familias sobre los votos a candidaturas y la participación (null si no hay).
+export const voteShare = (row: number[], orden: string[], families: string[]) => {
+  const total = row.slice(2).reduce((t, v) => t + v, 0);
+  return total ? families.reduce((t, f) => t + (row[2 + orden.indexOf(f)] ?? 0), 0) / total : null;
+};
+export const turnout = (row?: number[]) => (row && row[0] ? (row[1] ?? 0) / row[0] : null);
+
 export function municipalities(m: Rows, v23: Votes, v19: Votes): Municipality[] {
   return Object.entries(m).map(([code, r]) => {
     const now = v23.municipios[code];

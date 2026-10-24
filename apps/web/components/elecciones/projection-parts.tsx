@@ -9,16 +9,7 @@ import { Icon } from '../brand/icon';
 import { Cell, Label } from './report';
 import { Tips } from './tips';
 import { useWidth } from './use-width';
-
-const decimal = (n: number) =>
-  n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const toDay = (iso: string) => Date.parse(`${iso}T00:00:00Z`) / 864e5;
-const long = new Intl.DateTimeFormat('es-ES', {
-  timeZone: 'UTC',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
+import { decimal, longDate, toDay } from '../../lib/elecciones/format';
 
 // «Prueba una suma de escaños»: se eligen partidos y se ve si llegan a 176. Una suma no es un
 // acuerdo.
@@ -296,7 +287,7 @@ export function SeatSeries({
                 width={Math.max(1, right - left)}
                 height={H - m.t - m.b}
                 fill="transparent"
-                data-tip={`Semana del ${long.format(new Date(`${d}T00:00:00Z`))}`}
+                data-tip={`Semana del ${longDate(d)}`}
                 data-tip-text={all.map((l) => `${l.name} ${value(w, l.id)}`).join(' · ')}
                 onPointerEnter={() => setHover(i)}
               />

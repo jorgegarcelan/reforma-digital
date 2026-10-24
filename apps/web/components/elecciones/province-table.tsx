@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@reforma-digital/design/ui/table';
-import { thousands } from '../../lib/elecciones/format';
+import { percent, thousands } from '../../lib/elecciones/format';
 import { Icon } from '../brand/icon';
 import { SectionHeading } from './report';
 
@@ -37,8 +37,6 @@ const columns: [Column, string][] = [
   ['margin', 'Último escaño'],
 ];
 const plain = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-const percent = (n: number) =>
-  `${(n * 100).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
 
 // Los escaños de la provincia en cada elección, en escalón (van de uno en uno) y con un margen
 // mínimo de 4: un escaño arriba o abajo no parece un vuelco.

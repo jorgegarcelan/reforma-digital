@@ -9,7 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from '@reforma-digital/design/ui/tabs';
 import { useFirstSight } from './first-sight';
 import { Tips } from './tips';
 import { useScale } from './use-width';
-import { thousands } from '../../lib/elecciones/format';
+import { shortDate, thousands } from '../../lib/elecciones/format';
 
 type Day = [votes: number, laws: number, decrees: number, questions: number];
 type Vote = [id: string, date: string, title: string, yes: number, no: number];
@@ -18,12 +18,6 @@ const longDate = new Intl.DateTimeFormat('es-ES', {
   weekday: 'long',
   day: 'numeric',
   month: 'long',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
-const shortDate = new Intl.DateTimeFormat('es-ES', {
-  day: 'numeric',
-  month: 'short',
   year: 'numeric',
   timeZone: 'UTC',
 });
@@ -251,7 +245,7 @@ function Calendar({
           </Tabs>
         </div>
         <span className="font-mono text-sm font-medium text-muted-foreground tabular-nums">
-          {shortDate.format(asDate(list[cursor] ?? to))}
+          {shortDate(list[cursor] ?? to)}
         </span>
       </div>
       <div className="overflow-x-auto">
@@ -576,7 +570,7 @@ function Margins({ votes, voteHref }: { votes: Vote[]; voteHref: string }) {
                   <b className="font-medium text-foreground">
                     {yes}–{no}
                   </b>{' '}
-                  · {shortDate.format(asDate(date))}
+                  · {shortDate(date)}
                 </span>
               </Link>
             </li>

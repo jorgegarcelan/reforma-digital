@@ -1,11 +1,9 @@
 import { getHistory, read } from '../../lib/congreso/data';
 import { accuracySchema, projectionSchema } from '../../lib/congreso/schema';
+import { decimal, signed } from '../../lib/elecciones/format';
 import { AccuracyPicker, type AccuracyElection } from './accuracy-picker';
 import { Cell, Grid, ReportIntro, SectionHeading } from './report';
 
-const decimal = (n: number) =>
-  n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const signed = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : '±'}${decimal(Math.abs(n))}`;
 // Rojo si la media se pasó; azul si se quedó corta; más intenso cuanto más, hasta 5 puntos.
 const heat = (d: number) =>
   `color-mix(in oklab, ${d > 0 ? 'var(--brand)' : '#2C7BC4'} ${Math.round(Math.min(1, Math.abs(d) / 5) * 70)}%, var(--background))`;

@@ -1,20 +1,11 @@
 import Link from 'next/link';
 import { getElections, getPolls, read } from '../../lib/congreso/data';
 import { marketsSchema, projectionSchema } from '../../lib/congreso/schema';
-import { thousands } from '../../lib/elecciones/format';
+import { chance, longDate as date, thousands } from '../../lib/elecciones/format';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { OddsChart } from './odds-chart';
 import { Cell, Grid, ReportIntro, SectionHeading } from './report';
 
-const longDate = new Intl.DateTimeFormat('es-ES', {
-  timeZone: 'UTC',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
-const date = (iso: string) => longDate.format(new Date(`${iso}T00:00:00Z`));
-const chance = (p: number) =>
-  p >= 0.995 ? '> 99 %' : p < 0.005 ? '< 1 %' : `${Math.round(p * 100)} %`;
 const dollars = (n: number) => `${thousands(n)} $`;
 // Cada candidato, con el color de su partido; el resto, por orden.
 const people: Record<string, string> = {

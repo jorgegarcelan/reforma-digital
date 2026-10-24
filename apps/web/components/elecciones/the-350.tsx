@@ -1,15 +1,11 @@
 import { getElections, getHistory, getIndex, read, slug } from '../../lib/congreso/data';
 import { balanceSchema, mapSchema } from '../../lib/congreso/schema';
+import { formatDate } from '../../lib/elecciones/format';
 import { href } from '../congreso/common';
 import { Apportionment } from './apportionment';
 import { Reparto, type RepartoElection } from './reparto';
 import { Cell, Grid, Legend, ReportIntro, SectionHeading } from './report';
 import { SeatsCard } from './seats-card';
-
-const format = (iso: string, options: Intl.DateTimeFormatOptions) =>
-  new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', ...options }).format(
-    new Date(`${iso}T00:00:00Z`),
-  );
 
 // «Los 350»: del mapa al hemiciclo, la regla que reparte los escaños y cómo ha cambiado el reparto
 // desde 1977. Estructura de Escaño Abierto.
@@ -35,16 +31,16 @@ export async function The350() {
       // En 2019 hubo dos: abril y noviembre.
       short:
         history.elecciones.filter((x) => year(x.fecha) === year(e.fecha)).length > 1
-          ? `${year(e.fecha)} ${format(e.fecha, { month: 'short' })}`
+          ? `${year(e.fecha)} ${formatDate(e.fecha, { month: 'short' })}`
           : year(e.fecha),
-      long: format(e.fecha, { month: 'long', year: 'numeric' }),
+      long: formatDate(e.fecha, { month: 'long', year: 'numeric' }),
       prov: Object.fromEntries(Object.entries(e.prov).map(([c, p]) => [c, { e: p.e, fam: p.fam }])),
     })),
     // Con el decreto de convocatoria se conoce el reparto del 29N; aún sin votar, en gris.
     {
       id: year(election.votacion),
       short: year(election.votacion),
-      long: format(election.votacion, { day: 'numeric', month: 'long', year: 'numeric' }),
+      long: formatDate(election.votacion, { day: 'numeric', month: 'long', year: 'numeric' }),
       prov: Object.fromEntries(
         Object.entries(election.escanos).map(([c, e]) => [c, { e, fam: {} }]),
       ),
@@ -66,7 +62,7 @@ export async function The350() {
         <SeatsCard
           index={index}
           map={map}
-          note={`Diputados de la ${index.meta.legislatura} legislatura${last ? `, elegidos en ${format(last.fecha, { month: 'long', year: 'numeric' })}` : ''}.`}
+          note={`Diputados de la ${index.meta.legislatura} legislatura${last ? `, elegidos en ${formatDate(last.fecha, { month: 'long', year: 'numeric' })}` : ''}.`}
         />
       </Grid>
       <section className="mt-16 grid gap-6">

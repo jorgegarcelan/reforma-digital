@@ -2,15 +2,13 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { thousands } from '../../lib/elecciones/format';
+import { decimal, thousands } from '../../lib/elecciones/format';
 import { Tips } from './tips';
 import { useWidth } from './use-width';
 
 export type TrendPoint = { id: string; href: string; year: string; long: string; time: number };
 export type Unit = 'percent' | 'decimal' | 'millions' | 'seats';
 
-const decimal = (n: number, digits: number) =>
-  n.toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const formats: Record<Unit, (v: number) => string> = {
   percent: (v) => `${decimal(v * 100, 1)}\u00a0%`,
   decimal: (v) => decimal(v, 1),

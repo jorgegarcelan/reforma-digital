@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { cn } from '@reforma-digital/design/lib/utils';
 import { Button, buttonVariants } from '@reforma-digital/design/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@reforma-digital/design/ui/tabs';
-import { ramp, thousands } from '../../lib/elecciones/format';
+import { percent, ramp, thousands } from '../../lib/elecciones/format';
 import { Icon } from '../brand/icon';
 import { Cell, Label } from './report';
 import { Tips } from './tips';
@@ -40,8 +40,6 @@ const modes: [Mode, string][] = [
   ['margin', 'Último escaño'],
 ];
 const isMode = (v: unknown): v is Mode => modes.some(([m]) => m === v);
-const percent = (n: number, digits = 1) =>
-  `${(n * 100).toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits })} %`;
 const mix = (color: string, amount: number) =>
   `color-mix(in oklab, ${color} ${Math.round(amount)}%, var(--background))`;
 

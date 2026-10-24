@@ -31,12 +31,10 @@ export async function Geography({
   detail,
   query,
   page,
-  election,
 }: {
   detail?: string;
   query: string;
   page: number;
-  election?: string;
 }) {
   const geography = await getGeography();
   const map = await read('elecciones/geo-provincias.json', mapSchema);

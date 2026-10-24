@@ -1,20 +1,10 @@
 import type { ReactNode } from 'react';
 import { getHistory } from '../../lib/congreso/data';
-import { electionLabel } from '../../lib/elecciones/format';
+import { electionLabel, longDate, time } from '../../lib/elecciones/format';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { Cell, Grid, Heading, ReportIntro } from './report';
 import { Trend, type TrendPoint } from './trend';
 
-const longDate = new Intl.DateTimeFormat('es-ES', {
-  timeZone: 'UTC',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
-const time = (iso: string) => {
-  const [y = 0, m = 1, d = 1] = iso.split('-').map(Number);
-  return y + (m - 1) / 12 + (d - 1) / 365;
-};
 const votes = 'var(--foreground)';
 const seats = 'var(--brand)';
 
@@ -45,7 +35,7 @@ export async function Metrics() {
     id: e.id,
     href: electionsHref(e.id),
     year: electionLabel(E, e.fecha),
-    long: longDate.format(new Date(`${e.fecha}T00:00:00Z`)),
+    long: longDate(e.fecha),
     time: time(e.fecha),
   }));
   const metric = (key: keyof (typeof E)[number]['metricas']) =>

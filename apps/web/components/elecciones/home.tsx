@@ -21,6 +21,7 @@ import {
   marketsSchema,
   projectionSchema,
 } from '../../lib/congreso/schema';
+import { formatDate, percent, thousands } from '../../lib/elecciones/format';
 import { origins } from '../../lib/elecciones/laws';
 import { electionPages, electionsHref, type ElectionPage } from '../../lib/elecciones/pages';
 import { href } from '../congreso/common';
@@ -29,22 +30,15 @@ import { Icon } from '../brand/icon';
 import { Bars, CardCta, Cell, Chapter, Grid, Label, Legend, PageCard, Stat } from './report';
 import { hemicycleOrder, SeatsCard } from './seats-card';
 import { Tips } from './tips';
-import { thousands } from '../../lib/elecciones/format';
 
 const majority = 176;
 
 const madrid = (options: Intl.DateTimeFormatOptions) =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', ...options }).format(new Date());
 const dayNumber = (iso: string) => Date.parse(`${iso}T00:00:00Z`) / 864e5;
-const format = (iso: string, options: Intl.DateTimeFormatOptions) =>
-  new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', ...options }).format(
-    new Date(`${iso}T00:00:00Z`),
-  );
-const shortDate = (iso: string) => format(iso, { day: 'numeric', month: 'short' });
-const longDate = (iso: string) => format(iso, { day: 'numeric', month: 'long' });
+const shortDate = (iso: string) => formatDate(iso, { day: 'numeric', month: 'short' });
+const longDate = (iso: string) => formatDate(iso, { day: 'numeric', month: 'long' });
 const decimal = (value: number) => value.toLocaleString('es-ES', { maximumFractionDigits: 1 });
-const percent = (value: number) =>
-  `${(value * 100).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
 
 type Milestone = { fecha: string; hasta?: string; hito: string; detalle?: string };
 
@@ -501,7 +495,7 @@ export async function ElectionsHome() {
       <Grid>
         <Cell span={7} className="gap-10">
           <Label>
-            Elecciones generales · {format(election.votacion, { weekday: 'long' })}{' '}
+            Elecciones generales · {formatDate(election.votacion, { weekday: 'long' })}{' '}
             {longDate(election.votacion)} de {election.votacion.slice(0, 4)}
           </Label>
           <div className="grid gap-8">
@@ -650,7 +644,7 @@ export async function ElectionsHome() {
           map={map}
           span={7}
           className="relative transition-colors hover:bg-muted/60"
-          note={`Diputados de la ${index.meta.legislatura} legislatura, elegidos en ${format(last.fecha, { month: 'long', year: 'numeric' })}.`}
+          note={`Diputados de la ${index.meta.legislatura} legislatura, elegidos en ${formatDate(last.fecha, { month: 'long', year: 'numeric' })}.`}
           footer={
             <Link
               href={electionsHref('350')}
@@ -715,7 +709,7 @@ export async function ElectionsHome() {
                 .map((f) => ({ name: f.nombre, color: f.color, seats: e.fam[f.id]?.[1] ?? 0 }))
                 .filter((f) => f.seats)
                 .sort((x, y) => y.seats - x.seats);
-              const name = `Elecciones de ${format(e.fecha, { month: 'long', year: 'numeric' })}`;
+              const name = `Elecciones de ${formatDate(e.fecha, { month: 'long', year: 'numeric' })}`;
               const summary = ranked
                 .slice(0, 3)
                 .map((f) => `${f.name} ${f.seats}`)
@@ -751,7 +745,7 @@ export async function ElectionsHome() {
                     {e.fecha.slice(0, 4)}
                     {history.elecciones.filter((x) => x.fecha.startsWith(e.fecha.slice(0, 4)))
                       .length > 1 && (
-                      <span className="block">{format(e.fecha, { month: 'short' })}</span>
+                      <span className="block">{formatDate(e.fecha, { month: 'short' })}</span>
                     )}
                   </span>
                 </Link>

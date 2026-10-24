@@ -2,7 +2,30 @@
 export const thousands = (value: number) =>
   String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-// «29 sept 2026», a partir de una fecha ISO.
+// «12,3»: siempre con `digits` decimales.
+export const decimal = (n: number, digits = 1) =>
+  n.toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+// «12,3 %» a partir de una parte (0,123).
+export const percent = (share: number, digits = 1) => `${decimal(share * 100, digits)}\u00a0%`;
+// «+1,2», «−0,4» o «±0,0».
+export const signed = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : '±'}${decimal(Math.abs(n))}`;
+// Lo probable que es algo, sin decir nunca 0 ni 100 %.
+export const chance = (p: number) =>
+  p >= 0.995 ? '> 99\u00a0%' : p <= 0.005 ? '< 1\u00a0%' : `${Math.round(p * 100)}\u00a0%`;
+
+// Los días desde 1970 de una fecha ISO, para medir distancias entre fechas.
+export const toDay = (iso: string) => Date.parse(`${iso}T00:00:00Z`) / 864e5;
+// Una fecha ISO como año con decimales, para los ejes de tiempo.
+export const time = (iso: string) => {
+  const [y = 0, m = 1, d = 1] = iso.split('-').map(Number);
+  return y + (m - 1) / 12 + (d - 1) / 365;
+};
+// Una fecha ISO con el formato que se pida.
+export const formatDate = (iso: string, options: Intl.DateTimeFormatOptions) =>
+  new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', ...options }).format(
+    new Date(`${iso}T00:00:00Z`),
+  );
+// «29 sept 2026» y «29 de septiembre de 2026». Fijos para los gráficos, que formatean muchas fechas.
 const short = new Intl.DateTimeFormat('es-ES', {
   day: 'numeric',
   month: 'short',
@@ -10,6 +33,13 @@ const short = new Intl.DateTimeFormat('es-ES', {
   timeZone: 'UTC',
 });
 export const shortDate = (iso: string) => short.format(new Date(`${iso}T00:00:00Z`));
+const long = new Intl.DateTimeFormat('es-ES', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+export const longDate = (iso: string) => long.format(new Date(`${iso}T00:00:00Z`));
 
 // El color de una provincia en un mapa de intensidad: de apenas visible (t = 0) al color entero
 // (t = 1). En tinta para los votos por escaño y en rojo para los votos que no sirvieron.

@@ -11,8 +11,10 @@ import {
 } from '@reforma-digital/design/ui/select';
 import { geoMunicipalitiesSchema, municipalityVotesSchema } from '../../lib/congreso/schema';
 import type { z } from 'zod';
-import { thousands } from '../../lib/elecciones/format';
+import { percent, thousands } from '../../lib/elecciones/format';
+import { turnout, voteShare } from '../../lib/elecciones/geography';
 import { Icon } from '../brand/icon';
+import { load } from './load';
 import { Label } from './report';
 import { Tips } from './tips';
 
@@ -26,8 +28,6 @@ const elections = [
   { value: '201911', label: '10 de noviembre de 2019' },
 ] as const;
 const down = '#9A6B4F';
-const percent = (n: number, digits = 0) =>
-  `${(n * 100).toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits })} %`;
 const mix = (color: string, t: number) =>
   `color-mix(in oklab, ${color} ${Math.round(12 + 88 * Math.max(0, Math.min(1, t)))}%, var(--muted))`;
 const quantile = (xs: number[], q: number) => {
@@ -37,10 +37,7 @@ const quantile = (xs: number[], q: number) => {
 // La parte de los votos de un grupo en un municipio (sobre los votos a candidaturas).
 const share = (votes: Votes, code: string, group: MapGroup) => {
   const row = votes.municipios[code];
-  if (!row) return null;
-  const total = row.slice(2).reduce((t, v) => t + v, 0);
-  if (!total) return null;
-  return group.families.reduce((t, f) => t + (row[2 + votes.orden.indexOf(f)] ?? 0), 0) / total;
+  return row ? voteShare(row, votes.orden, group.families) : null;
 };
 // El grupo más votado de un municipio («Otros» no cuenta: es un cajón de sastre).
 const winner = (votes: Votes, code: string, groups: MapGroup[]) => {
@@ -58,11 +55,6 @@ const winner = (votes: Votes, code: string, groups: MapGroup[]) => {
 const points = (n: number) =>
   `${(n * 100).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} pt`;
 const signed = (n: number) => `${n >= 0 ? '+' : '−'}${points(Math.abs(n))}`;
-const load = async <T,>(path: string, schema: z.ZodType<T>) => {
-  const response = await fetch(`/api/congreso/datasets/${path}`);
-  if (!response.ok) throw new Error(`No se ha podido cargar ${path}`);
-  return schema.parse(await response.json());
-};
 
 // El voto en los 8.131 municipios, en 2019 o en 2023, y cuánto cambió entre las dos: el resumen de
 // la zona a la vista (España o una provincia, que se amplía), el mapa y la ficha del municipio que
@@ -118,8 +110,7 @@ export function MunicipalMap({
     const group = groups.find((g) => g.id === mode);
     const value = (code: string, v: Votes) => {
       if (mode === 'turnout') {
-        const row = v.municipios[code];
-        return row && row[0] ? (row[1] ?? 0) / row[0] : null;
+        return turnout(v.municipios[code]);
       }
       return group ? share(v, code, group) : null;
     };
@@ -219,7 +210,7 @@ export function MunicipalMap({
       .map(([g, v]) => `${g.name} ${percent(v, 1)}`);
     path.setAttribute(
       'data-tip-text',
-      `Participación ${percent((row[1] ?? 0) / (row[0] || 1), 1)} · censo ${thousands(row[0] ?? 0)}. ${top.join(' · ')}. Pulsa para ver su ficha.`,
+      `Participación ${percent(turnout(row) ?? 0, 1)} · censo ${thousands(row[0] ?? 0)}. ${top.join(' · ')}. Pulsa para ver su ficha.`,
     );
   };
   const choose = (event: MouseEvent<SVGSVGElement>) => {
@@ -379,7 +370,7 @@ export function MunicipalMap({
             </Tips>
             {scale && (
               <p className="m-0 flex items-center gap-2 text-sm text-muted-foreground">
-                {scale.change ? `−${points(Math.abs(scale.from))}` : percent(scale.from)}
+                {scale.change ? `−${points(Math.abs(scale.from))}` : percent(scale.from, 0)}
                 <span
                   className="block h-2.5 w-32 rounded-full"
                   style={{
@@ -388,7 +379,7 @@ export function MunicipalMap({
                       : `linear-gradient(90deg, ${mix(scale.color, 0)}, ${mix(scale.color, 1)})`,
                   }}
                 />
-                {scale.change ? `+${points(scale.to)}` : `${percent(scale.to)} o más`}
+                {scale.change ? `+${points(scale.to)}` : `${percent(scale.to, 0)} o más`}
               </p>
             )}
           </div>
@@ -436,7 +427,6 @@ function Profile({
   const then = data.votes['201911'];
   const row = now.municipios[code];
   const old = then.municipios[code];
-  const turnout = (r?: number[]) => (r && r[0] ? (r[1] ?? 0) / r[0] : null);
   const rows = groups
     .filter((g) => g.id !== 'OTROS')
     .map((g) => ({ g, a: share(now, code, g) ?? 0, b: share(then, code, g) }))

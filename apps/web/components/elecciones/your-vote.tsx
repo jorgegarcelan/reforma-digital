@@ -3,14 +3,12 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { cn } from '@reforma-digital/design/lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '@reforma-digital/design/ui/tabs';
-import { ramp, thousands } from '../../lib/elecciones/format';
+import { decimal, ramp, thousands } from '../../lib/elecciones/format';
 import { Cell, Heading, Label } from './report';
 import { ProvinceSelect, Simulator, type PriceProvince } from './simulator';
 import { Tips } from './tips';
 import { useScale } from './use-width';
 
-const decimal = (n: number) =>
-  n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const percent = (n: number) => `${Math.round(n * 100)} %`;
 
 // La provincia elegida manda en todo: la cifra grande, la balanza, el mapa y el simulador.

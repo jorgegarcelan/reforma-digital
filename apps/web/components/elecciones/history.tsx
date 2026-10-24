@@ -2,25 +2,18 @@ import Link from 'next/link';
 import { cn } from '@reforma-digital/design/lib/utils';
 import { buttonVariants } from '@reforma-digital/design/ui/button';
 import { getGeography } from '../../lib/congreso/data';
-import { thousands } from '../../lib/elecciones/format';
-import { semicircle } from '../../lib/elecciones/hemicycle';
+import { formatDate, percent, thousands } from '../../lib/elecciones/format';
 import { electionsHref } from '../../lib/elecciones/pages';
 import { shortParty } from '../../lib/elecciones/parties';
 import { Icon } from '../brand/icon';
 import { electionData } from './election-data';
-import { ProvinceSection } from './province-section';
+import { Hemicycle, ProvinceSection } from './province-section';
 import { ProvinceTable } from './province-table';
 import { Cell, Grid, Label, Legend, ReportIntro, SectionHeading, Stat } from './report';
 import { River, type RiverElection } from './river';
 import { Tips } from './tips';
 import { Years } from './years';
 
-const percent = (n: number, digits = 1) =>
-  `${(n * 100).toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits })}\u00a0%`;
-const longDate = (iso: string, options: Intl.DateTimeFormatOptions) =>
-  new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', ...options }).format(
-    new Date(`${iso}T00:00:00Z`),
-  );
 const milestones: [string, string][] = [
   ['197706', 'Cortes constituyentes'],
   ['198210', 'Mayoría absoluta del PSOE'],
@@ -39,22 +32,14 @@ export async function ElectionHistory({ election }: { election?: string }) {
     data;
   const yearHref = (x: (typeof E)[number]) => `${electionsHref('historico')}?eleccion=${x.id}`;
 
-  // La portada: el hemiciclo y la ficha de la elección.
-  const withSeats = e.partidos.filter(([, , , , s]) => s > 0).sort((a, b) => b[4] - a[4]);
-  const largest = withSeats[0];
-  const hemicycle = semicircle();
-  const seatColors = history.familias.flatMap((f) =>
-    Array<string>(e.fam[f.id]?.[1] ?? 0).fill(f.color),
-  );
-  const legislature =
-    e.legislatura === 'Constituyente' ? 'Cortes constituyentes' : `${e.legislatura} legislatura`;
+  const { withSeats, largest, majority, legislature, president } = data;
 
   // El río: cada familia, con el nombre de su candidatura más votada en cada elección.
   const river: RiverElection[] = E.map((x) => ({
     id: x.id,
     href: yearHref(x),
     short: label(x),
-    long: longDate(x.fecha, { month: 'long', year: 'numeric' }),
+    long: formatDate(x.fecha, { month: 'long', year: 'numeric' }),
     start: x.fecha,
     end: x.hasta,
     valid: x.validos,
@@ -88,55 +73,23 @@ export async function ElectionHistory({ election }: { election?: string }) {
       />
       <Grid>
         <Cell span={7}>
-          <svg
-            viewBox={hemicycle.box}
-            role="img"
-            aria-label={`Hemiciclo de ${label(e)}: ${withSeats.map(([s, , , , n]) => `${shortParty(s)} ${n}`).join(', ')}`}
-            className="block h-auto w-full"
-          >
-            {hemicycle.points.map(([x, y], i) => (
-              <circle key={i} cx={x} cy={y} r={5.3} fill={seatColors[i] ?? 'var(--muted)'} />
-            ))}
-            <text
-              x={hemicycle.label.x}
-              y={hemicycle.label.y}
-              textAnchor="middle"
-              className="fill-foreground font-heading"
-              style={{ fontSize: hemicycle.label.size }}
-            >
-              {label(e)}
-            </text>
-          </svg>
-          <Legend
-            items={[
-              ...withSeats.slice(0, 8).map(([s, , f, , n]) => ({
-                label: `${shortParty(s)} ${n}`,
-                color: color(f),
-              })),
-              ...(withSeats.length > 8
-                ? [{ label: `y ${withSeats.length - 8} más`, color: 'transparent' }]
-                : []),
-            ]}
-          />
+          <Hemicycle data={data} limit={8} caption={label(e)} />
         </Cell>
         <Cell span={5}>
           <Label>
-            {longDate(e.fecha, { day: 'numeric', month: 'long', year: 'numeric' })} · {legislature}
+            {formatDate(e.fecha, { day: 'numeric', month: 'long', year: 'numeric' })} ·{' '}
+            {legislature}
           </Label>
           <div className="grid gap-1">
             <p className="m-0 text-sm text-muted-foreground">Presidencia</p>
-            <p className="m-0 text-lg font-medium">
-              {e.presidentes.length
-                ? e.presidentes.join(' · ')
-                : 'Ninguna investidura: se repitieron las elecciones'}
-            </p>
+            <p className="m-0 text-lg font-medium">{president}</p>
           </div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-4">
             <Stat value={percent(e.votantes / e.censo)} caption="participación" />
             <Stat value={withSeats.length} caption="candidaturas con escaño" />
             <Stat
-              value={largest && largest[4] >= 176 ? 'Sí' : 'No'}
-              caption={`mayoría absoluta${largest && largest[4] >= 176 ? ` (${shortParty(largest[0])})` : ''}`}
+              value={majority ? 'Sí' : 'No'}
+              caption={`mayoría absoluta${majority && largest ? ` (${shortParty(largest[0])})` : ''}`}
             />
           </div>
           <ul className="relative m-0 grid list-none gap-1.5 p-0 text-sm">
@@ -229,7 +182,7 @@ export async function ElectionHistory({ election }: { election?: string }) {
                             href={yearHref(x)}
                             scroll={false}
                             aria-current={j === k ? 'page' : undefined}
-                            title={longDate(x.fecha, { month: 'long', year: 'numeric' })}
+                            title={formatDate(x.fecha, { month: 'long', year: 'numeric' })}
                             className={cn(
                               buttonVariants({
                                 variant: j === k ? 'default' : 'ghost',

@@ -5,6 +5,7 @@ import { Button } from '@reforma-digital/design/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@reforma-digital/design/ui/tabs';
 import { Tips } from './tips';
 import { useWidth } from './use-width';
+import { decimal, longDate, toDay } from '../../lib/elecciones/format';
 
 export type ChartParty = {
   id: string;
@@ -23,20 +24,12 @@ const ranges: [Range, string, number][] = [
   ['quarter', '90 días', 90],
 ];
 const isRange = (v: unknown): v is Range => ranges.some(([r]) => r === v);
-const toDay = (iso: string) => Date.parse(`${iso}T00:00:00Z`) / 864e5;
 const month = new Intl.DateTimeFormat('es-ES', {
   timeZone: 'UTC',
   month: 'short',
   year: '2-digit',
 });
-const long = new Intl.DateTimeFormat('es-ES', {
-  timeZone: 'UTC',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
-const percent = (n: number) =>
-  `${n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
+const percent = (n: number) => `${decimal(n)} %`;
 const H = 380;
 
 // «La media, día a día»: la media de cada partido con su sombra (± la dispersión), cada encuesta
@@ -227,7 +220,7 @@ export function PollChart({
             width={Math.max(1, (dayX(Math.min(lastDay, i + 1)) - dayX(Math.max(from, i - 1))) / 2)}
             height={H - m.t - m.b}
             fill="transparent"
-            data-tip={long.format(new Date(`${days[i]}T00:00:00Z`))}
+            data-tip={longDate(days[i] ?? election)}
             data-tip-text={visible
               .flatMap((p) => {
                 const v = p.m[i];

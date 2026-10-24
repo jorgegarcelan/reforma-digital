@@ -5,6 +5,7 @@ import { cn } from '@reforma-digital/design/lib/utils';
 import { Cell, Grid, SectionHeading } from './report';
 import { Tips } from './tips';
 import { useWidth } from './use-width';
+import { decimal, signed } from '../../lib/elecciones/format';
 
 export type AccuracyElection = {
   id: string;
@@ -20,9 +21,6 @@ export type AccuracyElection = {
   }[];
 };
 
-const decimal = (n: number) =>
-  n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const signed = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : '±'}${decimal(Math.abs(n))}`;
 const worst = (e: AccuracyElection) =>
   [...e.parties].sort((a, b) => Math.abs(b.average - b.result) - Math.abs(a.average - a.result))[0];
 

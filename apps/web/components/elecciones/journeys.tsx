@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@reforma-digital/design/lib/utils';
 import { Button } from '@reforma-digital/design/ui/button';
+import { shortDate, thousands, toDay } from '../../lib/elecciones/format';
 import { stages } from '../../lib/elecciones/laws';
 import { useFirstSight } from './first-sight';
 import { Tips } from './tips';
 import { useScale } from './use-width';
-import { thousands } from '../../lib/elecciones/format';
 
 // El viaje de cada ley de la legislatura (de `elecciones/viajes.json`), preparado en el servidor.
 export type Journey = {
@@ -28,14 +28,6 @@ export type Journey = {
 };
 type Destination = 'caduca' | 'rechazada' | 'fuera' | 'pendiente' | 'aprobada';
 
-const day = (iso: string) => Date.parse(`${iso}T00:00:00Z`) / 864e5;
-const dateFormat = new Intl.DateTimeFormat('es-ES', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
-const shortDate = (iso: string) => dateFormat.format(new Date(`${iso}T00:00:00Z`));
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 export function Journeys({
   laws,
@@ -114,15 +106,15 @@ function Path({
   filter: ((l: Journey) => boolean) | null;
 }) {
   const router = useRouter();
-  const t0 = day(start);
-  const tEnd = day(dissolution);
+  const t0 = toDay(start);
+  const tEnd = toDay(dissolution);
   const prepared = useMemo(
     () =>
       laws.map((l) => ({
         ...l,
-        d0: day(l.presented),
-        ds: l.dates.map((d) => (d ? day(d) : Infinity)),
-        dEnd: l.end ? day(l.end) : Infinity,
+        d0: toDay(l.presented),
+        ds: l.dates.map((d) => (d ? toDay(d) : Infinity)),
+        dEnd: l.end ? toDay(l.end) : Infinity,
       })),
     [laws],
   );

@@ -1,20 +1,11 @@
 import { getElections, getPolls } from '../../lib/congreso/data';
+import { decimal, longDate, toDay } from '../../lib/elecciones/format';
 import { Source } from '../congreso/common';
 import { PollChart, type ChartParty } from './poll-chart';
 import { PollTable } from './poll-table';
 import { Cell, Grid, Label, ReportIntro, SectionHeading } from './report';
 
-const points = (n: number) =>
-  n.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const percent = (n: number) => `${points(n)}\u00a0%`;
-const day = new Intl.DateTimeFormat('es-ES', {
-  timeZone: 'UTC',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
-const longDate = (iso: string) => day.format(new Date(`${iso}T00:00:00Z`));
-const days = (iso: string) => Date.parse(`${iso}T00:00:00Z`) / 864e5;
+const percent = (n: number) => `${decimal(n)}\u00a0%`;
 const round = (v: number | null) => (v === null ? null : Math.round(v * 10) / 10);
 
 // «Las encuestas»: la media de hoy, la media día a día con cada encuesta y la tabla de todas.
@@ -36,7 +27,7 @@ export async function Polls() {
   const [first, second] = today;
   const latest = [...valid].sort((a, b) => b.fin.localeCompare(a.fin))[0];
   const recent = new Set(
-    valid.filter((p) => days(polls.actualizado) - days(p.fin) <= 45).map((p) => p.empresa),
+    valid.filter((p) => toDay(polls.actualizado) - toDay(p.fin) <= 45).map((p) => p.empresa),
   ).size;
   // El gráfico: los partidos que pasan del 1 % hoy, con su media y cada encuesta.
   const shown = today.filter((p) => p.now >= 1);
@@ -86,7 +77,7 @@ export async function Polls() {
                         ? 'sin dato de hace 30 días'
                         : Math.abs(d) < 0.25
                           ? '= en 30 días'
-                          : `${d > 0 ? '+' : '−'}${points(Math.abs(d))} puntos en 30 días`}
+                          : `${d > 0 ? '+' : '−'}${decimal(Math.abs(d))} puntos en 30 días`}
                     </span>
                   </p>
                   <svg
@@ -115,8 +106,8 @@ export async function Polls() {
         </Grid>
         {first && second && latest && (
           <p className="m-0 max-w-[65ch] text-muted-foreground [&_b]:font-medium [&_b]:text-foreground">
-            <b>{first.nombre}</b> saca {points(first.now - second.now)} puntos a {second.nombre}. La
-            última encuesta es de <b>{latest.empresa}</b> para {latest.medio}, del{' '}
+            <b>{first.nombre}</b> saca {decimal(first.now - second.now)} puntos a {second.nombre}.
+            La última encuesta es de <b>{latest.empresa}</b> para {latest.medio}, del{' '}
             {longDate(latest.fin)}. {polls.encuestas.length} encuestas desde julio de 2023.
           </p>
         )}
