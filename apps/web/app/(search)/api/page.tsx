@@ -20,7 +20,7 @@ const title = 'API de Reforma Digital';
 const description =
   'La API de Reforma Digital sirve de forma abierta los datos del Congreso de los Diputados: votaciones, preguntas, Diarios de Sesiones y datasets en JSON, sin autenticación y con licencia CC BY 4.0.';
 
-export const metadata: Metadata = pageMetadata({ title, description, path: '/api', og: 'fuentes' });
+export const metadata: Metadata = pageMetadata({ title, description, path: '/api', og: 'api' });
 
 const graph = [webPage({ name: title, description, path: '/api' }), breadcrumbs('API', '/api')];
 
@@ -292,7 +292,7 @@ export default function Api() {
         </nav>
         <main id="main" tabIndex={-1} className="min-w-0 max-w-[820px] pt-16 pb-20">
           <section id="introduccion" className="scroll-mt-24 pb-12">
-            <h1 className="mb-6 font-heading text-[clamp(36px,4.5vw,60px)] leading-[1.1] tracking-tight">
+            <h1 className="mb-6 font-heading text-[clamp(36px,4.5vw,60px)] leading-[1.1]">
               {title}
             </h1>
             <p className="mb-8 max-w-[65ch] text-lg leading-relaxed text-muted-foreground">

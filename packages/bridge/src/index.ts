@@ -172,7 +172,13 @@ export class DomBridge {
     return false;
   }
   private actionShape(element: ActionElement): string {
+    // A submit button's destination is its formaction or, by default, its form's action.
+    const form =
+      element instanceof HTMLButtonElement || element instanceof HTMLInputElement
+        ? element.form
+        : null;
     return JSON.stringify([
+      form?.getAttribute('action'),
       element.tagName,
       element.getAttribute('type'),
       element.getAttribute('href'),
@@ -291,7 +297,11 @@ export class DomBridge {
       if (!element.multiple && values.length !== 1) return false;
       const options = snapshot(element).options;
       if (values.some((v) => !options.some((o) => o.value === v && !o.disabled))) return false;
-      for (const option of element.options) option.selected = values.includes(option.value);
+      // Only the first enabled option per value: a disabled duplicate must never end up selected.
+      const pending = new Set(values);
+      Array.from(element.options).forEach((option, index) => {
+        option.selected = options[index]?.disabled === false && pending.delete(option.value);
+      });
     } else {
       if (typeof value !== 'string') return false;
       const prototype =
@@ -443,6 +453,18 @@ export function fieldByLabel(root: ParentNode, label: string): FieldElement | nu
       return names.some((name) => normalizedLabel(name) === normalizedLabel(label));
     });
   return matches.length === 1 ? matches[0]! : null;
+}
+
+/** The link's URL if it is HTTPS on `host` or one of its subdomains; otherwise null. */
+export function officialHref(link: HTMLAnchorElement, host: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(link.href);
+  } catch {
+    return null;
+  }
+  const onHost = url.hostname === host || url.hostname.endsWith(`.${host}`);
+  return url.protocol === 'https:' && !url.username && !url.password && onHost ? url.href : null;
 }
 
 /** Visible text with collapsed whitespace. */

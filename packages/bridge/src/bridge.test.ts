@@ -114,6 +114,12 @@ describe('DOM bridge behavior', () => {
     expect(b.setValue('s', ['c'])).toBe(false);
     expect(b.getField('s').values).toEqual(['a', 'b']);
   });
+  it('selects only the first enabled option when values repeat', () => {
+    document.body.innerHTML = `<select id="s"><option value="">-</option><option value="a" id="ok">A</option><option value="a" disabled>A</option></select>`;
+    const b = bridge({ s: { element: el<HTMLSelectElement>('s'), label: 'Select' } });
+    expect(b.setValue('s', 'a')).toBe(true);
+    expect(el<HTMLSelectElement>('s').selectedOptions[0]?.id).toBe('ok');
+  });
   it('does not bind secrets, hidden inputs, files or browser-controlled widgets', () => {
     for (const type of [
       'hidden',
@@ -146,6 +152,17 @@ describe('DOM bridge behavior', () => {
     el('name').remove();
     expect(b.setValue('name', 'Blocked')).toBe(false);
     expect(issue).toHaveBeenCalledWith('disconnected');
+  });
+  it('fails closed when the submit button form changes its destination', () => {
+    document.body.innerHTML = `<form id="form" action="/official"><button id="go">Go</button></form>`;
+    const issue = vi.fn();
+    const submitted = vi.fn((event: Event) => event.preventDefault());
+    el('form').addEventListener('submit', submitted);
+    const b = bridge({}, { go: { element: el('go'), label: 'Go' } }, { onIssue: issue });
+    el('form').setAttribute('action', 'https://evil.example/');
+    expect(b.activate('go')).toBe(false);
+    expect(issue).toHaveBeenCalledWith('changed-control');
+    expect(submitted).not.toHaveBeenCalled();
   });
   it('uses exact unambiguous labels, without guessing field positions', () => {
     document.body.innerHTML = `<label for="doc">Número de Documento:</label><input id="doc"><input id="letter" aria-label="Letra">`;

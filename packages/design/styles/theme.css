@@ -100,8 +100,7 @@
     0 0 0 1px rgb(0 0 0 / 0.08), 0 4px 8px rgb(77 25 6 / 0.08), 0 16px 40px rgb(77 25 6 / 0.12);
   --radius: 0.625rem;
   --font-brand-text: var(--font-geist, 'Helvetica Neue', Helvetica, Arial, sans-serif);
-  --font-brand-logo: 'Ufficio', 'Ufficio Display', var(--font-brand-text);
-  --font-brand-heading: 'FFF Tool Serif Text', Georgia, serif;
+  --font-brand-heading: var(--font-host-grotesk, var(--font-brand-text));
   --font-brand-mono: var(--font-geist-mono, ui-monospace, monospace);
 }
 
@@ -296,6 +295,20 @@
       opacity: 0;
     }
   }
+}
+
+/* Cabecera de la web: pliega el logotipo al bajar (ver header.tsx). Fuera de @theme porque la
+   usan propiedades sueltas (`animation-name`) que Tailwind no reconoce como uso. */
+@keyframes cabecera-pliegue {
+  to {
+    --pliegue: 1;
+  }
+}
+
+@property --pliegue {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
 }
 
 :root,

@@ -1,15 +1,14 @@
 import { cn } from '@reforma-digital/design/lib/utils';
 import { buttonVariants } from '@reforma-digital/design/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@reforma-digital/design/ui/card';
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { sources } from '@reforma-digital/government';
 
 import { Icon } from '../../components/brand/icon';
 import { Header } from '../../components/brand/header';
 import { Footer } from '../../components/brand/footer';
 import { ProjectScene } from '../../components/brand/project-scene';
+import { DesktopScene } from '../../components/brand/desktop-scene';
 import { ProjectTour } from '../../components/brand/project-tour';
 import { links } from '../../lib/site';
 import { congressBase } from '../../lib/congreso/routes';
@@ -26,7 +25,7 @@ import { Contribution } from '../../components/brand/contribution';
 
 const title = 'Reforma Digital · Lo público, a la altura de las personas';
 const description =
-  'Iniciativa abierta para hacer más sencillos los trámites con la Administración: buscador con fuentes oficiales, extensión para Chrome y código abierto.';
+  'Iniciativa abierta para hacer más sencillos los trámites con la Administración: extensión para Chrome, actividad del Congreso y código abierto.';
 
 export const metadata: Metadata = pageMetadata({ title, description, path: '/', og: 'portada' });
 
@@ -43,19 +42,6 @@ const graph = [
     publisher: { '@id': organizationId },
   },
   organization,
-  {
-    '@type': 'WebApplication',
-    name: 'Buscador de trámites',
-    url: absolute('/chat'),
-    description:
-      'Pregunta con tus palabras y recibe respuestas con enlaces y fragmentos de fuentes oficiales.',
-    applicationCategory: 'ReferenceApplication',
-    operatingSystem: 'Web',
-    inLanguage: 'es-ES',
-    isAccessibleForFree: true,
-    offers: free,
-    publisher: { '@id': organizationId },
-  },
   {
     '@type': 'SoftwareApplication',
     name: 'Reforma Digital para Chrome',
@@ -75,7 +61,7 @@ export default function HomePage() {
   return (
     <div className="iniciativa">
       <JsonLd graph={graph} />
-      <Header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md" />
+      <Header />
       <main id="main" tabIndex={-1}>
         <section
           className={
@@ -91,7 +77,7 @@ export default function HomePage() {
             <h1
               id="in-titulo"
               className={
-                't-titular-xl m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(44px,_6.4vw,_92px)] [line-height:1] [letter-spacing:-0.03em]'
+                't-titular-xl m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(44px,_6.4vw,_92px)] [line-height:1]'
               }
             >
               Lo público, a la altura de las personas.
@@ -112,9 +98,9 @@ export default function HomePage() {
               className={cn(
                 buttonVariants({
                   variant: 'secondary',
-                  size: 'lg',
+                  size: 'xl',
                   className:
-                    'in-hero-enlace absolute bottom-6 w-fit rounded-full px-5 [inset-inline:0] [margin-inline:auto] [--ring:var(--foreground)]',
+                    'in-hero-enlace absolute bottom-6 w-fit rounded-full [inset-inline:0] [margin-inline:auto] [--ring:var(--foreground)]',
                 }),
               )}
             >
@@ -141,7 +127,7 @@ export default function HomePage() {
             <h2
               id="in-idea"
               className={
-                't-titular-m m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(32px,_4vw,_52px)] [line-height:1.05] [letter-spacing:-0.02em]'
+                't-titular-m m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(32px,_4vw,_52px)] [line-height:1.05]'
               }
             >
               Que hacer un trámite no sea otro trámite.
@@ -199,7 +185,7 @@ export default function HomePage() {
                   <h2
                     id="in-proyectos-titulo"
                     className={
-                      't-titular-m m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(32px,_4vw,_52px)] [line-height:1.05] [letter-spacing:-0.02em]'
+                      't-titular-m m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(32px,_4vw,_52px)] [line-height:1.05]'
                     }
                   >
                     La idea, puesta en práctica.
@@ -218,14 +204,14 @@ export default function HomePage() {
             }
             steps={[
               {
-                title: 'Encuentra por dónde empezar.',
+                title: 'Tus trámites, con un asistente.',
                 label: (
                   <span
                     className={
                       'in-proyecto-tipo [justify-self:start] [color:var(--brand)] [font-family:var(--font-brand-mono)] text-xs font-medium [line-height:1.3] [letter-spacing:0.08em] uppercase'
                     }
                   >
-                    01 · Buscador de trámites
+                    01 · App de escritorio
                   </span>
                 ),
                 text: (
@@ -235,20 +221,29 @@ export default function HomePage() {
                         't-texto-l [font-family:var(--font-brand-text)] [font-size:clamp(17px,_1.4vw,_19px)] [line-height:1.6] text-pretty'
                       }
                     >
-                      Pregunta con tus palabras. El buscador te orienta con respuestas, enlaces y
-                      fragmentos de fuentes oficiales que puedes consultar.
+                      Le dices qué necesitas: busca el trámite en las webs oficiales, te explica los
+                      pasos y rellena el formulario contigo. Tus datos personales no llegan a la IA.
                     </p>
                     <Link
-                      className={cn(buttonVariants({ variant: 'sunset' }))}
+                      className={cn(buttonVariants({ variant: 'sunset', size: 'xl' }))}
                       data-slot="button"
                       data-variant="sunset"
-                      href="/chat"
+                      href="/escritorio"
                     >
-                      Abrir el buscador <Icon name="derecha" size={16} />
+                      Ver la app <Icon name="derecha" size={16} />
                     </Link>
                   </>
                 ),
-                scene: <ProjectScene project="search" />,
+                scene: (
+                  <div
+                    className={
+                      'rc-pieza absolute [inset:0] [padding:7cqi_7cqi_0] [background:radial-gradient(_100%_100%_at_100%_0%,_color-mix(in_oklch,_var(--brand-yellow),_var(--background)_60%)_0%,_transparent_70%_),_linear-gradient(_150deg,_var(--brand-yellow)_35%,_color-mix(in_oklch,_var(--brand-yellow),_var(--brand-orange)_55%)_100%_)]'
+                    }
+                    aria-hidden="true"
+                  >
+                    <DesktopScene height={850} />
+                  </div>
+                ),
               },
               {
                 title: 'La web oficial, más fácil de usar.',
@@ -276,7 +271,7 @@ export default function HomePage() {
                         href={links.install}
                         data-slot="button"
                         data-variant="sunset"
-                        className={cn(buttonVariants({ variant: 'sunset' }))}
+                        className={cn(buttonVariants({ variant: 'sunset', size: 'xl' }))}
                       >
                         Descargar la extensión <Icon name="descargar" size={16} />
                       </a>
@@ -289,69 +284,7 @@ export default function HomePage() {
                       'rc-pieza absolute [inset:0] in-proyecto-sol [background:radial-gradient(_100%_100%_at_100%_0%,_color-mix(in_oklch,_var(--brand-yellow),_var(--background)_60%)_0%,_transparent_70%_),_linear-gradient(_150deg,_var(--brand-yellow)_35%,_color-mix(in_oklch,_var(--brand-yellow),_var(--brand-orange)_55%)_100%_)]'
                     }
                   >
-                    <ProjectScene project="extension" />
-                  </div>
-                ),
-              },
-              {
-                title: 'La información tiene un origen.',
-                label: (
-                  <span
-                    className={
-                      'in-proyecto-tipo [justify-self:start] [color:var(--brand)] [font-family:var(--font-brand-mono)] text-xs font-medium [line-height:1.3] [letter-spacing:0.08em] uppercase'
-                    }
-                  >
-                    03 · Mapa de fuentes
-                  </span>
-                ),
-                text: (
-                  <>
-                    <p
-                      className={
-                        't-texto-l [font-family:var(--font-brand-text)] [font-size:clamp(17px,_1.4vw,_19px)] [line-height:1.6] text-pretty'
-                      }
-                    >
-                      Explora los organismos oficiales que consulta el buscador y accede a sus webs.
-                      Un punto de partida para conocer su cobertura y comprobar la información.
-                    </p>
-                    <Link
-                      className={
-                        'in-enlace flex items-center gap-2 min-h-11 [width:fit-content] [text-decoration:underline] [text-underline-offset:0.25em]'
-                      }
-                      href="/sources"
-                    >
-                      Explorar las fuentes <Icon name="derecha" size={16} />
-                    </Link>
-                  </>
-                ),
-                scene: (
-                  <div
-                    className={
-                      'rc-pieza absolute [inset:0] rc-sobre-sol flex items-center justify-center [padding:6cqi]'
-                    }
-                    aria-hidden="true"
-                  >
-                    <Card className="rc-respuesta w-full max-w-sm [box-shadow:var(--shadow-overlay)]">
-                      <CardHeader>
-                        <span className="font-mono text-xs font-medium tracking-wider uppercase">
-                          Fuentes oficiales
-                        </span>
-                      </CardHeader>
-                      <CardContent className="divide-y divide-border">
-                        {sources.slice(0, 3).map((source) => (
-                          <div className="grid gap-1 py-3 first:pt-0 last:pb-0" key={source.id}>
-                            <strong>{source.name}</strong>
-                            <span className="font-mono text-xs break-all">
-                              {new URL(source.baseUrl).hostname}
-                            </span>
-                          </div>
-                        ))}
-                      </CardContent>
-                      <CardFooter className="gap-2 border-border text-xs">
-                        <span>Consulta el origen de cada dato</span>
-                        <Icon name="fuentes" size={16} />
-                      </CardFooter>
-                    </Card>
+                    <ProjectScene />
                   </div>
                 ),
               },
@@ -363,7 +296,7 @@ export default function HomePage() {
                       'in-proyecto-tipo [justify-self:start] [color:var(--brand)] [font-family:var(--font-brand-mono)] text-xs font-medium [line-height:1.3] [letter-spacing:0.08em] uppercase'
                     }
                   >
-                    04 · El Congreso
+                    03 · El Congreso
                   </span>
                 ),
                 text: (
@@ -377,7 +310,7 @@ export default function HomePage() {
                       Congreso y datos electorales con enlaces a las fuentes oficiales.
                     </p>
                     <Link
-                      className={cn(buttonVariants({ variant: 'sunset' }))}
+                      className={cn(buttonVariants({ variant: 'sunset', size: 'xl' }))}
                       data-slot="button"
                       data-variant="sunset"
                       href={congressBase}
@@ -482,7 +415,7 @@ export default function HomePage() {
           <h2
             id="in-comunidad-titulo"
             className={
-              't-titular-m m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(32px,_4vw,_52px)] [line-height:1.05] [letter-spacing:-0.02em]'
+              't-titular-m m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(32px,_4vw,_52px)] [line-height:1.05]'
             }
           >
             Tu experiencia puede ser el próximo cambio.
@@ -519,7 +452,7 @@ export default function HomePage() {
                 <div>
                   <h3
                     className={
-                      't-titular-s m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(24px,_2.4vw,_30px)] [line-height:1.15] [letter-spacing:-0.01em]'
+                      't-titular-s m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(24px,_2.4vw,_30px)] [line-height:1.15]'
                     }
                   >
                     Entra en GitHub.
@@ -550,7 +483,7 @@ export default function HomePage() {
                 <div>
                   <h3
                     className={
-                      't-titular-s m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(24px,_2.4vw,_30px)] [line-height:1.15] [letter-spacing:-0.01em]'
+                      't-titular-s m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(24px,_2.4vw,_30px)] [line-height:1.15]'
                     }
                   >
                     Comparte lo que mejorarías.
@@ -581,7 +514,7 @@ export default function HomePage() {
                 <div>
                   <h3
                     className={
-                      't-titular-s m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(24px,_2.4vw,_30px)] [line-height:1.15] [letter-spacing:-0.01em]'
+                      't-titular-s m-0 [font-family:var(--font-brand-heading)] font-normal [font-kerning:normal] text-balance [font-size:clamp(24px,_2.4vw,_30px)] [line-height:1.15]'
                     }
                   >
                     Dale forma a una propuesta.

@@ -59,7 +59,7 @@ export function Cell({
 export function Stat({ value, caption }: { value: ReactNode; caption: ReactNode }) {
   return (
     <p className="m-0 grid gap-2">
-      <b className="font-heading text-[40px] leading-none font-normal tracking-tight tabular-nums lg:text-5xl">
+      <b className="font-heading text-[40px] leading-none font-normal tabular-nums lg:text-5xl">
         {value}
       </b>
       <span className="max-w-[32ch] text-base leading-snug text-muted-foreground">{caption}</span>
@@ -158,7 +158,7 @@ export function Explore({ links }: { links: { href: string; text: string }[] }) 
           href={link.href}
           data-slot="button"
           data-variant="outline"
-          className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}
+          className={cn(buttonVariants({ variant: 'outline', size: 'xl' }))}
         >
           {link.text} <Icon name="derecha" size={16} />
         </Link>
@@ -266,7 +266,7 @@ export function Chapter({
           </p>
           <h2
             id={`${id}-titulo`}
-            className="m-0 font-heading text-[32px] leading-[1.1] font-normal tracking-tight lg:text-[44px]"
+            className="m-0 font-heading text-[32px] leading-[1.1] font-normal lg:text-[44px]"
           >
             {title}
           </h2>
@@ -284,7 +284,7 @@ export function Chapter({
 export function ReportIntro({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <header className="mb-10 grid items-end gap-x-12 gap-y-4 md:grid-cols-2">
-      <h1 className="m-0 font-heading text-4xl leading-[1.1] font-normal tracking-tight lg:text-[52px]">
+      <h1 className="m-0 font-heading text-4xl leading-[1.1] font-normal lg:text-[52px]">
         {title}
       </h1>
       {children && (
@@ -305,7 +305,7 @@ export function ReportStats({ items }: { items: [number | string, string][] }) {
           className="flex-col-reverse justify-end gap-2 bg-muted p-6 ring-0 max-sm:p-5"
         >
           <dt className="text-base leading-snug text-(--text-secondary)">{label}</dt>
-          <dd className="m-0 font-heading text-[40px] leading-none tracking-tight tabular-nums">
+          <dd className="m-0 font-heading text-[40px] leading-none tabular-nums">
             {typeof value === 'number'
               ? String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.')
               : value}

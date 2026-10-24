@@ -52,7 +52,8 @@ it('matches multi-path routes and exact paths only on their own origin', () => {
   expect(matchesSite(adapter, new URL('https://app.example.test/app/paso'))).toBe(true);
   expect(matchesSite(adapter, new URL('https://app.example.test/servicio'))).toBe(false);
   expect(routePatterns(adapter.routes)).toEqual([
-    'https://info.example.test/servicio*',
+    'https://info.example.test/servicio',
+    'https://info.example.test/servicio?*',
     'https://app.example.test/app/*',
   ]);
 });
@@ -80,6 +81,8 @@ it('validates site.config.json', () => {
   );
   expect(validateSiteConfig({ ...config, routes: [] }).join()).toMatch(/either routes/);
   expect(validateSiteConfig({ ...config, verifiedAt: '27/09/2026' }).join()).toMatch(/verifiedAt/);
+  for (const homepage of ['http://example.test/form/', 'https://example.test/other', 'nope'])
+    expect(validateSiteConfig({ ...config, homepage }).join()).toMatch(/homepage/);
   // Disabled placeholders may keep an empty configuration.
   expect(validateSiteConfig({ ...config, enabled: false, origins: [], pathPrefix: '/' })).toEqual(
     [],

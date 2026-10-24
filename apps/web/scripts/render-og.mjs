@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 
@@ -12,28 +12,6 @@ const pages = [
     texto: 'Herramientas y propuestas para una Administración más clara, accesible y sencilla.',
   },
   {
-    slug: 'buscador',
-    escena: 'producto',
-    etiqueta: 'Buscador de trámites',
-    titular: '¿Qué necesitas hacer?',
-    texto: 'Pregunta con tus palabras. Te orientamos con fuentes oficiales que puedes comprobar.',
-  },
-  {
-    slug: 'fuentes',
-    escena: 'marca',
-    etiqueta: 'Información con origen',
-    titular: 'Las fuentes importan.',
-    texto: 'Cada respuesta se construye con documentos de organismos oficiales aprobados.',
-  },
-  {
-    slug: 'como-funciona',
-    escena: 'marca',
-    etiqueta: 'Cómo funciona',
-    titular: 'De la pregunta al trámite.',
-    texto:
-      'Un punto de partida para entender la Administración, con el documento oficial al alcance.',
-  },
-  {
     slug: 'equipo',
     escena: 'marca',
     etiqueta: 'Equipo',
@@ -44,12 +22,43 @@ const pages = [
     slug: 'privacidad',
     escena: 'marca',
     etiqueta: 'Privacidad',
-    titular: 'Pregunta sin identificarte.',
-    texto: 'Sin cuenta. Tu navegador intenta ocultar los datos personales antes de enviar nada.',
+    titular: 'Navega sin identificarte.',
+    texto: 'Sin cuenta y sin cookies publicitarias. Esta web no te pide datos personales.',
+  },
+  {
+    slug: 'escritorio',
+    escena: 'marca',
+    etiqueta: 'App de escritorio',
+    titular: 'Tus trámites, con un asistente.',
+    texto: 'Para macOS, Windows y Linux. Te guía en la web oficial y tus datos no llegan a la IA.',
+  },
+  {
+    slug: 'api',
+    escena: 'marca',
+    etiqueta: 'API abierta',
+    titular: 'Los datos del Congreso, para reutilizar.',
+    texto:
+      'Votaciones, preguntas y Diarios de Sesiones en JSON, sin registro y con licencia CC BY 4.0.',
+  },
+  {
+    slug: 'congreso',
+    escena: 'horizonte',
+    etiqueta: 'Un proyecto de Reforma Digital',
+    titular: 'Lo que pasa en el Congreso, contado para cualquiera.',
+    texto:
+      'Cada pleno resumido, cada votación y cada ley, con datos oficiales y en lenguaje claro.',
+  },
+  {
+    slug: 'elecciones',
+    escena: 'horizonte',
+    etiqueta: 'Elecciones generales · 29N',
+    titular: 'Todo lo que hay que saber antes del 29N.',
+    texto:
+      'Lo que deja la legislatura, cómo se reparten los 350 escaños, cuarenta y nueve años de elecciones y las encuestas.',
   },
 ];
 
-// Logo principal: R blanca y doblez #A50E0E sobre cuadrado rojo. `r` es el alto de la R en px;
+// Logo principal: R blanca sobre cuadrado rojo, con el doblez en negro al 15 % (DESIGN.md §8.2). `r` es el alto de la R en px;
 // en los tamaños de favicon es múltiplo de 4 para que cada módulo caiga en píxeles enteros.
 const icons = [
   { file: 'public/icon-512.png', size: 512, r: 300 },
@@ -69,7 +78,7 @@ const icon = ({ size, r, radius = 0 }) => {
     <rect width="${size}" height="${size}" rx="${radius}" fill="#df1717" />
     <svg x="${Math.round((size - w) / 2)}" y="${(size - r) / 2}" width="${w}" height="${r}" viewBox="0 0 144 192" shape-rendering="${size <= 48 ? 'crispEdges' : 'auto'}">
       <path fill="#fff" d="M48 0H96V48H48V96H96V144H48V192H0V48H48Z" />
-      <path fill="#a50e0e" d="M0 48L48 0V48Z" />
+      <path fill="#000" fill-opacity="0.15" d="M0 48L48 0V48Z" />
       <rect x="96" y="48" width="48" height="48" fill="#fff" />
       <rect x="96" y="144" width="48" height="48" fill="#fff" />
     </svg>
@@ -106,8 +115,9 @@ try {
     viewport: { width: 1200, height: 630 },
     deviceScaleFactor: 2,
   });
-  // Geist se descarga de Google Fonts: hace falta red para generar las imágenes.
-  await page.setContent(readFileSync(new URL('../og/template.html', import.meta.url), 'utf8'), {
+  // Geist se descarga de Google Fonts: hace falta red para generar las imágenes. Se abre como
+  // archivo para que la plantilla cargue el sol pixelado de public/.
+  await page.goto(new URL('../og/template.html', import.meta.url).href, {
     waitUntil: 'networkidle',
   });
   await page.evaluate(() => document.fonts.ready);

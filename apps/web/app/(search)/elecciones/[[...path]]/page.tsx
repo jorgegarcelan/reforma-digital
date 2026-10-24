@@ -56,13 +56,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : (page?.text ??
         'Lo que deja la legislatura, cómo se reparten los 350 escaños, cuarenta y nueve años de elecciones y las encuestas, con datos oficiales.'),
     path: electionsHref(path?.join('/')),
-    og: 'portada',
+    og: 'elecciones',
   });
 }
 
 const querySchema = z.object({
   q: z.string().max(200).default(''),
-  pagina: z.coerce.number().int().min(1).max(100000).default(1),
+  pagina: z.coerce.number().int().min(1).max(10000).default(1),
   // La elección de «El precio de un escaño» (AAAAMM); sin ella, la última.
   eleccion: z
     .string()
