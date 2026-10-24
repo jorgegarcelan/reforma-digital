@@ -362,7 +362,9 @@ export function ProjectionMap({
                 aria-label="Volver a los escaños en el aire"
                 onClick={() => setSelected(null)}
               >
-                <Icon name="cerrar" size={18} />
+                <span className="rotate-45">
+                  <Icon name="mas" size={18} />
+                </span>
               </Button>
             </div>
             <ul className="m-0 grid list-none gap-1.5 p-0 text-sm">

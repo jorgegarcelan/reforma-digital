@@ -134,8 +134,8 @@ export function ProvinceTable({
                   >
                     {text}
                     {sort.column === column && (
-                      <span className={sort.up ? 'inline-flex' : 'inline-flex rotate-180'}>
-                        <Icon name="arrowUp" size={14} />
+                      <span className={sort.up ? 'inline-flex rotate-180' : 'inline-flex'}>
+                        <Icon name="abajo" size={14} />
                       </span>
                     )}
                   </button>

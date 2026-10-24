@@ -443,7 +443,9 @@ function Profile({
           <h3 className="m-0 font-heading text-[28px] leading-tight font-normal">{name}</h3>
         </div>
         <Button variant="ghost" size="icon" aria-label="Cerrar la ficha" onClick={onClose}>
-          <Icon name="cerrar" size={16} />
+          <span className="rotate-45">
+            <Icon name="mas" size={16} />
+          </span>
         </Button>
       </div>
       {!row ? (

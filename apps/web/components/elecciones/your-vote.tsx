@@ -76,7 +76,7 @@ export function YourVote({
           <Label>¿Cuánto vale tu voto?</Label>
           <ProvinceSelect provinces={provinces} value={current.code} onChange={choose} />
           <p className="m-0 grid gap-1" aria-live="polite">
-            <b className="font-heading text-6xl leading-none font-normal tracking-tight tabular-nums lg:text-7xl">
+            <b className="font-heading text-6xl leading-none font-normal tabular-nums lg:text-7xl">
               {thousands(mine)}
             </b>
             <span className="text-muted-foreground">votos costó cada escaño en {year}</span>

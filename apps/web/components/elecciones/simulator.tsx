@@ -276,7 +276,7 @@ export function Simulator({
               Siguiente escaño <Icon name="derecha" size={14} />
             </Button>
             <Button size="sm" variant="outline" onClick={() => edit(real)}>
-              <Icon name="reintentar" size={16} /> Resultado real
+              Resultado real
             </Button>
           </div>
           <div ref={bars} className="grid gap-1.5">

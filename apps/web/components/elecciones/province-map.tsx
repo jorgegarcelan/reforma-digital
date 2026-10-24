@@ -386,7 +386,9 @@ export function ProvinceMap({
                 aria-label="Volver al resumen"
                 onClick={() => setSelected(null)}
               >
-                <Icon name="cerrar" size={18} />
+                <span className="rotate-45">
+                  <Icon name="mas" size={18} />
+                </span>
               </Button>
             </div>
             <ul className="m-0 grid list-none gap-1.5 p-0 text-sm">

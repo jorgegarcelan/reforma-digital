@@ -73,7 +73,7 @@ export function Apportionment({
               Paso {s.n}
             </span>
             <p className="m-0 grid gap-1">
-              <b className="font-heading text-[40px] leading-none font-normal tracking-tight tabular-nums">
+              <b className="font-heading text-[40px] leading-none font-normal tabular-nums">
                 {s.value}
               </b>
               <span className="font-medium">{s.title}</span>
